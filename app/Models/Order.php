@@ -17,6 +17,7 @@ class Order extends Model
         'table_number',
         'guest_token',
         'total_amount',
+        'payment_method',
         'payment_status',
         'order_status',
     ];

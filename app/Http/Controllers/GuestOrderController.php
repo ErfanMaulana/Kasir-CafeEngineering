@@ -17,9 +17,14 @@ class GuestOrderController extends Controller
     {
         $categories = Category::query()
             ->with(['products' => fn ($query) => $query->where('is_available', true)])
+            ->orderBy('name')
             ->get();
 
-        return view('guest.catalog', compact('categories'));
+        $cart = session('cart', []);
+        $cartCount = collect($cart)->sum('quantity');
+        $cartTotal = collect($cart)->sum(fn (array $item): float => (float) ($item['price'] ?? 0) * (int) ($item['quantity'] ?? 0));
+
+        return view('guest.catalog', compact('categories', 'cart', 'cartCount', 'cartTotal'));
     }
 
     public function addToCart(Request $request, int $id): RedirectResponse
@@ -37,6 +42,7 @@ class GuestOrderController extends Controller
                 'name' => $product->name,
                 'price' => (float) $product->price,
                 'quantity' => 1,
+                'notes' => '',
             ];
         }
 
@@ -66,6 +72,7 @@ class GuestOrderController extends Controller
                 return [
                     'product' => $product,
                     'quantity' => $quantity,
+                    'notes' => (string) ($cartItem['notes'] ?? ''),
                     'subtotal' => (float) $product->price * $quantity,
                 ];
             })
@@ -80,6 +87,8 @@ class GuestOrderController extends Controller
         $validated = $request->validate([
             'quantities' => ['required', 'array'],
             'quantities.*' => ['integer', 'min:0', 'max:99'],
+            'notes' => ['nullable', 'array'],
+            'notes.*' => ['nullable', 'string', 'max:500'],
         ]);
 
         $cart = session('cart', []);
@@ -92,6 +101,10 @@ class GuestOrderController extends Controller
                 unset($cart[$productId]);
             } else {
                 $cart[$productId]['quantity'] = $quantity;
+            }
+
+            if (isset($cart[$productId]) && array_key_exists($productId, $validated['notes'] ?? [])) {
+                $cart[$productId]['notes'] = $validated['notes'][$productId] ?? '';
             }
         }
 
@@ -125,6 +138,7 @@ class GuestOrderController extends Controller
             'customer_name' => ['required', 'string', 'max:50'],
             'order_type' => ['required', 'in:dine_in,takeaway'],
             'table_number' => ['required_if:order_type,dine_in', 'nullable', 'string', 'max:20'],
+            'payment_method' => ['required', 'in:qris'],
         ]);
 
         $cart = session('cart', []);
@@ -149,6 +163,7 @@ class GuestOrderController extends Controller
                     'quantity' => $quantity,
                     'price' => $unitPrice,
                     'subtotal' => $subtotal,
+                    'notes' => (string) ($cartItem['notes'] ?? ''),
                 ];
             }
 
@@ -159,6 +174,7 @@ class GuestOrderController extends Controller
                 'order_type' => $validated['order_type'],
                 'table_number' => $validated['table_number'] ?? null,
                 'total_amount' => $total,
+                'payment_method' => $validated['payment_method'],
                 'payment_status' => 'pending',
                 'order_status' => 'pending',
             ]);

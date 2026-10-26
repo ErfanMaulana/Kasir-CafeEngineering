@@ -1,28 +1,41 @@
 <!doctype html>
 <html lang="id">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Checkout - Kafe Kampus</title><script src="https://cdn.tailwindcss.com"></script><script>tailwind.config={theme:{extend:{colors:{navy:'#041562',vibrant:'#DA1212',cream:'#EEEEEE'}}}}</script></head>
-<body class="min-h-screen bg-cream px-4 py-8 text-slate-800">
-<main class="mx-auto max-w-lg rounded-2xl bg-white p-6 shadow-sm">
-    <a href="{{ route('catalog') }}" class="text-sm font-semibold text-navy">&larr; Kembali ke menu</a>
-    <h1 class="mt-5 text-2xl font-bold text-navy">Konfirmasi Pesanan</h1>
-    <form method="POST" action="{{ route('checkout.process') }}" class="mt-6 space-y-5">@csrf
-        <div><label for="customer_name" class="mb-1 block font-medium">Nama pemesan</label>
-            <input id="customer_name" name="customer_name" value="{{ old('customer_name') }}" required maxlength="50" class="w-full rounded-xl border-slate-300 p-3" placeholder="Nama untuk dipanggil">
-            @error('customer_name')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
-        </div>
-        <fieldset><legend class="mb-2 font-medium">Tipe pesanan</legend>
-            <div class="space-y-2">
-                <label class="flex items-center gap-2"><input type="radio" name="order_type" value="dine_in" @checked(old('order_type') === 'dine_in')> Makan di tempat</label>
-                <label class="flex items-center gap-2"><input type="radio" name="order_type" value="takeaway" @checked(old('order_type', 'takeaway') === 'takeaway')> Dibawa pulang</label>
-            </div>
-            @error('order_type')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
-        </fieldset>
-        <div><label for="table_number" class="mb-1 block font-medium">Nomor meja <span class="text-sm text-slate-500">(untuk makan di tempat)</span></label>
-            <input id="table_number" name="table_number" value="{{ old('table_number') }}" maxlength="20" class="w-full rounded-xl border-slate-300 p-3">
-            @error('table_number')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
-        </div>
-        <button class="w-full rounded-xl bg-vibrant px-4 py-3 font-bold text-white hover:bg-red-700">Konfirmasi Pesanan</button>
-    </form>
-</main>
-</body>
-</html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Checkout Pesanan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy:    '#041562',
+                        royal:   '#11468F',
+                        vibrant: '#DA1212',
+                        cream:   '#EEEEEE',
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600;1,700&display=swap" rel="stylesheet">
+    <style>
+        body, button, input, select, textarea { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="min-h-screen bg-cream text-slate-800"><main class="mx-auto max-w-2xl px-4 py-6"><a href="{{ route('cart') }}" class="text-sm font-bold text-navy">&larr; Kembali ke keranjang</a><div class="mt-6"><p class="text-xs font-bold uppercase tracking-widest text-royal">Langkah terakhir</p><h1 class="mt-1 text-3xl font-black text-navy">Konfirmasi Pesanan</h1><p class="mt-2 text-slate-500">Isi detail di bawah agar pesananmu mudah dipanggil.</p></div>
+@if ($errors->any())<div class="mt-5 rounded-xl bg-red-100 p-4 text-red-800"><ul class="list-inside list-disc">@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
+<form method="POST" action="{{ route('checkout.process') }}" class="mt-6 space-y-5">@csrf
+<section class="rounded-2xl bg-white p-5 shadow-sm"><h2 class="font-black text-navy">Data pemesan</h2><label for="customer_name" class="mt-4 block text-sm font-bold">Nama pemanggil <span class="text-vibrant">*</span></label><input id="customer_name" name="customer_name" value="{{ old('customer_name') }}" required maxlength="50" class="mt-2 w-full rounded-xl border-slate-200 bg-slate-50 p-3" placeholder="Contoh: Budi"><p class="mt-2 text-xs text-slate-500">Nama ini akan dipanggil saat pesanan siap.</p></section>
+<section class="rounded-2xl bg-white p-5 shadow-sm"><h2 class="font-black text-navy">Tipe pesanan</h2><div class="mt-4 grid gap-3 sm:grid-cols-2"><label class="cursor-pointer rounded-xl border-2 p-4 has-[:checked]:border-royal has-[:checked]:bg-blue-50"><input type="radio" name="order_type" value="dine_in" class="mr-2" @checked(old('order_type') === 'dine_in')> <span class="font-bold">Dine-in</span><span class="mt-1 block pl-6 text-sm text-slate-500">Makan di tempat</span></label><label class="cursor-pointer rounded-xl border-2 p-4 has-[:checked]:border-royal has-[:checked]:bg-blue-50"><input type="radio" name="order_type" value="takeaway" class="mr-2" @checked(old('order_type', 'takeaway') === 'takeaway')> <span class="font-bold">Takeaway</span><span class="mt-1 block pl-6 text-sm text-slate-500">Bawa pulang</span></label></div><div id="table-field" class="mt-4"><label for="table_number" class="text-sm font-bold">Nomor meja</label><input id="table_number" name="table_number" value="{{ old('table_number') }}" maxlength="20" class="mt-2 w-full rounded-xl border-slate-200 bg-slate-50 p-3" placeholder="Contoh: A12"></div></section>
+<section class="rounded-2xl bg-white p-5 shadow-sm"><h2 class="font-black text-navy">Metode pembayaran</h2><label class="mt-4 flex cursor-pointer gap-3 rounded-xl border-2 border-royal bg-blue-50 p-4"><input type="radio" name="payment_method" value="qris" checked class="mt-1"><span><span class="font-bold">QRIS</span><span class="mt-1 block text-sm text-slate-500">Scan QRIS yang ditampilkan kasir, lalu tunjukkan bukti pembayaran saat mengambil pesanan.</span></span></label></section>
+<button class="w-full rounded-xl bg-vibrant px-4 py-4 text-center text-lg font-black text-white shadow-lg shadow-red-200">Konfirmasi Pesanan</button>
+</form></main>
+<script>const tableField=document.getElementById('table-field'); const syncTable=()=>{const dineIn=document.querySelector('input[name="order_type"]:checked')?.value==='dine_in'; tableField.hidden=!dineIn; document.getElementById('table_number').required=dineIn;}; document.querySelectorAll('input[name="order_type"]').forEach((input)=>input.addEventListener('change',syncTable)); syncTable();</script>
+</body></html>

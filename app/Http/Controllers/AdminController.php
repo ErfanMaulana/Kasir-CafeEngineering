@@ -64,6 +64,13 @@ class AdminController extends Controller
         $product = Product::query()->findOrFail($id);
         $product->update(['is_available' => ! $product->is_available]);
 
+        if (request()->expectsJson()) {
+            return response()->json([
+                'is_available' => $product->is_available,
+                'message' => 'Ketersediaan produk diperbarui.',
+            ]);
+        }
+
         return back()->with('success', 'Ketersediaan produk diperbarui.');
     }
 
@@ -72,7 +79,7 @@ class AdminController extends Controller
         return view('admin.kitchen', [
             'orders' => Order::query()
                 ->with('items.product')
-                ->whereIn('order_status', ['pending', 'preparing', 'ready'])
+                ->whereIn('order_status', ['pending', 'preparing', 'ready', 'completed'])
                 ->orderByRaw("case order_status when 'pending' then 1 when 'preparing' then 2 else 3 end")
                 ->oldest()
                 ->get(),
