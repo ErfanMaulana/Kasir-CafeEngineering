@@ -1,80 +1,123 @@
 @extends('admin.layout')
 
-@section('title', 'Products')
+@section('title', 'Menu & Inventory Management')
 @section('page_label', 'Menu & Inventory')
-@section('page_title', 'Manajemen Produk')
+@section('page_title', 'Manajemen Produk & Kategori')
 
 @section('content')
 
-{{-- Header action --}}
-<div class="mb-6 flex items-center justify-between gap-4">
-    <p class="text-sm text-slate-500">Kelola menu dan ketersediaan stok</p>
-    <button type="button" data-open-modal
-            class="flex items-center gap-2 rounded-xl bg-vibrant px-4 py-2.5 text-sm font-bold text-white shadow hover:bg-red-700 transition-colors">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-        Tambah Produk
-    </button>
+{{-- HEADER ACTIONS --}}
+<div class="mb-6 flex flex-wrap items-center justify-between gap-4">
+    <div>
+        <h2 class="text-xl font-black text-navy">Katalog Menu &amp; Stok Kafe</h2>
+        <p class="text-xs text-slate-500 font-medium">Kelola daftar menu, kategori, harga, dan ketersediaan stok secara real-time</p>
+    </div>
+
+    <div class="flex items-center gap-2">
+        <button type="button" data-open-category-modal
+                class="flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs font-bold text-navy shadow-xs hover:bg-slate-50 transition">
+            <span>+ Kelola Kategori</span>
+        </button>
+
+        <button type="button" data-open-modal
+                class="flex items-center gap-2 rounded-xl bg-vibrant px-4 py-2.5 text-xs font-black text-white shadow-md shadow-red-950/20 hover:bg-red-700 active:scale-95 transition">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+            <span>Tambah Produk</span>
+        </button>
+    </div>
 </div>
 
-{{-- Products table --}}
-<div class="overflow-hidden rounded-2xl bg-white shadow-sm">
+{{-- ALERT MESSAGES --}}
+@if (session('success'))
+    <div class="mb-5 flex items-center gap-2.5 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-xs font-bold text-emerald-800 shadow-xs">
+        <span>✓</span>
+        <span>{{ session('success') }}</span>
+    </div>
+@endif
+@if (session('error'))
+    <div class="mb-5 flex items-center gap-2.5 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-xs font-bold text-rose-800 shadow-xs">
+        <span>!</span>
+        <span>{{ session('error') }}</span>
+    </div>
+@endif
+
+{{-- TABEL PRODUK --}}
+<div class="overflow-hidden rounded-3xl bg-white shadow-sm border border-slate-100">
     <div class="overflow-x-auto">
-        <table class="w-full min-w-[760px] text-left text-sm">
-            <thead class="border-b border-slate-100 bg-slate-50">
-                <tr>
-                    <th class="px-5 py-4 text-[11px] font-bold uppercase tracking-wide text-slate-400">Produk</th>
-                    <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wide text-slate-400">Kategori</th>
-                    <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wide text-slate-400">Harga</th>
-                    <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wide text-slate-400">Ketersediaan</th>
-                    <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wide text-slate-400">Aksi</th>
+        <table class="w-full min-w-[760px] text-left text-xs">
+            <thead class="border-b border-slate-100 bg-slate-50/80">
+                <tr class="text-slate-400 font-bold uppercase tracking-wider text-[11px]">
+                    <th class="px-6 py-4">Menu Produk</th>
+                    <th class="px-4 py-4">Kategori</th>
+                    <th class="px-4 py-4">Harga Satuan</th>
+                    <th class="px-4 py-4">Status Ketersediaan</th>
+                    <th class="px-6 py-4 text-right">Tindakan</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="divide-y divide-slate-100">
                 @forelse ($products as $product)
-                    <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                        <td class="px-5 py-4">
-                            <div class="flex items-center gap-3">
+                    <tr class="hover:bg-slate-50/70 transition">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3.5">
                                 @if ($product->image)
-                                    <img src="{{ asset('storage/'.$product->image) }}" alt=""
-                                         class="h-12 w-12 flex-shrink-0 rounded-xl object-cover">
+                                    <img src="{{ $product->image_url }}" alt=""
+                                         class="h-12 w-12 shrink-0 rounded-2xl object-cover bg-cream border border-slate-200/60">
                                 @else
-                                    <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-cream text-xl">☕</div>
+                                    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-cream text-2xl border border-slate-200/60">
+                                        ☕
+                                    </div>
                                 @endif
                                 <div>
-                                    <p class="font-bold text-navy">{{ $product->name }}</p>
-                                    <p class="max-w-xs truncate text-[11px] text-slate-400">{{ $product->description }}</p>
+                                    <p class="font-black text-navy text-sm">{{ $product->name }}</p>
+                                    <p class="max-w-xs truncate text-[11px] text-slate-400 font-medium">
+                                        {{ $product->description ?: 'Tidak ada deskripsi tambahan.' }}
+                                    </p>
                                 </div>
                             </div>
                         </td>
-                        <td class="px-4 py-4 text-sm text-slate-600">{{ $product->category->name }}</td>
-                        <td class="px-4 py-4 font-bold text-navy">Rp {{ number_format($product->price, 0, ',', '.') }}</td>
                         <td class="px-4 py-4">
-                            <button type="button" class="availability-toggle flex items-center gap-2"
+                            <span class="rounded-full bg-blue-50 px-3 py-1 text-[11px] font-bold text-royal border border-blue-100">
+                                {{ $product->category->name ?? '-' }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-4 font-black text-navy text-sm">
+                            Rp {{ number_format($product->price, 0, ',', '.') }}
+                        </td>
+                        <td class="px-4 py-4">
+                            <button type="button" class="availability-toggle flex items-center gap-2.5 cursor-pointer"
                                     data-url="{{ route('admin.products.availability', $product->id) }}"
                                     data-state="{{ $product->is_available ? 1 : 0 }}">
-                                <span class="toggle-track relative h-6 w-11 rounded-full {{ $product->is_available ? 'bg-green-500' : 'bg-slate-300' }}">
-                                    <span class="toggle-dot absolute top-1 h-4 w-4 rounded-full bg-white shadow transition {{ $product->is_available ? 'left-6' : 'left-1' }}"></span>
+                                <span class="toggle-track relative h-6 w-11 rounded-full transition-colors {{ $product->is_available ? 'bg-emerald-500' : 'bg-slate-300' }}">
+                                    <span class="toggle-dot absolute top-1 h-4 w-4 rounded-full bg-white shadow-md transition-all {{ $product->is_available ? 'left-6' : 'left-1' }}"></span>
                                 </span>
-                                <span class="toggle-label text-xs font-bold {{ $product->is_available ? 'text-green-700' : 'text-slate-500' }}">
-                                    {{ $product->is_available ? 'In Stock' : 'Out of Stock' }}
+                                <span class="toggle-label text-xs font-bold {{ $product->is_available ? 'text-emerald-700' : 'text-slate-500' }}">
+                                    {{ $product->is_available ? 'Tersedia (In Stock)' : 'Habis (Out of Stock)' }}
                                 </span>
                             </button>
                         </td>
-                        <td class="px-4 py-4">
-                            <div class="flex gap-3">
+                        <td class="px-6 py-4 text-right">
+                            <div class="inline-flex items-center gap-3">
                                 <button type="button" data-open-edit data-product='@json($product)'
-                                        class="font-bold text-royal hover:underline">Edit</button>
+                                        class="text-xs font-black text-royal hover:underline">
+                                    Edit
+                                </button>
+                                <span class="text-slate-200">|</span>
                                 <form method="POST" action="{{ route('admin.products.destroy', $product->id) }}"
-                                      onsubmit="return confirm('Hapus produk ini?')">
-                                    @csrf @method('DELETE')
-                                    <button class="font-bold text-vibrant hover:underline">Hapus</button>
+                                      onsubmit="return confirm('Hapus produk {{ $product->name }}? Tindakan ini tidak dapat dibatalkan.')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="text-xs font-bold text-rose-500 hover:text-rose-700 hover:underline">
+                                        Hapus
+                                    </button>
                                 </form>
                             </div>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="px-5 py-10 text-center text-slate-400">Belum ada produk. Tambah produk pertama Anda!</td>
+                        <td colspan="5" class="px-6 py-12 text-center text-xs text-slate-400">
+                            Belum ada menu produk terdaftar. Klik "+ Tambah Produk" untuk membuat menu baru.
+                        </td>
                     </tr>
                 @endforelse
             </tbody>
@@ -82,55 +125,151 @@
     </div>
 </div>
 
-{{-- Modal --}}
-<div id="product-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-navy/70 p-4">
-    <div class="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl">
-        <div class="flex items-center justify-between">
-            <h2 id="modal-title" class="text-xl font-black text-navy">Tambah Produk</h2>
-            <button type="button" data-close-modal class="rounded-lg p-2 text-slate-400 hover:bg-slate-100 text-2xl leading-none">&times;</button>
+{{-- MODAL TAMBAH / EDIT PRODUK --}}
+<div id="product-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-navy/70 backdrop-blur-xs p-4">
+    <div class="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-3xl bg-white p-6 sm:p-7 shadow-2xl">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h2 id="modal-title" class="text-lg font-black text-navy">Tambah Produk Menu</h2>
+            <button type="button" data-close-modal class="rounded-xl p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 text-xl leading-none">&times;</button>
         </div>
-        <form id="product-form" method="POST" action="{{ route('admin.products.store') }}" class="mt-5 grid gap-4 sm:grid-cols-2">
+
+        <form id="product-form" method="POST" action="{{ route('admin.products.store') }}" enctype="multipart/form-data" class="mt-5 space-y-4 text-xs">
             @csrf
             <input id="method-field" type="hidden" name="_method" value="">
 
-            <div class="sm:col-span-2">
-                <label class="text-sm font-bold text-slate-700">Nama produk</label>
-                <input id="product-name" name="name" required
-                       class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm focus:border-royal focus:outline-none focus:ring-1 focus:ring-royal">
-            </div>
             <div>
-                <label class="text-sm font-bold text-slate-700">Kategori</label>
-                <select id="product-category" name="category_id" required
-                        class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm focus:border-royal focus:outline-none focus:ring-1 focus:ring-royal">
-                    @foreach ($categories as $category)
-                        <option value="{{ $category->id }}">{{ $category->name }}</option>
-                    @endforeach
-                </select>
+                <label class="block font-bold text-slate-700">Nama Menu Produk <span class="text-vibrant">*</span></label>
+                <input id="product-name" name="name" required placeholder="Contoh: Es Americano, Toast Keju"
+                       class="mt-1.5 w-full rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs font-medium focus:border-royal focus:bg-white focus:outline-none focus:ring-1 focus:ring-royal">
             </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block font-bold text-slate-700">Kategori <span class="text-vibrant">*</span></label>
+                    <select id="product-category" name="category_id" required
+                            class="mt-1.5 w-full rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs font-medium focus:border-royal focus:bg-white focus:outline-none focus:ring-1 focus:ring-royal">
+                        @foreach ($categories as $category)
+                            <option value="{{ $category->id }}">{{ $category->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700">Harga (Rp) <span class="text-vibrant">*</span></label>
+                    <input id="product-price" name="price" type="number" min="0" step="500" required placeholder="Contoh: 15000"
+                           class="mt-1.5 w-full rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs font-medium focus:border-royal focus:bg-white focus:outline-none focus:ring-1 focus:ring-royal">
+                </div>
+            </div>
+
             <div>
-                <label class="text-sm font-bold text-slate-700">Harga</label>
-                <input id="product-price" name="price" type="number" min="0" step="100" required
-                       class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm focus:border-royal focus:outline-none focus:ring-1 focus:ring-royal">
+                <label class="block font-bold text-slate-700 mb-1.5">Foto Menu Produk (Opsional)</label>
+                
+                {{-- Drag & Drop Upload Zone --}}
+                <div id="drop-zone" class="relative group flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/70 p-4 transition-all hover:border-royal hover:bg-royal/5">
+                    <input id="product-image-file" type="file" name="image" accept="image/png, image/jpeg, image/jpg, image/webp"
+                           class="absolute inset-0 z-10 h-full w-full opacity-0 cursor-pointer">
+
+                    {{-- Image Preview Container --}}
+                    <div id="preview-container" class="hidden flex-col items-center gap-2.5 text-center">
+                        <div class="relative">
+                            <img id="image-preview" src="#" alt="Pratinjau Foto" class="h-24 w-24 rounded-2xl object-cover shadow-md border-2 border-white ring-2 ring-slate-200">
+                            <span id="preview-badge" class="absolute -top-2 -right-2 rounded-full bg-royal px-2 py-0.5 text-[10px] font-bold text-white shadow">
+                                Preview
+                            </span>
+                        </div>
+                        <p id="preview-filename" class="text-xs font-semibold text-slate-700 truncate max-w-[280px]"></p>
+                        <p class="text-[11px] font-bold text-royal hover:underline">
+                            Klik atau seret file ke sini untuk mengganti foto
+                        </p>
+                    </div>
+
+                    {{-- Upload Placeholder --}}
+                    <div id="upload-placeholder" class="flex flex-col items-center text-center py-2">
+                        <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-royal/10 text-royal transition-transform group-hover:scale-110">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <p class="mt-2 text-xs font-bold text-slate-700">
+                            <span class="text-royal underline">Klik untuk upload</span> atau seret & lepas file
+                        </p>
+                        <p class="mt-0.5 text-[11px] text-slate-400">Pilih foto produk menu terbaik</p>
+                    </div>
+                </div>
+
+                {{-- Petunjuk format & tombol batalkan --}}
+                <div class="mt-1.5 flex items-center justify-between text-[11px] text-slate-400">
+                    <span>Format: JPG, PNG, WEBP (Maksimal 5 MB)</span>
+                    <button type="button" id="btn-cancel-image" class="hidden text-rose-500 hover:text-rose-700 font-bold hover:underline">
+                        Batal Pilih
+                    </button>
+                </div>
             </div>
-            <div class="sm:col-span-2">
-                <label class="text-sm font-bold text-slate-700">Path gambar</label>
-                <input id="product-image" name="image"
-                       class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm focus:border-royal focus:outline-none focus:ring-1 focus:ring-royal">
+
+            <div>
+                <label class="block font-bold text-slate-700">Deskripsi Menu</label>
+                <textarea id="product-description" name="description" rows="3" placeholder="Jelaskan komposisi rasa atau bahan makanan..."
+                          class="mt-1.5 w-full rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs font-medium focus:border-royal focus:bg-white focus:outline-none focus:ring-1 focus:ring-royal"></textarea>
             </div>
-            <div class="sm:col-span-2">
-                <label class="text-sm font-bold text-slate-700">Deskripsi</label>
-                <textarea id="product-description" name="description" rows="3"
-                          class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm focus:border-royal focus:outline-none focus:ring-1 focus:ring-royal"></textarea>
-            </div>
-            <label class="flex items-center gap-2 sm:col-span-2 text-sm font-semibold text-slate-700">
-                <input id="product-available" type="checkbox" name="is_available" value="1" checked
-                       class="rounded border-slate-300">
-                In Stock
+
+            <label class="flex items-center gap-2 cursor-pointer font-bold text-slate-700 pt-1">
+                <input id="product-available" type="checkbox" name="is_available" value="1" checked class="rounded border-slate-300 text-royal focus:ring-royal">
+                <span>Langsung tersedia untuk dipesan (In Stock)</span>
             </label>
-            <button class="rounded-xl bg-vibrant px-4 py-3 font-black text-white hover:bg-red-700 transition-colors sm:col-span-2">
-                Simpan Produk
-            </button>
+
+            <div class="mt-6 border-t border-slate-100 pt-4 flex justify-end gap-2">
+                <button type="button" data-close-modal class="rounded-xl border border-slate-200 px-4 py-2.5 font-bold text-slate-600 hover:bg-slate-50">
+                    Batal
+                </button>
+                <button type="submit" class="rounded-xl bg-vibrant px-5 py-2.5 font-black text-white hover:bg-red-700 transition">
+                    Simpan Produk
+                </button>
+            </div>
         </form>
+    </div>
+</div>
+
+{{-- MODAL KELOLA KATEGORI --}}
+<div id="category-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-navy/70 backdrop-blur-xs p-4">
+    <div class="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h2 class="text-base font-black text-navy">Kelola Kategori Menu</h2>
+            <button type="button" data-close-category-modal class="rounded-xl p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 text-xl leading-none">&times;</button>
+        </div>
+
+        {{-- FORM TAMBAH KATEGORI BARU --}}
+        <form method="POST" action="{{ route('admin.categories.store') }}" class="mt-4 border-b border-slate-100 pb-4">
+            @csrf
+            <label class="block text-xs font-bold text-slate-700">Nama Kategori Baru</label>
+            <div class="mt-1.5 flex gap-2">
+                <input name="name" required placeholder="Contoh: Pastry, Dessert"
+                       class="flex-1 rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs font-medium focus:border-royal focus:bg-white focus:outline-none focus:ring-1 focus:ring-royal">
+                <button class="rounded-xl bg-royal px-4 py-2.5 text-xs font-black text-white hover:bg-navy transition">
+                    Tambah
+                </button>
+            </div>
+        </form>
+
+        {{-- DAFTAR KATEGORI YANG SUDAH ADA --}}
+        <div class="mt-4 space-y-2 max-h-60 overflow-y-auto">
+            <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Kategori Tersedia</p>
+            @foreach ($categories as $cat)
+                <div class="flex items-center justify-between rounded-xl border border-slate-100 p-2.5 text-xs">
+                    <div>
+                        <span class="font-bold text-navy">{{ $cat->name }}</span>
+                        <span class="ml-1 text-[11px] text-slate-400">({{ $cat->products_count }} produk)</span>
+                    </div>
+                    @if ($cat->products_count === 0)
+                        <form method="POST" action="{{ route('admin.categories.destroy', $cat->id) }}"
+                              onsubmit="return confirm('Hapus kategori {{ $cat->name }}?')">
+                            @csrf
+                            @method('DELETE')
+                            <button class="text-rose-600 font-bold hover:underline">Hapus</button>
+                        </form>
+                    @endif
+                </div>
+            @endforeach
+        </div>
     </div>
 </div>
 
@@ -138,44 +277,175 @@
 
 @push('scripts')
 <script>
+// 1. Modal Tambah / Edit Produk
 const modal = document.getElementById('product-modal');
 const form  = document.getElementById('product-form');
-const open  = () => { modal.classList.remove('hidden'); modal.classList.add('flex'); };
-const close = () => { modal.classList.add('hidden'); modal.classList.remove('flex'); };
+const openModal  = () => { modal.classList.remove('hidden'); modal.classList.add('flex'); };
+const closeModal = () => { modal.classList.add('hidden'); modal.classList.remove('flex'); };
+
+// Elemen Upload & Pratinjau Foto
+const fileInput = document.getElementById('product-image-file');
+const previewContainer = document.getElementById('preview-container');
+const uploadPlaceholder = document.getElementById('upload-placeholder');
+const imagePreview = document.getElementById('image-preview');
+const previewFilename = document.getElementById('preview-filename');
+const previewBadge = document.getElementById('preview-badge');
+const btnCancelImage = document.getElementById('btn-cancel-image');
+const dropZone = document.getElementById('drop-zone');
+
+let currentProductImageUrl = null;
+
+const resetImageUpload = () => {
+    fileInput.value = '';
+    imagePreview.src = '#';
+    previewContainer.classList.add('hidden');
+    previewContainer.classList.remove('flex');
+    uploadPlaceholder.classList.remove('hidden');
+    btnCancelImage.classList.add('hidden');
+    previewFilename.textContent = '';
+};
+
+const showExistingImage = (url) => {
+    if (url) {
+        imagePreview.src = url;
+        previewBadge.textContent = 'Foto Saat Ini';
+        previewBadge.className = 'absolute -top-2 -right-2 rounded-full bg-slate-700 px-2 py-0.5 text-[10px] font-bold text-white shadow';
+        previewFilename.textContent = 'Foto saat ini tetap digunakan jika tidak memilih file baru';
+        previewContainer.classList.remove('hidden');
+        previewContainer.classList.add('flex');
+        uploadPlaceholder.classList.add('hidden');
+        btnCancelImage.classList.add('hidden');
+    } else {
+        resetImageUpload();
+    }
+};
+
+// Validasi ukuran file browser-side (Maks 5 MB) & pratinjau FileReader
+fileInput.addEventListener('change', function() {
+    const file = this.files && this.files[0];
+    if (!file) {
+        return;
+    }
+
+    const maxSize = 5 * 1024 * 1024; // 5 MB
+    if (file.size > maxSize) {
+        alert('Peringatan: Ukuran file melebihi batas maksimal 5 MB! Silakan pilih file foto yang lebih kecil.');
+        this.value = '';
+        if (currentProductImageUrl) {
+            showExistingImage(currentProductImageUrl);
+        } else {
+            resetImageUpload();
+        }
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        imagePreview.src = e.target.result;
+        previewBadge.textContent = 'Foto Baru (' + (file.size / (1024 * 1024)).toFixed(2) + ' MB)';
+        previewBadge.className = 'absolute -top-2 -right-2 rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-bold text-white shadow';
+        previewFilename.textContent = file.name;
+        previewContainer.classList.remove('hidden');
+        previewContainer.classList.add('flex');
+        uploadPlaceholder.classList.add('hidden');
+        btnCancelImage.classList.remove('hidden');
+    };
+    reader.readAsDataURL(file);
+});
+
+// Tombol batal pilih file baru
+btnCancelImage.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    fileInput.value = '';
+    if (currentProductImageUrl) {
+        showExistingImage(currentProductImageUrl);
+    } else {
+        resetImageUpload();
+    }
+});
+
+// Efek visual Drag & Drop Zone
+['dragenter', 'dragover'].forEach(eventName => {
+    dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        dropZone.classList.add('border-royal', 'bg-royal/10');
+    });
+});
+['dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('border-royal', 'bg-royal/10');
+    });
+});
 
 document.querySelector('[data-open-modal]').addEventListener('click', () => {
     form.reset();
-    document.getElementById('modal-title').textContent  = 'Tambah Produk';
+    currentProductImageUrl = null;
+    resetImageUpload();
+    document.getElementById('modal-title').textContent = 'Tambah Produk Menu';
     document.getElementById('method-field').value = '';
     form.action = "{{ route('admin.products.store') }}";
-    open();
+    openModal();
 });
 
-document.querySelector('[data-close-modal]').addEventListener('click', close);
+document.querySelectorAll('[data-close-modal]').forEach(b => b.addEventListener('click', closeModal));
 
 document.querySelectorAll('[data-open-edit]').forEach(btn => btn.addEventListener('click', () => {
     const p = JSON.parse(btn.dataset.product);
-    document.getElementById('modal-title').textContent  = 'Edit Produk';
+    document.getElementById('modal-title').textContent = 'Edit Menu Produk';
     document.getElementById('method-field').value = 'PUT';
     form.action = `{{ url('/admin/products') }}/${p.id}`;
-    document.getElementById('product-name').value        = p.name;
-    document.getElementById('product-category').value    = p.category_id;
-    document.getElementById('product-price').value       = p.price;
-    document.getElementById('product-image').value       = p.image || '';
+    document.getElementById('product-name').value = p.name;
+    document.getElementById('product-category').value = p.category_id;
+    document.getElementById('product-price').value = Math.round(p.price);
     document.getElementById('product-description').value = p.description || '';
     document.getElementById('product-available').checked = Boolean(p.is_available);
-    open();
+
+    currentProductImageUrl = p.image_url || (p.image ? (p.image.startsWith('http') ? p.image : `{{ asset('storage') }}/${p.image}`) : null);
+    fileInput.value = '';
+    showExistingImage(currentProductImageUrl);
+
+    openModal();
 }));
 
+// 2. Modal Kategori
+const catModal = document.getElementById('category-modal');
+const openCatModal = () => { catModal.classList.remove('hidden'); catModal.classList.add('flex'); };
+const closeCatModal = () => { catModal.classList.add('hidden'); catModal.classList.remove('flex'); };
+
+document.querySelector('[data-open-category-modal]').addEventListener('click', openCatModal);
+document.querySelectorAll('[data-close-category-modal]').forEach(b => b.addEventListener('click', closeCatModal));
+
+// 3. Toggle Stock Availability Switch Real-time
 document.querySelectorAll('.availability-toggle').forEach(btn => btn.addEventListener('click', async () => {
-    const res  = await fetch(btn.dataset.url, { method:'PATCH', headers:{ 'X-CSRF-TOKEN':'{{ csrf_token() }}', 'Accept':'application/json' } });
-    if (!res.ok) { alert('Gagal memperbarui ketersediaan.'); return; }
-    const data = await res.json();
-    btn.dataset.state = data.is_available ? 1 : 0;
-    btn.querySelector('.toggle-track').className = `toggle-track relative h-6 w-11 rounded-full ${data.is_available ? 'bg-green-500' : 'bg-slate-300'}`;
-    btn.querySelector('.toggle-dot').className   = `toggle-dot absolute top-1 h-4 w-4 rounded-full bg-white shadow transition ${data.is_available ? 'left-6' : 'left-1'}`;
-    btn.querySelector('.toggle-label').textContent  = data.is_available ? 'In Stock' : 'Out of Stock';
-    btn.querySelector('.toggle-label').className    = `toggle-label text-xs font-bold ${data.is_available ? 'text-green-700' : 'text-slate-500'}`;
+    btn.disabled = true;
+    try {
+        const res = await fetch(btn.dataset.url, {
+            method: 'PATCH',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            }
+        });
+        if (!res.ok) {
+            alert('Gagal memperbarui status ketersediaan stok.');
+            btn.disabled = false;
+            return;
+        }
+        const data = await res.json();
+        const isAvail = Boolean(data.is_available);
+        btn.dataset.state = isAvail ? 1 : 0;
+        btn.querySelector('.toggle-track').className = `toggle-track relative h-6 w-11 rounded-full transition-colors ${isAvail ? 'bg-emerald-500' : 'bg-slate-300'}`;
+        btn.querySelector('.toggle-dot').className   = `toggle-dot absolute top-1 h-4 w-4 rounded-full bg-white shadow-md transition-all ${isAvail ? 'left-6' : 'left-1'}`;
+        const label = btn.querySelector('.toggle-label');
+        label.textContent = isAvail ? 'Tersedia (In Stock)' : 'Habis (Out of Stock)';
+        label.className = `toggle-label text-xs font-bold ${isAvail ? 'text-emerald-700' : 'text-slate-500'}`;
+    } catch (e) {
+        alert('Terjadi kesalahan jaringan.');
+    } finally {
+        btn.disabled = false;
+    }
 }));
 </script>
 @endpush

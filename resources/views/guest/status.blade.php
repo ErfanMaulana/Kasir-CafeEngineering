@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv="refresh" content="15">
-    <title>Status Pesanan {{ $order->queue_number }}</title>
+    <meta http-equiv="refresh" content="12">
+    <title>Status Pesanan {{ $order->queue_number }} · Unsil Cafe Connect</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -30,6 +30,169 @@
         body, button, input, select, textarea { font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
 </head>
-@php($statusLabel = ['pending' => 'Menunggu Pembayaran', 'preparing' => 'Sedang Dimasak', 'ready' => 'Siap Diambil', 'completed' => 'Selesai', 'cancelled' => 'Dibatalkan'][$order->order_status] ?? ucfirst($order->order_status))
-<body class="min-h-screen bg-cream px-4 py-6 text-slate-800"><main class="mx-auto max-w-lg"><a href="{{ route('catalog') }}" class="text-sm font-bold text-navy">&larr; Pesan lagi</a><section class="mt-5 overflow-hidden rounded-3xl bg-navy text-center text-white shadow-xl"><div class="bg-royal px-6 py-3 text-xs font-bold tracking-widest">NOMOR ANTREAN</div><div class="px-6 py-7"><p class="text-7xl font-black tracking-tight">{{ $order->queue_number }}</p><p class="mt-3 text-lg font-bold">{{ $order->customer_name }}</p><span class="mt-5 inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-sm font-bold"><span class="h-2 w-2 animate-pulse rounded-full bg-green-300"></span>{{ $statusLabel }}</span></div></section>
-<section class="mt-4 rounded-2xl bg-white p-5 shadow-sm"><div class="grid grid-cols-2 gap-4 border-b pb-4"><div><p class="text-xs font-bold uppercase text-slate-400">Tipe</p><p class="mt-1 font-bold text-navy">{{ $order->order_type === 'dine_in' ? 'Dine-in · Meja '.$order->table_number : 'Takeaway' }}</p></div><div><p class="text-xs font-bold uppercase text-slate-400">Pembayaran</p><p class="mt-1 font-bold text-navy">QRIS · {{ ucfirst($order->payment_status) }}</p></div></div><h2 class="mt-5 font-black text-navy">Rincian pesanan</h2><ul class="mt-3 space-y-4">@foreach ($order->items as $item)<li><div class="flex justify-between gap-3"><span><b>{{ $item->quantity }}x</b> {{ $item->product->name ?? 'Produk' }}</span><span class="font-bold">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</span></div>@if ($item->notes)<p class="mt-1 text-xs italic text-slate-500">Catatan: {{ $item->notes }}</p>@endif</li>@endforeach</ul><div class="mt-5 flex justify-between border-t pt-4 text-xl font-black text-navy"><span>Total bayar</span><span>Rp {{ number_format($order->total_amount, 0, ',', '.') }}</span></div></section><p class="mt-5 text-center text-sm text-slate-500">Halaman ini diperbarui otomatis setiap 15 detik.</p></main></body></html>
+<body class="min-h-screen bg-[#EEEEEE] text-slate-800 antialiased pb-16">
+
+<header class="border-b border-slate-200 bg-white/95 backdrop-blur-md sticky top-0 z-20">
+    <div class="mx-auto flex max-w-xl items-center justify-between px-4 py-3.5">
+        <a href="{{ route('catalog') }}" class="flex items-center gap-1.5 text-xs font-bold text-royal hover:text-navy transition">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+            <span>Pesan Menu Lain</span>
+        </a>
+        <div class="flex items-center gap-2">
+            <span class="h-2 w-2 rounded-full bg-emerald-500 animate-ping"></span>
+            <span class="text-xs font-bold text-slate-500">Live Status</span>
+        </div>
+    </div>
+</header>
+
+<main class="mx-auto max-w-xl px-4 py-6">
+
+    @if (session('success'))
+        <div class="mb-5 flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-xs font-bold text-emerald-800 shadow-xs">
+            <span>✓</span>
+            <span>{{ session('success') }}</span>
+        </div>
+    @endif
+
+    {{-- KARTU UTAMA NOMOR ANTREAN --}}
+    <section class="overflow-hidden rounded-3xl bg-gradient-to-b from-navy via-navy to-royal text-center text-white shadow-2xl">
+        <div class="bg-royal/50 px-6 py-2.5 text-[11px] font-black uppercase tracking-widest text-blue-200 border-b border-white/10">
+            Nomor Antrean Digital
+        </div>
+
+        <div class="p-7 sm:p-9">
+            <p class="text-7xl sm:text-8xl font-black tracking-tight text-white drop-shadow-md">
+                {{ $order->queue_number }}
+            </p>
+
+            <div class="mt-4">
+                <span class="text-xs uppercase tracking-wider text-blue-200 font-bold">Nama Pemanggil</span>
+                <p class="text-2xl font-black text-white mt-0.5">
+                    {{ $order->customer_name }}
+                </p>
+            </div>
+
+            @php
+                $statusConfig = [
+                    'pending'   => ['label' => 'Menunggu Pembayaran / Masuk Antrean', 'bg' => 'bg-amber-500/20 text-amber-300 border-amber-400/40', 'dot' => 'bg-amber-400'],
+                    'preparing' => ['label' => 'Sedang Dimasak / Disiapkan Dapur', 'bg' => 'bg-sky-500/20 text-sky-300 border-sky-400/40', 'dot' => 'bg-sky-400'],
+                    'ready'     => ['label' => 'Siap Diambil di Counter!', 'bg' => 'bg-emerald-500/30 text-emerald-300 border-emerald-400/50', 'dot' => 'bg-emerald-400'],
+                    'completed' => ['label' => 'Pesanan Selesai', 'bg' => 'bg-slate-500/20 text-slate-300 border-slate-400/30', 'dot' => 'bg-slate-400'],
+                    'cancelled' => ['label' => 'Pesanan Dibatalkan', 'bg' => 'bg-rose-500/20 text-rose-300 border-rose-400/40', 'dot' => 'bg-rose-400'],
+                ];
+                $currentStatus = $statusConfig[$order->order_status] ?? ['label' => ucfirst($order->order_status), 'bg' => 'bg-blue-500/20 text-white border-blue-400/30', 'dot' => 'bg-white'];
+            @endphp
+
+            <div class="mt-6 inline-flex items-center gap-2.5 rounded-full border px-4 py-2 text-xs font-black shadow-inner {{ $currentStatus['bg'] }}">
+                <span class="h-2.5 w-2.5 rounded-full {{ $currentStatus['dot'] }} animate-pulse"></span>
+                <span>{{ $currentStatus['label'] }}</span>
+            </div>
+
+            @if ($order->order_status === 'ready')
+                <div class="mt-5 rounded-2xl bg-vibrant/90 p-3 text-xs font-black text-white shadow-lg animate-bounce">
+                    🔔 Silakan menuju counter pickup untuk mengambil pesanan Anda!
+                </div>
+            @endif
+        </div>
+    </section>
+
+    {{-- PROGRESS STEP TRACKER --}}
+    <section class="mt-5 rounded-3xl bg-white p-5 shadow-xs border border-slate-100">
+        <h2 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">Alur Pemrosesan Pesanan</h2>
+
+        @php
+            $steps = [
+                'pending'   => ['step' => 1, 'name' => 'Masuk Antrean', 'desc' => 'Diterima sistem'],
+                'preparing' => ['step' => 2, 'name' => 'Sedang Diproses', 'desc' => 'Dapur / Barista'],
+                'ready'     => ['step' => 3, 'name' => 'Siap Diambil', 'desc' => 'Counter pickup'],
+                'completed' => ['step' => 4, 'name' => 'Selesai', 'desc' => 'Selamat menikmati'],
+            ];
+            $orderLevels = ['pending' => 1, 'preparing' => 2, 'ready' => 3, 'completed' => 4, 'cancelled' => 0];
+            $currentLevel = $orderLevels[$order->order_status] ?? 1;
+        @endphp
+
+        <div class="grid grid-cols-4 gap-2 text-center">
+            @foreach ($steps as $key => $s)
+                @php
+                    $isPassed = $currentLevel >= $s['step'] && $order->order_status !== 'cancelled';
+                    $isCurrent = $currentLevel === $s['step'] && $order->order_status !== 'cancelled';
+                @endphp
+                <div class="flex flex-col items-center">
+                    <div class="flex h-8 w-8 items-center justify-center rounded-full text-xs font-black transition {{ $isPassed ? 'bg-royal text-white ring-4 ring-blue-100' : 'bg-slate-100 text-slate-400' }}">
+                        @if ($isPassed && ! $isCurrent)
+                            ✓
+                        @else
+                            {{ $s['step'] }}
+                        @endif
+                    </div>
+                    <p class="mt-2 text-[11px] font-black {{ $isPassed ? 'text-navy' : 'text-slate-400' }} leading-tight">
+                        {{ $s['name'] }}
+                    </p>
+                    <p class="text-[10px] text-slate-400 mt-0.5 hidden sm:block">
+                        {{ $s['desc'] }}
+                    </p>
+                </div>
+            @endforeach
+        </div>
+    </section>
+
+    {{-- DETAIL METADATA & RINCIAN PESANAN --}}
+    <section class="mt-5 rounded-3xl bg-white p-6 shadow-xs border border-slate-100">
+        <div class="grid grid-cols-2 gap-4 border-b border-slate-100 pb-4 text-xs">
+            <div>
+                <span class="font-bold text-slate-400 uppercase tracking-wider text-[10px]">Tipe Pesanan</span>
+                <p class="font-black text-navy text-sm mt-0.5">
+                    {{ $order->order_type === 'dine_in' ? 'Dine-in · Meja ' . ($order->table_number ?: '-') : 'Takeaway (Bungkus)' }}
+                </p>
+            </div>
+            <div>
+                <span class="font-bold text-slate-400 uppercase tracking-wider text-[10px]">Metode Bayar</span>
+                <p class="font-black text-navy text-sm mt-0.5">
+                    QRIS · <span class="capitalize text-emerald-600">{{ $order->payment_status }}</span>
+                </p>
+            </div>
+        </div>
+
+        <h3 class="mt-5 font-black text-navy text-sm uppercase tracking-wider">
+            Rincian Menu Pesanan
+        </h3>
+
+        <ul class="mt-3 divide-y divide-slate-100">
+            @foreach ($order->items as $item)
+                <li class="py-3">
+                    <div class="flex items-start justify-between gap-3 text-xs">
+                        <div>
+                            <p class="font-bold text-navy">
+                                <span class="text-royal font-black mr-1">{{ $item->quantity }}x</span>
+                                {{ $item->product->name ?? 'Menu Produk' }}
+                            </p>
+                            @if ($item->notes)
+                                <p class="mt-1 rounded-md bg-amber-50 px-2 py-1 text-[11px] font-medium text-amber-800 inline-block border border-amber-200/50">
+                                    Catatan: {{ $item->notes }}
+                                </p>
+                            @endif
+                        </div>
+                        <span class="font-black text-navy shrink-0">
+                            Rp {{ number_format($item->subtotal, 0, ',', '.') }}
+                        </span>
+                    </div>
+                </li>
+            @endforeach
+        </ul>
+
+        <div class="mt-4 flex items-baseline justify-between border-t border-slate-100 pt-4">
+            <span class="text-xs font-bold text-slate-500">Total Pembayaran</span>
+            <span class="text-xl font-black text-royal">
+                Rp {{ number_format($order->total_amount, 0, ',', '.') }}
+            </span>
+        </div>
+    </section>
+
+    <p class="mt-6 text-center text-xs text-slate-400 font-medium">
+        Halaman status ini otomatis memperbarui informasi setiap 12 detik.
+    </p>
+
+</main>
+
+</body>
+</html>

@@ -1,310 +1,326 @@
 @extends('admin.layout')
 
-@section('title', 'Dashboard')
+@section('title', 'Sales & Analytics Dashboard')
 @section('page_label', 'Sales & Analytics')
-@section('page_title', 'Dashboard Admin')
+@section('page_title', 'Dashboard Penjualan')
+
+@push('head')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+@endpush
 
 @section('content')
 
-{{-- Sub header --}}
-<div class="mb-5 flex flex-wrap items-center justify-between gap-3">
-    <div class="flex flex-wrap items-center gap-2">
-        <span class="inline-flex items-center gap-1.5 rounded-full bg-orange-100 px-3 py-1 text-[11px] font-bold text-orange-700">
-            <span class="h-1.5 w-1.5 rounded-full bg-orange-500"></span>
-            TERM 2 &middot; EXAM SPRINT
-        </span>
-        <span class="text-[12px] text-slate-500">Circuit Node: Hall B Espresso Bar</span>
-    </div>
-    <div class="flex flex-wrap gap-2">
-        <a href="#" class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors">Today</a>
-        <a href="#" class="rounded-lg bg-navy px-3 py-1.5 text-xs font-bold text-white">Past 7 Days</a>
-        <a href="#" class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors">Month to Date</a>
-        <a href="#" class="rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-bold text-vibrant hover:bg-red-100 transition-colors">&uarr; Finals Rush</a>
-    </div>
-</div>
-
-{{-- Heading + export --}}
-<div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+{{-- SUB HEADER DENGAN ACTION BUTTON MENCALOK VIBRANT RED (#DA1212) --}}
+<div class="mb-7 flex flex-wrap items-center justify-between gap-4 bg-white p-5 rounded-3xl shadow-xs border border-slate-200">
     <div>
-        <h2 class="text-2xl font-black leading-tight text-navy">Sales &amp; Turnover</h2>
-        <h2 class="text-2xl font-black leading-tight text-navy">Analytics</h2>
+        <div class="flex items-center gap-2">
+            <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-black text-emerald-800">
+                <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                LIVE POS TELEMETRY
+            </span>
+            <span class="text-xs text-slate-500 font-bold">Node: Engineering Cafe · Hari Ini: {{ date('d M Y') }}</span>
+        </div>
+        <h2 class="mt-2 text-2xl font-black text-[#041562]">Ringkasan Kinerja Kasir &amp; Antrean</h2>
     </div>
-    <button class="flex items-center gap-2 rounded-xl bg-royal px-4 py-2.5 text-sm font-bold text-white shadow hover:bg-[#0d3a7a] transition-colors">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-        Export Report (CSV/PDF)
-    </button>
+
+    {{-- TOMBOL UTAMA BUKA LAYAR DAPUR (KDS) MENCALOK VIBRANT RED (#DA1212) --}}
+    <a href="{{ route('admin.kitchen') }}"
+       class="inline-flex items-center gap-2.5 rounded-2xl bg-[#DA1212] px-6 py-3.5 text-sm font-black text-white shadow-lg shadow-red-950/25 hover:bg-red-700 active:scale-95 transition">
+        <span>📺 Buka Layar Dapur (KDS)</span>
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+    </a>
 </div>
 
-{{-- Two column layout --}}
-<div class="grid gap-5 xl:grid-cols-[1fr_300px]">
+{{-- GRID 4 WIDGET KARTU STATISTIK KINERJA (WCAG AA HIGH CONTRAST) --}}
+<div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
 
-    {{-- LEFT --}}
-    <div class="space-y-5">
-
-        {{-- Stat cards --}}
-        <div class="grid gap-4 sm:grid-cols-2">
-
-            <div class="stat-card rounded-2xl bg-white p-5 shadow-sm">
-                <div class="flex items-start justify-between">
-                    <div>
-                        <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400">Total Orders</p>
-                        <p class="mt-1 text-4xl font-black text-navy">{{ $orderCount }}</p>
-                        <p class="text-xs text-slate-400">tickets</p>
-                    </div>
-                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-royal">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-                    </div>
-                </div>
-                <div class="mt-3 flex flex-wrap gap-2">
-                    <span class="rounded-lg bg-green-50 px-2 py-1 text-[11px] font-bold text-green-700">Avg Ticket Rp 5.5rb</span>
-                    <span class="text-[11px] text-slate-400">Peak: 10:15-11:</span>
-                </div>
-                <p class="mt-2 text-[11px] font-medium text-orange-600">2nd Wave Spike logged at 2</p>
-            </div>
-
-            <div class="stat-card rounded-2xl bg-white p-5 shadow-sm">
-                <div class="flex items-start justify-between">
-                    <div>
-                        <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400">Wait &amp; Prep Latency</p>
-                        <p class="mt-1 text-4xl font-black text-navy">4m <span class="text-2xl">18s</span></p>
-                    </div>
-                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-orange-500">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    </div>
-                </div>
-                <div class="mt-3 flex flex-wrap gap-2">
-                    <span class="rounded-lg bg-red-50 px-2 py-1 text-[11px] font-bold text-red-600">-45s delta</span>
-                    <span class="text-[11px] text-slate-400">vs. 5m SLO target</span>
-                </div>
-                <p class="mt-2 text-[11px] font-medium text-green-600">Barista Station B Target Met</p>
-            </div>
-        </div>
-
-        {{-- Hourly chart --}}
-        <div class="rounded-2xl bg-white p-5 shadow-sm">
-            <div class="mb-3 flex flex-wrap items-start justify-between gap-3">
-                <div>
-                    <h3 class="font-bold text-navy">Hourly Sales &amp; Rush Distribution</h3>
-                    <p class="text-[11px] text-slate-400">Throughput telemetry mapped from 08:00 to 18:00 with campus milestones</p>
-                </div>
-                <div class="flex gap-4 text-[11px] text-slate-500">
-                    <span class="flex items-center gap-1.5"><span class="inline-block h-3 w-3 rounded-sm bg-royal"></span>Revenue ($)</span>
-                    <span class="flex items-center gap-1.5"><span class="inline-block h-3 w-3 rounded-sm bg-orange-400"></span>Volume Spike</span>
-                </div>
-            </div>
-            @php $bars = [35,55,80,140,130,90,120,175,165,130,95,80,65,50,40,35,30,28]; $maxBar = max($bars); @endphp
-            <div class="flex items-end gap-[3px]" style="height:140px">
-                @foreach($bars as $val)
-                    <div class="flex-1">
-                        <div class="w-full rounded-t-md bg-royal/80 hover:bg-royal transition-colors cursor-pointer"
-                             style="height:{{ round(($val/$maxBar)*128) }}px; min-height:4px"></div>
-                    </div>
-                @endforeach
-            </div>
-            <div class="mt-1.5 grid text-[9px] text-slate-400" style="grid-template-columns: repeat(11, 1fr)">
-                @foreach(['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00'] as $t)
-                    <span class="text-center">{{ $t }}</span>
-                @endforeach
-            </div>
-            <div class="mt-4 border-t border-slate-100 pt-3">
-                <p class="text-[11px] text-slate-500">
-                    Peak kitchen throughput reached 54 orders/hr at 10:45 AM during the Circuit Theory I lecture exit.
-                    <a href="#" class="ml-1 font-semibold text-royal underline">View Interval Heatmap</a>
+    {{-- 1. TOTAL OMZET HARI INI --}}
+    <div class="stat-card rounded-3xl bg-white p-6 shadow-xs border border-slate-200">
+        <div class="flex items-start justify-between">
+            <div>
+                <p class="text-xs font-black uppercase tracking-wider text-slate-500">Total Omzet Hari Ini</p>
+                <p class="mt-2 text-2xl lg:text-3xl font-black text-[#041562] tracking-tight">
+                    Rp {{ number_format($revenue, 0, ',', '.') }}
                 </p>
             </div>
-        </div>
-
-        {{-- Orders table --}}
-        <div class="rounded-2xl bg-white shadow-sm">
-            <div class="flex items-center justify-between px-5 pt-5 pb-4">
-                <div>
-                    <h3 class="font-bold text-navy">Top-Selling Menu Items &amp; Margins</h3>
-                    <span class="mt-0.5 inline-block rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-bold text-green-700">Live POS Rank</span>
-                </div>
-                <button class="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/></svg>
-                    Filter Category
-                </button>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full min-w-[600px] text-sm">
-                    <thead>
-                        <tr class="border-y border-slate-100 bg-slate-50 text-left">
-                            <th class="px-5 py-3 text-[11px] font-bold uppercase tracking-wide text-slate-400">Rank &amp; Item</th>
-                            <th class="px-4 py-3 text-[11px] font-bold uppercase tracking-wide text-slate-400">Units Sold</th>
-                            <th class="px-4 py-3 text-[11px] font-bold uppercase tracking-wide text-slate-400">Gross Rev</th>
-                            <th class="px-4 py-3 text-[11px] font-bold uppercase tracking-wide text-slate-400">Profit Margin</th>
-                            <th class="px-4 py-3 text-[11px] font-bold uppercase tracking-wide text-slate-400">Stock Status</th>
-                            <th class="px-4 py-3 text-[11px] font-bold uppercase tracking-wide text-slate-400">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    @forelse($recentOrders as $order)
-                        <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                            <td class="px-5 py-4">
-                                <div class="flex items-center gap-3">
-                                    <span class="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-navy text-xs font-black text-white">{{ $loop->iteration }}</span>
-                                    <div>
-                                        <p class="font-bold text-navy">{{ $order->customer_name }}</p>
-                                        <p class="text-[11px] text-slate-400">{{ $order->queue_number }}</p>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-4 py-4 font-semibold">{{ $order->items->sum('quantity') }}</td>
-                            <td class="px-4 py-4 font-bold text-navy">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</td>
-                            <td class="px-4 py-4">
-                                <span class="flex items-center gap-1 text-sm font-bold text-green-600">
-                                    {{ rand(60, 82) }}%
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
-                                </span>
-                            </td>
-                            <td class="px-4 py-4">
-                                @php
-                                    $sMap=['pending'=>['Pending','bg-yellow-100 text-yellow-700'],'preparing'=>['Preparing','bg-blue-100 text-blue-700'],'ready'=>['Ready','bg-green-100 text-green-700'],'completed'=>['Completed','bg-slate-100 text-slate-600'],'cancelled'=>['Cancelled','bg-red-100 text-red-600']];
-                                    [$lbl,$cls]=$sMap[$order->order_status]??['--','bg-slate-100 text-slate-500'];
-                                @endphp
-                                <span class="rounded-full px-2.5 py-1 text-[11px] font-bold {{ $cls }}">{{ $lbl }}</span>
-                            </td>
-                            <td class="px-4 py-4">
-                                <button class="text-slate-300 hover:text-slate-600 transition-colors">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/></svg>
-                                </button>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr><td colspan="6" class="px-5 py-8 text-center text-slate-400">Belum ada pesanan.</td></tr>
-                    @endforelse
-                    </tbody>
-                </table>
-            </div>
-            <div class="flex items-center justify-between border-t border-slate-100 px-5 py-3">
-                <p class="text-[12px] text-slate-400">Showing top 5 of {{ $orderCount }} catalog items</p>
-                <a href="{{ route('admin.products') }}" class="text-[12px] font-bold text-royal hover:underline">Manage Full Catalog &amp; Recipes &rarr;</a>
+            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 text-xl font-black shadow-xs">
+                💰
             </div>
         </div>
-
+        <div class="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 text-xs">
+            <span class="text-slate-500 font-medium">Rata-rata / Tiket</span>
+            <span class="font-black text-[#11468F]">Rp {{ number_format($avgTicket, 0, ',', '.') }}</span>
+        </div>
     </div>
 
-    {{-- RIGHT --}}
-    <div class="space-y-5">
-
-        {{-- Top category --}}
-        <div class="rounded-2xl bg-white p-5 shadow-sm">
-            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Top Category Turnover</p>
-            <p class="mt-1 text-3xl font-black leading-none text-navy">Coffee</p>
-            <p class="text-3xl font-black leading-none text-navy">Boosters</p>
-            <div class="mt-3 flex items-end justify-between">
-                <div>
-                    <p class="text-xl font-black text-navy">Rp {{ number_format($revenue * 0.62, 0, ',', '.') }}</p>
-                    <p class="text-[11px] text-slate-400">rev</p>
-                </div>
-                <span class="rounded-full bg-navy/10 px-3 py-1 text-[12px] font-bold text-navy">62.0% volume share</span>
+    {{-- 2. TOTAL PESANAN HARI INI --}}
+    <div class="stat-card rounded-3xl bg-white p-6 shadow-xs border border-slate-200">
+        <div class="flex items-start justify-between">
+            <div>
+                <p class="text-xs font-black uppercase tracking-wider text-slate-500">Total Tiket Pesanan</p>
+                <p class="mt-2 text-3xl font-black text-[#041562] tracking-tight">{{ $orderCount }}</p>
             </div>
-            <div class="mt-3 h-1.5 w-full rounded-full bg-slate-100">
-                <div class="h-1.5 rounded-full bg-royal" style="width:62%"></div>
-            </div>
-            <div class="mt-2 flex items-center justify-between text-[11px]">
-                <span class="text-slate-500">Runner Up: Bakery &amp; Sandwiches</span>
-                <span class="font-bold text-navy">26%</span>
+            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-[#11468F] text-xl font-black shadow-xs">
+                🧾
             </div>
         </div>
+        <div class="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 text-xs">
+            <span class="text-slate-500 font-medium">Dine-in / Takeaway</span>
+            <span class="font-black text-[#041562]">{{ $dineInCount }} / {{ $takeawayCount }}</span>
+        </div>
+    </div>
 
-        {{-- Payment channels --}}
-        <div class="rounded-2xl bg-white p-5 shadow-sm">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-[12px] font-bold text-navy">Payment Channels</p>
-                    <p class="text-[10px] text-slate-400">Faculty &amp; Student settlement mix</p>
-                </div>
-                <button class="text-slate-300 hover:text-slate-500 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                </button>
+    {{-- 3. PESANAN AKTIF KDS (AKSEN VIBRANT RED) --}}
+    <div class="stat-card rounded-3xl bg-white p-6 shadow-xs border-2 border-red-100">
+        <div class="flex items-start justify-between">
+            <div>
+                <p class="text-xs font-black uppercase tracking-wider text-red-600">Pesanan Aktif (KDS)</p>
+                <p class="mt-2 text-3xl font-black text-[#DA1212] tracking-tight">{{ $activeCount }}</p>
             </div>
-            <div class="my-5 flex justify-center">
-                <div class="relative flex h-32 w-32 items-center justify-center rounded-full"
-                     style="background: conic-gradient(#11468F 0% 88%, #DA1212 88% 100%)">
-                    <div class="flex h-20 w-20 flex-col items-center justify-center rounded-full bg-white shadow-inner">
-                        <p class="text-[10px] font-bold text-slate-400">SETTLED</p>
-                        <p class="text-[14px] font-black leading-tight text-navy">Rp {{ number_format($revenue/1000, 1) }}k</p>
-                        <p class="text-[9px] font-semibold text-green-600">100% Validated</p>
-                    </div>
-                </div>
-            </div>
-            <div class="space-y-3">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <span class="h-3 w-3 rounded-full bg-royal flex-shrink-0"></span>
-                        <div>
-                            <p class="text-[12px] font-bold text-navy">QRIS Instant</p>
-                            <p class="text-[10px] text-slate-400">330 transactions</p>
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-[13px] font-black text-navy">Rp {{ number_format($revenue*0.88, 0, ',', '.') }}</p>
-                        <p class="text-[10px] text-slate-400">88.0%</p>
-                    </div>
-                </div>
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <span class="h-3 w-3 rounded-full bg-vibrant flex-shrink-0"></span>
-                        <div>
-                            <p class="text-[12px] font-bold text-navy">Cash Register</p>
-                            <p class="text-[10px] text-slate-400">39 drawer transactions</p>
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-[13px] font-black text-navy">Rp {{ number_format($revenue*0.12, 0, ',', '.') }}</p>
-                        <p class="text-[10px] text-slate-400">12.0%</p>
-                    </div>
-                </div>
+            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50 text-[#DA1212] text-xl font-black shadow-xs animate-pulse">
+                ⏳
             </div>
         </div>
+        <div class="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 text-xs">
+            <span class="text-slate-500 font-medium">Perlu Diproses Dapur</span>
+            <span class="font-black text-[#DA1212]">{{ $activeCount }} antrean</span>
+        </div>
+    </div>
 
-        {{-- Recent stream --}}
-        <div class="rounded-2xl bg-white p-5 shadow-sm">
-            <div class="flex items-center justify-between">
+    {{-- 4. PESANAN SELESAI --}}
+    <div class="stat-card rounded-3xl bg-white p-6 shadow-xs border border-slate-200">
+        <div class="flex items-start justify-between">
+            <div>
+                <p class="text-xs font-black uppercase tracking-wider text-slate-500">Selesai Disajikan</p>
+                <p class="mt-2 text-3xl font-black text-emerald-600 tracking-tight">{{ $completedCount }}</p>
+            </div>
+            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 text-xl font-black shadow-xs">
+                ✓
+            </div>
+        </div>
+        <div class="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 text-xs">
+            <span class="text-slate-500 font-medium">Pesanan Dibatalkan</span>
+            <span class="font-bold text-slate-500">{{ $cancelledCount }}</span>
+        </div>
+    </div>
+
+</div>
+
+{{-- DUA KOLOM: GRAFIK PENJUALAN PER JAM & PESANAN TERBARU --}}
+<div class="mt-7 grid gap-6 xl:grid-cols-[1fr_380px]">
+
+    {{-- KOLOM KIRI: DISTRIBUSI VOLUME PENJUALAN PER JAM --}}
+    <div class="rounded-3xl bg-white p-6 shadow-xs border border-slate-200 flex flex-col justify-between">
+        <div>
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-4">
                 <div>
-                    <p class="text-[12px] font-bold text-navy">Recent Stream</p>
-                    <p class="text-[10px] text-slate-400">Live Hall B POS event stream</p>
+                    <h3 class="text-lg font-black text-[#041562]">Distribusi Volume Penjualan Per Jam</h3>
+                    <p class="text-xs text-slate-500 font-medium">Monitoring grafik lonjakan pesanan dari jam 08:00 sampai 20:00 WIB</p>
                 </div>
-                <span class="flex items-center gap-1 rounded-full bg-green-50 px-2 py-1 text-[10px] font-bold text-green-700">
-                    <span class="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse"></span> Live Feed
+                <span class="rounded-xl bg-[#11468F]/10 px-3 py-1.5 text-xs font-black text-[#11468F]">
+                    Hari Ini
                 </span>
             </div>
-            <div class="mt-4 space-y-2">
-                @forelse($recentOrders->take(4) as $order)
-                    <div class="flex items-start gap-3 rounded-xl border border-slate-100 p-3 hover:border-slate-200 transition-colors">
-                        <div class="flex-shrink-0 text-center">
-                            <p class="text-[11px] font-black text-royal">#E-{{ 42 - $loop->index }}</p>
-                            <div class="mt-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-royal text-white text-[9px] font-bold">
-                                {{ strtoupper(substr($order->customer_name, 0, 2)) }}
-                            </div>
-                        </div>
-                        <div class="min-w-0 flex-1">
-                            <div class="flex items-center justify-between gap-1">
-                                <p class="truncate text-[12px] font-bold text-navy">{{ Str::limit($order->customer_name, 10) }}</p>
-                                <p class="flex-shrink-0 text-[12px] font-black text-navy">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</p>
-                            </div>
-                            <p class="mt-0.5 truncate text-[10px] text-slate-400">{{ $order->items->first()?->product?->name ?? 'Pesanan' }}</p>
-                            <div class="mt-1 flex items-center gap-1.5">
-                                <span class="rounded-full bg-green-100 px-1.5 py-0.5 text-[9px] font-bold text-green-700">QRIS</span>
-                                <span class="text-[9px] text-slate-400">{{ $loop->iteration }}m ago</span>
-                            </div>
-                        </div>
-                    </div>
-                @empty
-                    <p class="py-4 text-center text-[12px] text-slate-400">Belum ada stream.</p>
-                @endforelse
+
+            {{-- CANVAS CHART.JS BAR CHART --}}
+            <div class="mt-5 relative w-full h-[250px]">
+                <canvas id="hourlySalesChart"></canvas>
             </div>
         </div>
 
-        {{-- Register sync --}}
-        <div class="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3">
-            <p class="text-[11px] text-slate-400">Register sync: <span class="font-bold text-green-600">0.2s</span></p>
-            <a href="{{ route('admin.kitchen') }}" class="text-[12px] font-bold text-royal hover:underline">View All Transactions &rsaquo;</a>
+        <div class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between text-xs text-slate-500 font-medium">
+            <span>Warna Biru: Volume Tiket Pesanan Masuk</span>
+            <span class="font-black text-[#041562]">Total: {{ $orderCount }} Tiket</span>
+        </div>
+    </div>
+
+    {{-- KOLOM KANAN: PANEL PESANAN TERBARU DENGAN STATUS BADGE JELAS --}}
+    <div class="rounded-3xl bg-white p-6 shadow-xs border border-slate-200">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+            <div>
+                <h3 class="text-base font-black text-[#041562]">Pesanan Terbaru</h3>
+                <p class="text-xs text-slate-400 font-medium">Live antrean realtime</p>
+            </div>
+            <span class="flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-3 py-1 text-xs font-black text-emerald-700">
+                <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                Live
+            </span>
         </div>
 
+        <div class="mt-4 space-y-3 max-h-[360px] overflow-y-auto pr-1">
+            @forelse ($recentOrders as $order)
+                <div class="rounded-2xl border border-slate-200 p-4 hover:border-[#11468F] transition-all bg-white shadow-xs">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <span class="rounded-lg bg-[#041562] px-2.5 py-1 text-xs font-black text-white">
+                                {{ $order->queue_number }}
+                            </span>
+                            <h4 class="mt-2 font-black text-[#041562] text-sm leading-tight">
+                                {{ $order->customer_name }}
+                            </h4>
+                        </div>
+                        <span class="text-sm font-black text-[#11468F] shrink-0">
+                            Rp {{ number_format($order->total_amount, 0, ',', '.') }}
+                        </span>
+                    </div>
+
+                    <div class="mt-2 text-xs text-slate-500 font-medium truncate">
+                        {{ $order->items->first()?->product?->name ?? 'Menu Produk' }}
+                        @if ($order->items->count() > 1)
+                            <span class="text-slate-700 font-bold">+{{ $order->items->count() - 1 }} item lainnya</span>
+                        @endif
+                    </div>
+
+                    <div class="mt-3 flex items-center justify-between text-xs border-t border-slate-100 pt-2.5">
+                        <span class="text-slate-500 font-semibold text-[11px]">
+                            {{ $order->order_type === 'dine_in' ? 'Dine-in (Meja ' . ($order->table_number ?: '-') . ')' : 'Takeaway' }}
+                        </span>
+
+                        {{-- BADGE STATUS KONTRAST TINGGI: PENDING = KUNING/ORANGE, PREPARING = BIRU, READY = HIJAU --}}
+                        @php
+                            $statusStyle = match($order->order_status) {
+                                'pending'   => ['label' => 'Pending',   'cls' => 'bg-amber-100 text-amber-900 border border-amber-300'],
+                                'preparing' => ['label' => 'Preparing', 'cls' => 'bg-blue-100 text-[#11468F] border border-blue-300'],
+                                'ready'     => ['label' => 'Ready',     'cls' => 'bg-emerald-100 text-emerald-900 border border-emerald-300'],
+                                'completed' => ['label' => 'Completed', 'cls' => 'bg-slate-100 text-slate-700 border border-slate-300'],
+                                default     => ['label' => ucfirst($order->order_status), 'cls' => 'bg-rose-100 text-rose-900 border border-rose-300']
+                            };
+                        @endphp
+                        <span class="rounded-full px-3 py-0.5 text-[11px] font-black {{ $statusStyle['cls'] }}">
+                            {{ $statusStyle['label'] }}
+                        </span>
+                    </div>
+                </div>
+            @empty
+                <p class="py-12 text-center text-xs text-slate-400 font-medium">
+                    Belum ada antrean pesanan yang masuk hari ini.
+                </p>
+            @endforelse
+        </div>
+
+        <div class="mt-4 border-t border-slate-100 pt-4 text-center">
+            <a href="{{ route('admin.kitchen') }}" class="text-xs font-black text-[#11468F] hover:underline">
+                Lihat Selengkapnya di Kitchen Display System &rarr;
+            </a>
+        </div>
+    </div>
+
+</div>
+
+{{-- TABEL MENU TERLARIS HARI INI (BAGIAN BAWAH DENGAN HEADER DARK NAVY #041562) --}}
+<div class="mt-7 rounded-3xl bg-white shadow-xs border border-slate-200 overflow-hidden">
+    <div class="p-6 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2">
+        <div>
+            <h3 class="text-lg font-black text-[#041562]">Menu Terlaris Hari Ini</h3>
+            <p class="text-xs text-slate-500 font-medium">Peringkat menu favorit berdasarkan volume pesanan dan perolehan omzet</p>
+        </div>
+        <a href="{{ route('admin.products') }}" class="text-xs font-black text-[#11468F] hover:underline">
+            Kelola Seluruh Katalog Menu &rarr;
+        </a>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+            <thead>
+                <tr class="bg-[#041562] text-white">
+                    <th class="py-3.5 px-6 font-black uppercase tracking-wider text-[11px]">Rank &amp; Menu Produk</th>
+                    <th class="py-3.5 px-4 font-black uppercase tracking-wider text-[11px] text-center">Porsi Terjual</th>
+                    <th class="py-3.5 px-4 font-black uppercase tracking-wider text-[11px] text-right">Harga Satuan</th>
+                    <th class="py-3.5 px-6 font-black uppercase tracking-wider text-[11px] text-right">Gross Revenue</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                @forelse ($topProducts as $idx => $prod)
+                    <tr class="hover:bg-slate-50/80 transition">
+                        <td class="py-4 px-6 font-bold text-[#041562] flex items-center gap-3">
+                            <span class="flex h-7 w-7 items-center justify-center rounded-xl bg-[#11468F] text-xs font-black text-white shadow-xs">
+                                {{ $idx + 1 }}
+                            </span>
+                            <div>
+                                <p class="font-black text-[#041562] text-sm leading-tight">{{ $prod->name }}</p>
+                                <p class="text-[11px] text-slate-400 font-medium mt-0.5">Menu Kafe</p>
+                            </div>
+                        </td>
+                        <td class="py-4 px-4 text-center font-black text-[#11468F] text-sm">
+                            {{ $prod->total_sold }} porsi
+                        </td>
+                        <td class="py-4 px-4 text-right text-slate-700 font-semibold">
+                            Rp {{ number_format($prod->price, 0, ',', '.') }}
+                        </td>
+                        <td class="py-4 px-6 text-right font-black text-[#041562] text-sm">
+                            Rp {{ number_format($prod->gross_rev, 0, ',', '.') }}
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="4" class="py-10 text-center text-xs text-slate-400 font-medium">
+                            Belum ada riwayat transaksi menu untuk hari ini.
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
 </div>
 
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Inisialisasi Chart.js untuk Distribusi Penjualan Per Jam
+    const ctx = document.getElementById('hourlySalesChart');
+    if (ctx) {
+        const hourlyData = @json($hourlyData);
+        const labels = Object.values(hourlyData).map(item => item.hour);
+        const counts = Object.values(hourlyData).map(item => item.count);
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Jumlah Pesanan',
+                    data: counts,
+                    backgroundColor: '#11468F',
+                    hoverBackgroundColor: '#041562',
+                    borderRadius: 8,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#041562',
+                        titleFont: { family: 'Plus Jakarta Sans', weight: 'bold' },
+                        bodyFont: { family: 'Plus Jakarta Sans' },
+                        padding: 10,
+                        cornerRadius: 8,
+                        callbacks: {
+                            label: function(context) {
+                                const count = context.raw || 0;
+                                return ` ${count} Pesanan Masuk`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { family: 'Plus Jakarta Sans', size: 10, weight: '600' }, color: '#64748b' }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#f1f5f9' },
+                        ticks: { stepSize: 1, font: { family: 'Plus Jakarta Sans', size: 10 }, color: '#64748b' }
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+@endpush

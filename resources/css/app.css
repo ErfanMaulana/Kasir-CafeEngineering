@@ -15,3 +15,16 @@ html, body, button, input, select, textarea {
     font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
 }
 
+/* Hilangkan panah spinner bawaan browser untuk Chrome, Safari, Edge, Opera */
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none; 
+    margin: 0; 
+}
+
+/* Hilangkan panah spinner untuk Firefox */
+input[type=number] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
