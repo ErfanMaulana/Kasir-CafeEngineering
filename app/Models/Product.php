@@ -15,6 +15,7 @@ class Product extends Model
         'category_id',
         'name',
         'description',
+        'ingredients',
         'price',
         'image',
         'is_available',

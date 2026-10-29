@@ -87,6 +87,7 @@ class ProductController extends Controller
             'category_id' => ['required', 'exists:categories,id'],
             'name' => ['required', 'string', 'max:120'],
             'description' => ['nullable', 'string', 'max:1000'],
+            'ingredients' => ['nullable', 'string', 'max:2000'],
             'price' => ['required', 'numeric', 'min:0'],
             'image' => ['nullable', 'string', 'max:255'],
             'is_available' => ['nullable', 'boolean'],

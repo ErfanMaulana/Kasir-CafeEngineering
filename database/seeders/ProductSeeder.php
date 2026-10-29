@@ -19,6 +19,7 @@ class ProductSeeder extends Seeder
                 [
                     'name' => 'Nasi Goreng Spesial',
                     'description' => 'Nasi goreng dengan telur ceplok, sosis, dan kerupuk',
+                    'ingredients' => 'Beras premium, Telur ayam, Sosis sapi, Bawang merah, Bawang putih, Kecap manis, Kerupuk udang, Daun bawang',
                     'price' => 18000,
                     'image' => 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=600&q=80',
                     'is_available' => true,
@@ -26,6 +27,7 @@ class ProductSeeder extends Seeder
                 [
                     'name' => 'Mie Goreng Jawa',
                     'description' => 'Mie goreng bumbu kecap manis gurih dengan suwiran ayam',
+                    'ingredients' => 'Mie telur basah, Suwiran daging ayam, Telur, Kol, Sawi hijau, Bumbu rempah jawa, Kecap manis, Acar timun',
                     'price' => 16000,
                     'image' => 'https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&w=600&q=80',
                     'is_available' => true,
@@ -33,6 +35,7 @@ class ProductSeeder extends Seeder
                 [
                     'name' => 'Chicken Katsu Don',
                     'description' => 'Nasi dengan topping chicken katsu renyah dan telur setengah matang',
+                    'ingredients' => 'Daging fillet ayam renyah, Tepung panko jepang, Telur setengah matang, Nasi putih hangat, Saus teriyaki, Bawang bombay, Wijen sangrai',
                     'price' => 22000,
                     'image' => 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=600&q=80',
                     'is_available' => true,
@@ -40,6 +43,7 @@ class ProductSeeder extends Seeder
                 [
                     'name' => 'Spageti Carbonara',
                     'description' => 'Pasta kremi dengan saus keju dan potongan daging asap',
+                    'ingredients' => 'Spaghetti pasta, Krim susu segar, Keju parmesan, Daging asap (smoked beef), Lada hitam, Minyak zaitun, Oregano',
                     'price' => 25000,
                     'image' => 'https://images.unsplash.com/photo-1612874742237-6526221588e3?auto=format&fit=crop&w=600&q=80',
                     'is_available' => true,
@@ -49,6 +53,7 @@ class ProductSeeder extends Seeder
                 [
                     'name' => 'Es Kopi Susu Aren',
                     'description' => 'Kopi espresso pilihan dicampur susu segar dan gula aren asli',
+                    'ingredients' => 'Espresso blend house, Susu segar UHT, Gula aren murni organik, Es batu higienis',
                     'price' => 15000,
                     'image' => 'https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?auto=format&fit=crop&w=600&q=80',
                     'is_available' => true,
@@ -56,6 +61,7 @@ class ProductSeeder extends Seeder
                 [
                     'name' => 'Americano Ice',
                     'description' => 'Espresso ganda dengan es batu segar',
+                    'ingredients' => 'Double shot espresso Arabika, Air mineral dingin, Es batu kristal',
                     'price' => 12000,
                     'image' => 'https://images.unsplash.com/photo-1551030173-122aabc4489c?auto=format&fit=crop&w=600&q=80',
                     'is_available' => true,
@@ -63,6 +69,7 @@ class ProductSeeder extends Seeder
                 [
                     'name' => 'Matcha Latte Ice',
                     'description' => 'Bubuk matcha jepang asli dicampur susu segar',
+                    'ingredients' => 'Matcha Jepang premium, Susu cair segar, Sirup vanila, Es batu',
                     'price' => 18000,
                     'image' => 'https://images.unsplash.com/photo-1536256263959-770b48d82b0a?auto=format&fit=crop&w=600&q=80',
                     'is_available' => true,
@@ -70,6 +77,7 @@ class ProductSeeder extends Seeder
                 [
                     'name' => 'Es Teh Manis',
                     'description' => 'Teh melati manis dingin menyegarkan',
+                    'ingredients' => 'Teh melati pilihan, Gula tebu cair, Air mineral, Es batu segar',
                     'price' => 5000,
                     'image' => 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=600&q=80',
                     'is_available' => true,
@@ -77,6 +85,7 @@ class ProductSeeder extends Seeder
                 [
                     'name' => 'Chocolate Ice',
                     'description' => 'Cokelat pekat dingin bermutu tinggi dengan topping keju',
+                    'ingredients' => 'Dark chocolate bubuk impor, Susu segar, Krimer nabati, Parutan keju cheddar, Es batu',
                     'price' => 16000,
                     'image' => 'https://images.unsplash.com/photo-1541658016709-82535e94bc69?auto=format&fit=crop&w=600&q=80',
                     'is_available' => true,
@@ -86,6 +95,7 @@ class ProductSeeder extends Seeder
                 [
                     'name' => 'Kentang Goreng',
                     'description' => 'French fries renyah dengan bumbu gurih dan saus cocolan',
+                    'ingredients' => 'Kentang shoestring import, Garam laut gurih, Bubuk lada, Saus tomat, Saus sambal pedas',
                     'price' => 12000,
                     'image' => 'https://images.unsplash.com/photo-1576107232684-1279f3908594?auto=format&fit=crop&w=600&q=80',
                     'is_available' => true,
@@ -93,6 +103,7 @@ class ProductSeeder extends Seeder
                 [
                     'name' => 'Pisang Cokelat Keju',
                     'description' => 'Pisang goreng krispi dengan limpahan ceres dan keju parut',
+                    'ingredients' => 'Pisang raja pilihan, Tepung krispi, Cokelat ceres manis, Keju cheddar parut, Susu kental manis',
                     'price' => 10000,
                     'image' => 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=600&q=80',
                     'is_available' => true,
@@ -100,6 +111,7 @@ class ProductSeeder extends Seeder
                 [
                     'name' => 'Cireng Bumbu Rujak',
                     'description' => 'Cireng gurih krispi khas Sunda dengan cocolan bumbu rujak pedas manis',
+                    'ingredients' => 'Tepung tapioka berkualitas, Bawang putih halus, Daun bawang segar, Gula aren, Asam jawa, Cabai rawit segar',
                     'price' => 10000,
                     'image' => 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=600&q=80',
                     'is_available' => true,
@@ -107,6 +119,7 @@ class ProductSeeder extends Seeder
                 [
                     'name' => 'Toast Cokelat Keju',
                     'description' => 'Roti bakar tebal isi mentega, cokelat, dan keju melimpah',
+                    'ingredients' => 'Roti gandum tebal, Mentega salted butter, Meises cokelat, Keju kraft cheddar, Susu kental manis',
                     'price' => 14000,
                     'image' => 'https://images.unsplash.com/photo-1484723091739-30a097e8f929?auto=format&fit=crop&w=600&q=80',
                     'is_available' => true,
@@ -128,6 +141,7 @@ class ProductSeeder extends Seeder
                     ],
                     [
                         'description' => $productData['description'],
+                        'ingredients' => $productData['ingredients'] ?? null,
                         'price' => $productData['price'],
                         'image' => $productData['image'],
                         'is_available' => $productData['is_available'] ?? true,

@@ -38,7 +38,6 @@
         .nav-link.active {
             background: #11468F;
             color: #ffffff;
-            box-shadow: inset 4px 0 0 #DA1212;
             font-weight: 800;
         }
         .nav-link svg { opacity: 0.8; }
@@ -81,11 +80,11 @@
 
     {{-- Brand / Logo --}}
     <div class="flex items-center gap-3 px-5 py-6 border-b border-white/10">
-        <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#DA1212] text-white text-xl font-black shadow-lg">
+        {{-- <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#DA1212] text-white text-xl font-black shadow-lg">
             ☕
-        </div>
+        </div> --}}
         <div>
-            <p class="text-[10px] font-black uppercase tracking-widest text-blue-200">Admin Portal</p>
+            <p class="text-[10px] font-black uppercase tracking-widest text-blue-200">Admin</p>
             <p class="text-base font-black text-white leading-tight">Engineering Cafe</p>
             <p class="text-[10px] text-blue-200/80 font-medium">Fakultas Teknik - Universitas Siliwangi</p>
         </div>
@@ -94,7 +93,7 @@
     {{-- Location badge --}}
     <div class="mx-4 my-4 flex items-center gap-2 rounded-xl px-3 py-2 bg-white/10 text-white">
         <span class="text-xs">📍</span>
-        <span class="text-xs font-bold text-blue-100">FT · Espresso Node</span>
+        <span class="text-xs font-bold text-blue-100">FT · Mugarsari</span>
     </div>
 
     {{-- Navigation Menu --}}

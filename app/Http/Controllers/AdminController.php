@@ -314,6 +314,7 @@ class AdminController extends Controller
             'category_id' => ['required', 'exists:categories,id'],
             'name' => ['required', 'string', 'max:120'],
             'description' => ['nullable', 'string', 'max:1000'],
+            'ingredients' => ['nullable', 'string', 'max:2000'],
             'price' => ['required', 'numeric', 'min:0'],
             'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
             'is_available' => ['nullable', 'boolean'],

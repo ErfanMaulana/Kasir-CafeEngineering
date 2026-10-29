@@ -150,102 +150,114 @@
 </div>
 
 {{-- MODAL TAMBAH / EDIT PRODUK --}}
-<div id="product-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-navy/70 backdrop-blur-xs p-4">
-    <div class="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-3xl bg-white p-6 sm:p-7 shadow-2xl">
-        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-            <h2 id="modal-title" class="text-lg font-black text-navy">Tambah Produk Menu</h2>
-            <button type="button" data-close-modal class="rounded-xl p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 text-xl leading-none">&times;</button>
-        </div>
-
-        <form id="product-form" method="POST" action="{{ route('admin.products.store') }}" enctype="multipart/form-data" class="mt-5 space-y-4 text-xs">
+<div id="product-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-navy/70 backdrop-blur-xs p-4 overflow-y-auto">
+    <div class="relative w-full max-w-lg overflow-hidden rounded-3xl bg-white shadow-2xl flex flex-col my-auto">
+        <form id="product-form" method="POST" action="{{ route('admin.products.store') }}" enctype="multipart/form-data" class="flex flex-col min-h-0 text-xs">
             @csrf
             <input id="method-field" type="hidden" name="_method" value="">
 
-            <div>
-                <label class="block font-bold text-slate-700">Nama Menu Produk <span class="text-vibrant">*</span></label>
-                <input id="product-name" name="name" required placeholder="Contoh: Es Americano, Toast Keju"
-                       class="mt-1.5 w-full rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs font-medium focus:border-royal focus:bg-white focus:outline-none focus:ring-1 focus:ring-royal">
+            {{-- Header Modal (Sticky/Fixed Top) --}}
+            <div class="p-6 pb-4 border-b border-slate-100 flex justify-between items-center bg-white shrink-0">
+                <h2 id="modal-title" class="text-lg font-black text-navy">Tambah Produk Menu</h2>
+                <button type="button" data-close-modal class="rounded-xl p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 text-xl leading-none">&times;</button>
             </div>
 
-            <div class="grid grid-cols-2 gap-3">
+            {{-- Body Modal (Scrollable Area) --}}
+            <div class="p-6 overflow-y-auto max-h-[65vh] space-y-4 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-slate-200 [&::-webkit-scrollbar-thumb]:rounded-full">
                 <div>
-                    <label class="block font-bold text-slate-700">Kategori <span class="text-vibrant">*</span></label>
-                    <select id="product-category" name="category_id" required
-                            class="mt-1.5 w-full rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs font-medium focus:border-royal focus:bg-white focus:outline-none focus:ring-1 focus:ring-royal">
-                        @foreach ($categories as $category)
-                            <option value="{{ $category->id }}">{{ $category->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block font-bold text-slate-700">Harga (Rp) <span class="text-vibrant">*</span></label>
-                    <input id="product-price" name="price" type="number" min="0" step="500" required placeholder="Contoh: 15000"
+                    <label class="block font-bold text-slate-700">Nama Menu Produk <span class="text-vibrant">*</span></label>
+                    <input id="product-name" name="name" required placeholder="Contoh: Es Americano, Toast Keju"
                            class="mt-1.5 w-full rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs font-medium focus:border-royal focus:bg-white focus:outline-none focus:ring-1 focus:ring-royal">
                 </div>
-            </div>
 
-            <div>
-                <label class="block font-bold text-slate-700 mb-1.5">Foto Menu Produk (Opsional)</label>
-                
-                {{-- Drag & Drop Upload Zone --}}
-                <div id="drop-zone" class="relative group flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/70 p-4 transition-all hover:border-royal hover:bg-royal/5">
-                    <input id="product-image-file" type="file" name="image" accept="image/png, image/jpeg, image/jpg, image/webp"
-                           class="absolute inset-0 z-10 h-full w-full opacity-0 cursor-pointer">
-
-                    {{-- Image Preview Container --}}
-                    <div id="preview-container" class="hidden flex-col items-center gap-2.5 text-center">
-                        <div class="relative">
-                            <img id="image-preview" src="#" alt="Pratinjau Foto" class="h-24 w-24 rounded-2xl object-cover shadow-md border-2 border-white ring-2 ring-slate-200">
-                            <span id="preview-badge" class="absolute -top-2 -right-2 rounded-full bg-royal px-2 py-0.5 text-[10px] font-bold text-white shadow">
-                                Preview
-                            </span>
-                        </div>
-                        <p id="preview-filename" class="text-xs font-semibold text-slate-700 truncate max-w-[280px]"></p>
-                        <p class="text-[11px] font-bold text-royal hover:underline">
-                            Klik atau seret file ke sini untuk mengganti foto
-                        </p>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-700">Kategori <span class="text-vibrant">*</span></label>
+                        <select id="product-category" name="category_id" required
+                                class="mt-1.5 w-full rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs font-medium focus:border-royal focus:bg-white focus:outline-none focus:ring-1 focus:ring-royal">
+                            @foreach ($categories as $category)
+                                <option value="{{ $category->id }}">{{ $category->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
 
-                    {{-- Upload Placeholder --}}
-                    <div id="upload-placeholder" class="flex flex-col items-center text-center py-2">
-                        <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-royal/10 text-royal transition-transform group-hover:scale-110">
-                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                        </div>
-                        <p class="mt-2 text-xs font-bold text-slate-700">
-                            <span class="text-royal underline">Klik untuk upload</span> atau seret & lepas file
-                        </p>
-                        <p class="mt-0.5 text-[11px] text-slate-400">Pilih foto produk menu terbaik</p>
+                    <div>
+                        <label class="block font-bold text-slate-700">Harga (Rp) <span class="text-vibrant">*</span></label>
+                        <input id="product-price" name="price" type="number" min="0" step="500" required placeholder="Contoh: 15000"
+                               class="mt-1.5 w-full rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs font-medium focus:border-royal focus:bg-white focus:outline-none focus:ring-1 focus:ring-royal">
                     </div>
                 </div>
 
-                {{-- Petunjuk format & tombol batalkan --}}
-                <div class="mt-1.5 flex items-center justify-between text-[11px] text-slate-400">
-                    <span>Format: JPG, PNG, WEBP (Maksimal 5 MB)</span>
-                    <button type="button" id="btn-cancel-image" class="hidden text-rose-500 hover:text-rose-700 font-bold hover:underline">
-                        Batal Pilih
-                    </button>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1.5">Foto Menu Produk (Opsional)</label>
+                    
+                    {{-- Drag & Drop Upload Zone --}}
+                    <div id="drop-zone" class="relative group flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/70 p-4 transition-all hover:border-royal hover:bg-royal/5">
+                        <input id="product-image-file" type="file" name="image" accept="image/png, image/jpeg, image/jpg, image/webp"
+                               class="absolute inset-0 z-10 h-full w-full opacity-0 cursor-pointer">
+
+                        {{-- Image Preview Container --}}
+                        <div id="preview-container" class="hidden flex-col items-center gap-2.5 text-center">
+                            <div class="relative">
+                                <img id="image-preview" src="#" alt="Pratinjau Foto" class="h-24 w-24 rounded-2xl object-cover shadow-md border-2 border-white ring-2 ring-slate-200">
+                                <span id="preview-badge" class="absolute -top-2 -right-2 rounded-full bg-royal px-2 py-0.5 text-[10px] font-bold text-white shadow">
+                                    Preview
+                                </span>
+                            </div>
+                            <p id="preview-filename" class="text-xs font-semibold text-slate-700 truncate max-w-[280px]"></p>
+                            <p class="text-[11px] font-bold text-royal hover:underline">
+                                Klik atau seret file ke sini untuk mengganti foto
+                            </p>
+                        </div>
+
+                        {{-- Upload Placeholder --}}
+                        <div id="upload-placeholder" class="flex flex-col items-center text-center py-2">
+                            <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-royal/10 text-royal transition-transform group-hover:scale-110">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <p class="mt-2 text-xs font-bold text-slate-700">
+                                <span class="text-royal underline">Klik untuk upload</span> atau seret & lepas file
+                            </p>
+                            <p class="mt-0.5 text-[11px] text-slate-400">Pilih foto produk menu terbaik</p>
+                        </div>
+                    </div>
+
+                    {{-- Petunjuk format & tombol batalkan --}}
+                    <div class="mt-1.5 flex items-center justify-between text-[11px] text-slate-400">
+                        <span>Format: JPG, PNG, WEBP (Maksimal 5 MB)</span>
+                        <button type="button" id="btn-cancel-image" class="hidden text-rose-500 hover:text-rose-700 font-bold hover:underline">
+                            Batal Pilih
+                        </button>
+                    </div>
                 </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700">Deskripsi Menu</label>
+                    <textarea id="product-description" name="description" rows="3" placeholder="Jelaskan komposisi rasa atau bahan makanan..."
+                              class="mt-1.5 w-full rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs font-medium focus:border-royal focus:bg-white focus:outline-none focus:ring-1 focus:ring-royal"></textarea>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700">Bahan-bahan / Komposisi (Ingredients)</label>
+                    <textarea id="product-ingredients" name="ingredients" rows="2" placeholder="Contoh: Daging ayam katsu, telur mata sapi, nasi putih, saus teriyaki, wijen..."
+                              class="mt-1.5 w-full rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs font-medium focus:border-royal focus:bg-white focus:outline-none focus:ring-1 focus:ring-royal"></textarea>
+                    <p class="mt-1 text-[11px] text-slate-400">Pisahkan setiap bahan dengan tanda koma ( , ) agar otomatis tampil sebagai pills/label di modal detail produk pembeli.</p>
+                </div>
+
+                <label class="flex items-center gap-2 cursor-pointer font-bold text-slate-700 pt-1">
+                    <input id="product-available" type="checkbox" name="is_available" value="1" checked class="rounded border-slate-300 text-royal focus:ring-royal">
+                    <span>Langsung tersedia untuk dipesan (In Stock)</span>
+                </label>
             </div>
 
-            <div>
-                <label class="block font-bold text-slate-700">Deskripsi Menu</label>
-                <textarea id="product-description" name="description" rows="3" placeholder="Jelaskan komposisi rasa atau bahan makanan..."
-                          class="mt-1.5 w-full rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs font-medium focus:border-royal focus:bg-white focus:outline-none focus:ring-1 focus:ring-royal"></textarea>
-            </div>
-
-            <label class="flex items-center gap-2 cursor-pointer font-bold text-slate-700 pt-1">
-                <input id="product-available" type="checkbox" name="is_available" value="1" checked class="rounded border-slate-300 text-royal focus:ring-royal">
-                <span>Langsung tersedia untuk dipesan (In Stock)</span>
-            </label>
-
-            <div class="mt-6 border-t border-slate-100 pt-4 flex justify-end gap-2">
-                <button type="button" data-close-modal class="rounded-xl border border-slate-200 px-4 py-2.5 font-bold text-slate-600 hover:bg-slate-50">
+            {{-- Footer Modal (Sticky/Fixed Bottom) --}}
+            <div class="p-6 pt-4 border-t border-slate-100 flex justify-end gap-3 bg-slate-50 shrink-0">
+                <button type="button" data-close-modal class="rounded-xl border border-slate-200 px-4 py-2.5 font-bold text-slate-600 hover:bg-slate-100 transition">
                     Batal
                 </button>
-                <button type="submit" class="rounded-xl bg-vibrant px-5 py-2.5 font-black text-white hover:bg-red-700 transition">
+                <button type="submit" class="rounded-xl bg-vibrant px-5 py-2.5 font-black text-white hover:bg-red-700 shadow-sm transition">
                     Simpan Produk
                 </button>
             </div>
@@ -254,45 +266,47 @@
 </div>
 
 {{-- MODAL KELOLA KATEGORI --}}
-<div id="category-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-navy/70 backdrop-blur-xs p-4">
-    <div class="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl">
-        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+<div id="category-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-navy/70 backdrop-blur-xs p-4 overflow-y-auto">
+    <div class="relative w-full max-w-md overflow-hidden rounded-3xl bg-white shadow-2xl flex flex-col my-auto">
+        <div class="flex items-center justify-between border-b border-slate-100 p-6 pb-4 bg-white shrink-0">
             <h2 class="text-base font-black text-navy">Kelola Kategori Menu</h2>
             <button type="button" data-close-category-modal class="rounded-xl p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 text-xl leading-none">&times;</button>
         </div>
 
-        {{-- FORM TAMBAH KATEGORI BARU --}}
-        <form method="POST" action="{{ route('admin.categories.store') }}" class="mt-4 border-b border-slate-100 pb-4">
-            @csrf
-            <label class="block text-xs font-bold text-slate-700">Nama Kategori Baru</label>
-            <div class="mt-1.5 flex gap-2">
-                <input name="name" required placeholder="Contoh: Pastry, Dessert"
-                       class="flex-1 rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs font-medium focus:border-royal focus:bg-white focus:outline-none focus:ring-1 focus:ring-royal">
-                <button class="rounded-xl bg-royal px-4 py-2.5 text-xs font-black text-white hover:bg-navy transition">
-                    Tambah
-                </button>
-            </div>
-        </form>
-
-        {{-- DAFTAR KATEGORI YANG SUDAH ADA --}}
-        <div class="mt-4 space-y-2 max-h-60 overflow-y-auto">
-            <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Kategori Tersedia</p>
-            @foreach ($categories as $cat)
-                <div class="flex items-center justify-between rounded-xl border border-slate-100 p-2.5 text-xs">
-                    <div>
-                        <span class="font-bold text-navy">{{ $cat->name }}</span>
-                        <span class="ml-1 text-[11px] text-slate-400">({{ $cat->products_count }} produk)</span>
-                    </div>
-                    @if ($cat->products_count === 0)
-                        <form method="POST" action="{{ route('admin.categories.destroy', $cat->id) }}"
-                              onsubmit="return confirm('Hapus kategori {{ $cat->name }}?')">
-                            @csrf
-                            @method('DELETE')
-                            <button class="text-rose-600 font-bold hover:underline">Hapus</button>
-                        </form>
-                    @endif
+        <div class="p-6 overflow-y-auto max-h-[70vh] space-y-4 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-slate-200 [&::-webkit-scrollbar-thumb]:rounded-full">
+            {{-- FORM TAMBAH KATEGORI BARU --}}
+            <form method="POST" action="{{ route('admin.categories.store') }}" class="border-b border-slate-100 pb-4">
+                @csrf
+                <label class="block text-xs font-bold text-slate-700">Nama Kategori Baru</label>
+                <div class="mt-1.5 flex gap-2">
+                    <input name="name" required placeholder="Contoh: Pastry, Dessert"
+                           class="flex-1 rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs font-medium focus:border-royal focus:bg-white focus:outline-none focus:ring-1 focus:ring-royal">
+                    <button class="rounded-xl bg-royal px-4 py-2.5 text-xs font-black text-white hover:bg-navy transition">
+                        Tambah
+                    </button>
                 </div>
-            @endforeach
+            </form>
+
+            {{-- DAFTAR KATEGORI YANG SUDAH ADA --}}
+            <div class="space-y-2">
+                <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Kategori Tersedia</p>
+                @foreach ($categories as $cat)
+                    <div class="flex items-center justify-between rounded-xl border border-slate-100 p-2.5 text-xs">
+                        <div>
+                            <span class="font-bold text-navy">{{ $cat->name }}</span>
+                            <span class="ml-1 text-[11px] text-slate-400">({{ $cat->products_count }} produk)</span>
+                        </div>
+                        @if ($cat->products_count === 0)
+                            <form method="POST" action="{{ route('admin.categories.destroy', $cat->id) }}"
+                                  onsubmit="return confirm('Hapus kategori {{ $cat->name }}?')">
+                                @csrf
+                                @method('DELETE')
+                                <button class="text-rose-600 font-bold hover:underline">Hapus</button>
+                            </form>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
         </div>
     </div>
 </div>
@@ -409,6 +423,7 @@ document.querySelector('[data-open-modal]').addEventListener('click', () => {
     resetImageUpload();
     document.getElementById('modal-title').textContent = 'Tambah Produk Menu';
     document.getElementById('method-field').value = '';
+    document.getElementById('product-ingredients').value = '';
     form.action = "{{ route('admin.products.store') }}";
     openModal();
 });
@@ -424,6 +439,7 @@ document.querySelectorAll('[data-open-edit]').forEach(btn => btn.addEventListene
     document.getElementById('product-category').value = p.category_id;
     document.getElementById('product-price').value = Math.round(p.price);
     document.getElementById('product-description').value = p.description || '';
+    document.getElementById('product-ingredients').value = p.ingredients || '';
     document.getElementById('product-available').checked = Boolean(p.is_available);
 
     currentProductImageUrl = p.image_url || (p.image ? (p.image.startsWith('http') ? p.image : `{{ asset('storage') }}/${p.image}`) : null);
