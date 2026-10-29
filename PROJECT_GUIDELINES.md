@@ -1,6 +1,6 @@
 PROJECT GUIDELINES & SPECIFICATION
 Nama Proyek: Pengembangan Sistem Online Ordering untuk Meningkatkan Efisiensi Pelayanan Kafe di Lingkungan Universitas Siliwangi  
-Nama Aplikasi (Tentatif): Unsil Cafe Connect  
+Nama Aplikasi: Engineering Cafe  
 Versi: 1.0 (MVP)  
 Target Platform: Web Responsive (Pure Laravel + Tailwind CSS)  
 Tipe Transaksi: Guest Checkout (Tanpa Login untuk Pembeli)

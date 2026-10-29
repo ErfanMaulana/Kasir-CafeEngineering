@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="refresh" content="12">
-    <title>Status Pesanan {{ $order->queue_number }} · Unsil Cafe Connect</title>
+    <title>Status Pesanan {{ $order->queue_number }} · Engineering Cafe</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {

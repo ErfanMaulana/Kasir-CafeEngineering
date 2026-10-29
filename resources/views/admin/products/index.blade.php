@@ -29,15 +29,39 @@
 
 {{-- ALERT MESSAGES --}}
 @if (session('success'))
-    <div class="mb-5 flex items-center gap-2.5 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-xs font-bold text-emerald-800 shadow-xs">
-        <span>✓</span>
-        <span>{{ session('success') }}</span>
+    <div id="alert-success" class="mb-5 flex items-center justify-between gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs font-bold text-emerald-800 shadow-xs transition-all">
+        <div class="flex items-center gap-2.5 min-w-0">
+            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white text-xs shadow-xs">
+                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                </svg>
+            </span>
+            <span>{{ session('success') }}</span>
+        </div>
+        <button type="button" onclick="this.closest('#alert-success').remove()" 
+                class="rounded-lg p-1 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-900 transition" 
+                title="Tutup Notifikasi">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
     </div>
 @endif
 @if (session('error'))
-    <div class="mb-5 flex items-center gap-2.5 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-xs font-bold text-rose-800 shadow-xs">
-        <span>!</span>
-        <span>{{ session('error') }}</span>
+    <div id="alert-error" class="mb-5 flex items-center justify-between gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-bold text-rose-800 shadow-xs transition-all">
+        <div class="flex items-center gap-2.5 min-w-0">
+            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-rose-500 text-white text-xs shadow-xs">
+                !
+            </span>
+            <span>{{ session('error') }}</span>
+        </div>
+        <button type="button" onclick="this.closest('#alert-error').remove()" 
+                class="rounded-lg p-1 text-rose-600 hover:bg-rose-100 hover:text-rose-900 transition" 
+                title="Tutup Notifikasi">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
     </div>
 @endif
 

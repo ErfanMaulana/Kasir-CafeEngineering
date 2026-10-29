@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\OrderTransactionController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\GuestOrderController;
 use Illuminate\Support\Facades\Route;
@@ -47,3 +48,6 @@ Route::prefix('admin')->name('admin.')->controller(AdminController::class)->grou
     Route::delete('/products/{id}', 'destroyProduct')->name('products.destroy');
     Route::patch('/products/{id}/availability', 'toggleProductAvailability')->name('products.availability');
 });
+
+// Orders & Transactions Panel
+Route::get('/admin/orders', [OrderTransactionController::class, 'index'])->name('admin.orders.index');

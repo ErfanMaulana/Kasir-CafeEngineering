@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Keranjang Belanja · Unsil Cafe Connect</title>
+    <title>Keranjang Belanja · Engineering Cafe</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {

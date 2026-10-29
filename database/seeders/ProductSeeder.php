@@ -10,7 +10,7 @@ use Illuminate\Support\Str;
 class ProductSeeder extends Seeder
 {
     /**
-     * Jalankan seeder menu produk dan kategori kafe Unsil Cafe Connect.
+     * Jalankan seeder menu produk dan kategori kafe Engineering Cafe.
      */
     public function run(): void
     {

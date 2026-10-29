@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Menu Online Ordering · Unsil Cafe Connect</title>
+    <title>Engineering Cafe - Online Ordering FT Unsil</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -44,10 +44,10 @@
             </div>
             <div>
                 <div class="flex items-center gap-2">
-                    <span class="text-lg font-black tracking-tight text-navy">Unsil Cafe Connect</span>
+                    <span class="text-lg font-black tracking-tight text-navy">Engineering Cafe</span>
                     <span class="rounded-md bg-blue-100 px-2 py-0.5 text-[11px] font-black uppercase text-royal">Guest</span>
                 </div>
-                <p class="text-xs text-slate-500 font-medium">Fakultas Teknik · Universitas Siliwangi</p>
+                <p class="text-xs text-slate-500 font-medium">Fakultas Teknik - Universitas Siliwangi</p>
             </div>
         </div>
 
@@ -136,60 +136,63 @@
                             <span class="text-xs font-bold text-slate-400">{{ $category->products->count() }} Pilihan</span>
                         </div>
 
-                        <div class="grid gap-4 sm:grid-cols-2">
+                        <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
                             @forelse ($category->products as $product)
                                 @php($qty = (int) ($cart[(string)$product->id]['quantity'] ?? 0))
-                                <article class="product-card flex flex-col justify-between rounded-3xl bg-white p-4 shadow-xs border border-slate-100/80"
+                                <article class="product-card bg-white rounded-2xl p-3 lg:p-4 border border-slate-100 shadow-sm flex flex-col justify-between h-full"
                                          data-name="{{ strtolower($product->name . ' ' . $product->description) }}">
-                                    <div>
-                                        <div class="relative h-44 w-full overflow-hidden rounded-2xl bg-cream">
-                                            @if ($product->image)
-                                                <img src="{{ $product->image_url }}" alt="{{ $product->name }}"
-                                                     class="h-full w-full object-cover">
-                                            @else
-                                                <div class="flex h-full items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 text-5xl">
-                                                    ☕
-                                                </div>
-                                            @endif
+                                    
+                                    {{-- GAMBAR PRODUK (ASPECT 1:1 SQUARE) --}}
+                                    <div class="w-full aspect-square relative rounded-xl overflow-hidden bg-slate-100 mb-3 shrink-0">
+                                        @if ($product->image)
+                                            <img src="{{ $product->image_url }}" alt="{{ $product->name }}"
+                                                 class="w-full h-full object-cover">
+                                        @else
+                                            <div class="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 text-3xl lg:text-4xl">
+                                                ☕
+                                            </div>
+                                        @endif
 
-                                            {{-- INDIKATOR JUMLAH DI KERANJANG --}}
-                                            <span id="badge-{{ $product->id }}"
-                                                  class="absolute left-3 top-3 {{ $qty > 0 ? 'flex' : 'hidden' }} h-7 min-w-7 items-center justify-center rounded-full bg-vibrant px-2 text-xs font-black text-white shadow-md">
-                                                {{ $qty }}x
-                                            </span>
+                                        {{-- INDIKATOR JUMLAH DI KERANJANG --}}
+                                        <span id="badge-{{ $product->id }}"
+                                              class="absolute left-2 top-2 lg:left-2.5 lg:top-2.5 {{ $qty > 0 ? 'flex' : 'hidden' }} h-6 min-w-6 lg:h-7 lg:min-w-7 items-center justify-center rounded-full bg-[#DA1212] px-1.5 lg:px-2 text-[10px] lg:text-xs font-black text-white shadow-md">
+                                            {{ $qty }}x
+                                        </span>
 
-                                            <span class="absolute right-3 top-3 rounded-full bg-white/90 backdrop-blur-xs px-2.5 py-1 text-[11px] font-bold text-slate-700 shadow-xs">
-                                                {{ $category->name }}
-                                            </span>
-                                        </div>
-
-                                        <div class="mt-3.5">
-                                            <h3 class="font-black text-navy text-base leading-tight">{{ $product->name }}</h3>
-                                            <p class="mt-1 text-xs text-slate-500 line-clamp-2 leading-relaxed">
-                                                {{ $product->description ?: 'Menu lezat siap saji untuk menemani aktivitas harian Anda.' }}
-                                            </p>
-                                        </div>
+                                        <span class="absolute right-2 top-2 lg:right-2.5 lg:top-2.5 rounded-full bg-white/90 backdrop-blur-xs px-2 py-0.5 lg:px-2.5 lg:py-1 text-[10px] lg:text-[11px] font-bold text-slate-700 shadow-xs">
+                                            {{ $category->name }}
+                                        </span>
                                     </div>
 
-                                    <div class="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
-                                        <div>
-                                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Harga</span>
-                                            <p class="text-lg font-black text-royal leading-tight">
+                                    {{-- AREA TEKS & DESKRIPSI PRODUK --}}
+                                    <div class="flex-1 flex flex-col mb-3 min-w-0">
+                                        <h3 class="font-bold text-slate-800 text-sm lg:text-base leading-snug mb-1 truncate" title="{{ $product->name }}">
+                                            {{ $product->name }}
+                                        </h3>
+                                        {{-- <p class="text-xs text-slate-400 line-clamp-2 leading-relaxed h-8">
+                                            {{ $product->description ?: 'Menu lezat siap saji untuk menemani aktivitas harian Anda.' }}
+                                        </p> --}}
+                                    </div>
+
+                                    {{-- AREA BAWAH (HARGA & TOMBOL TAMBAH) --}}
+                                    <div class="flex items-center justify-between gap-2 mt-auto pt-2 border-t border-slate-50">
+                                        <div class="min-w-0">
+                                            <p class="font-extrabold text-slate-900 text-sm lg:text-base whitespace-nowrap">
                                                 Rp {{ number_format($product->price, 0, ',', '.') }}
                                             </p>
                                         </div>
 
-                                        <form method="POST" action="{{ route('cart.add', $product->id) }}" class="add-cart-form" data-product-id="{{ $product->id }}">
+                                        <form method="POST" action="{{ route('cart.add', $product->id) }}" class="add-cart-form shrink-0" data-product-id="{{ $product->id }}">
                                             @csrf
                                             <button type="submit"
-                                                    class="flex items-center gap-1.5 rounded-xl bg-vibrant px-3.5 py-2 text-xs font-black text-white shadow-sm hover:bg-red-700 active:scale-95 transition">
+                                                    class="bg-[#DA1212] hover:bg-red-700 text-white font-medium text-xs lg:text-sm px-3 py-1.5 rounded-lg transition-colors shrink-0 whitespace-nowrap active:scale-95 shadow-xs">
                                                 <span>+ Tambah</span>
                                             </button>
                                         </form>
                                     </div>
                                 </article>
                             @empty
-                                <div class="col-span-2 rounded-2xl border border-dashed border-slate-200 p-6 text-center text-xs text-slate-400">
+                                <div class="col-span-2 lg:col-span-3 rounded-2xl border border-dashed border-slate-200 p-6 text-center text-xs text-slate-400">
                                     Belum ada menu yang tersedia pada kategori ini.
                                 </div>
                             @endforelse
