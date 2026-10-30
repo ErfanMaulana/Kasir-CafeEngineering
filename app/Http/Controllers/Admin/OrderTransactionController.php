@@ -85,17 +85,17 @@ class OrderTransactionController extends Controller
     }
 
     /**
-     * Hapus riwayat transaksi pesanan dan relasi itemnya.
+     * Nonaktifkan riwayat transaksi pesanan menggunakan soft delete.
+     * Data tidak dihapus permanen dari database, hanya disembunyikan dari laporan dan omzet.
      */
     public function destroy(Order $order): RedirectResponse
     {
         $queueNumber = $order->queue_number;
         $customerName = $order->customer_name;
 
-        $order->items()->delete();
         $order->delete();
 
-        return back()->with('success', "Riwayat transaksi {$queueNumber} milik {$customerName} berhasil dihapus!");
+        return back()->with('success', "Riwayat transaksi {$queueNumber} milik {$customerName} berhasil dinonaktifkan.");
     }
 
     /**

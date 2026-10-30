@@ -384,9 +384,9 @@
             </svg>
         </div>
 
-        <h3 class="text-lg font-black text-slate-800">Hapus Riwayat Transaksi</h3>
+        <h3 class="text-lg font-black text-slate-800">Nonaktifkan Riwayat Transaksi</h3>
         <p id="delete-modal-message" class="mt-2 text-xs text-slate-500 leading-relaxed font-medium">
-            Apakah Anda yakin ingin menghapus transaksi ini? Data yang dihapus tidak dapat dikembalikan.
+            Apakah Anda yakin ingin menonaktifkan transaksi ini? Transaksi akan disembunyikan dari laporan dan omzet.
         </p>
 
         <form id="delete-order-form" method="POST" action="" class="mt-6 flex items-center justify-center gap-3">
@@ -398,7 +398,7 @@
             </button>
             <button type="submit"
                     class="w-1/2 rounded-xl bg-rose-600 py-2.5 text-xs font-black text-white hover:bg-rose-700 shadow-md transition active:scale-95">
-                Ya, Hapus
+                Ya, Nonaktifkan
             </button>
         </form>
     </div>
@@ -523,7 +523,7 @@ function confirmDeleteOrder(orderId, queueNumber, customerName) {
     const msg = document.getElementById('delete-modal-message');
     const form = document.getElementById('delete-order-form');
 
-    msg.textContent = `Apakah Anda yakin ingin menghapus transaksi ${queueNumber} milik ${customerName}? Data yang dihapus tidak dapat dikembalikan.`;
+    msg.textContent = `Apakah Anda yakin ingin menonaktifkan riwayat transaksi ${queueNumber} milik ${customerName}? Transaksi akan disembunyikan dari laporan dan omzet.`;
     form.action = `/admin/orders/${orderId}`;
 
     modal.classList.remove('hidden');

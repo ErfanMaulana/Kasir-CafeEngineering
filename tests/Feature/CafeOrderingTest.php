@@ -388,7 +388,9 @@ class CafeOrderingTest extends TestCase
         $response->assertRedirect();
         $response->assertSessionHas('success');
 
-        $this->assertDatabaseMissing('orders', ['id' => $order->id]);
-        $this->assertDatabaseMissing('order_items', ['order_id' => $order->id]);
+        // Soft delete: baris tetap ada di DB, namun deleted_at terisi
+        $this->assertSoftDeleted('orders', ['id' => $order->id]);
+        // Order items tetap tersimpan di DB (tidak ikut dihapus)
+        $this->assertDatabaseHas('order_items', ['order_id' => $order->id]);
     }
 }
