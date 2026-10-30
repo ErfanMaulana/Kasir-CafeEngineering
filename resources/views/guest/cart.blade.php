@@ -227,11 +227,11 @@
                 </span>
             </div>
 
-            <a href="{{ route('checkout') }}"
-               class="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-vibrant px-5 py-4 text-center text-sm font-black text-white shadow-lg shadow-red-950/30 hover:bg-red-700 active:scale-98 transition">
+            <button type="submit" form="cart-form" name="next_step" value="checkout"
+                    class="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-vibrant px-5 py-4 text-center text-sm font-black text-white shadow-lg shadow-red-950/30 hover:bg-red-700 active:scale-98 transition cursor-pointer">
                 <span>Lanjut ke Form Checkout</span>
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-            </a>
+            </button>
         </section>
     </div>
 
@@ -450,6 +450,25 @@ document.addEventListener('DOMContentLoaded', () => {
             const pName = btn.dataset.name;
             removeItem(pId, pName);
         });
+    });
+
+    // Handler auto-sync catatan khusus saat diketik atau kehilangan fokus
+    let noteSyncTimer = null;
+    document.querySelectorAll('.note-input').forEach(input => {
+        const doSyncNote = () => {
+            const pId = input.dataset.productId;
+            const qtyInput = document.getElementById(`qty-${pId}`);
+            const qty = parseInt(qtyInput?.value, 10) || 1;
+            syncQuantityToServer(pId, qty);
+        };
+
+        input.addEventListener('input', () => {
+            clearTimeout(noteSyncTimer);
+            noteSyncTimer = setTimeout(doSyncNote, 600);
+        });
+
+        input.addEventListener('change', doSyncNote);
+        input.addEventListener('blur', doSyncNote);
     });
 
     // Handler submit form "Simpan Perubahan Jumlah & Catatan"

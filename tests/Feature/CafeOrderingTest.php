@@ -393,4 +393,61 @@ class CafeOrderingTest extends TestCase
         // Order items tetap tersimpan di DB (tidak ikut dihapus)
         $this->assertDatabaseHas('order_items', ['order_id' => $order->id]);
     }
+
+    public function test_cart_notes_are_saved_and_persisted_to_order_items_and_visible_in_kds(): void
+    {
+        $category = Category::query()->create([
+            'name' => 'Snack',
+            'slug' => 'snack-toast',
+        ]);
+
+        $product = Product::query()->create([
+            'category_id' => $category->id,
+            'name' => 'Toast Cokelat Keju',
+            'price' => 14000,
+            'is_available' => true,
+        ]);
+
+        // 1. Add to cart
+        $this->post(route('cart.add', $product->id));
+
+        // 2. Update cart with custom note and next_step=checkout
+        $updateResponse = $this->post(route('cart.update'), [
+            'quantities' => [
+                $product->id => 1,
+            ],
+            'notes' => [
+                $product->id => 'kejunya banyakin',
+            ],
+            'next_step' => 'checkout',
+        ]);
+
+        $updateResponse->assertRedirect(route('checkout'));
+
+        // Verify session cart has the custom note
+        $cart = session('cart');
+        $this->assertSame('kejunya banyakin', $cart[(string) $product->id]['notes']);
+
+        // 3. Process checkout
+        $checkoutResponse = $this->post(route('checkout.process'), [
+            'customer_name' => 'Michie',
+            'order_type' => 'dine_in',
+            'table_number' => '02',
+            'payment_method' => 'cash',
+        ]);
+
+        $order = Order::query()->where('customer_name', 'Michie')->latest('id')->first();
+        $this->assertNotNull($order);
+        $this->assertDatabaseHas('order_items', [
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'notes' => 'kejunya banyakin',
+        ]);
+
+        // 4. Verify KDS renders the notes badge
+        $kdsResponse = $this->get(route('admin.kitchen'));
+        $kdsResponse->assertStatus(200);
+        $kdsResponse->assertSee('Toast Cokelat Keju');
+        $kdsResponse->assertSee('Catatan: kejunya banyakin');
+    }
 }

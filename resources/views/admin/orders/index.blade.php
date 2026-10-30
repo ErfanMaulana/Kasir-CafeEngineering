@@ -453,8 +453,12 @@ function openDetailModal(orderId) {
         <div class="flex items-start justify-between gap-2 rounded-xl bg-slate-50 p-3">
             <div class="min-w-0">
                 <p class="font-bold text-slate-800 text-xs">${item.name}</p>
-                ${item.notes ? `<p class="text-[11px] text-slate-400 mt-0.5">📝 ${item.notes}</p>` : ''}
-                <p class="text-[11px] text-slate-500 mt-0.5">${item.quantity}x × ${formatRupiah(item.price)}</p>
+                ${item.notes ? `
+                    <div class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-2 py-1 mt-1 inline-flex items-center gap-1 font-medium">
+                        <span>📝 Catatan: ${item.notes}</span>
+                    </div>
+                ` : ''}
+                <p class="text-[11px] text-slate-500 mt-1">${item.quantity}x × ${formatRupiah(item.price)}</p>
             </div>
             <p class="font-black text-slate-800 text-xs shrink-0">${formatRupiah(item.subtotal)}</p>
         </div>

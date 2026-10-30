@@ -115,10 +115,10 @@
                                             Rp {{ number_format($item->subtotal, 0, ',', '.') }}
                                         </span>
                                     </div>
-                                    @if ($item->notes)
-                                        <p class="mt-1 rounded-md bg-amber-50 px-2 py-1 text-[11px] italic font-medium text-amber-800 border border-amber-200/50">
-                                            Catatan: {{ $item->notes }}
-                                        </p>
+                                    @if (!empty($item->notes))
+                                        <div class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-2 py-1 mt-1 flex items-center gap-1 font-medium">
+                                            <span>📝 Catatan: {{ $item->notes }}</span>
+                                        </div>
                                     @endif
                                 </li>
                             @endforeach

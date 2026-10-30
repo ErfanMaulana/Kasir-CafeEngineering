@@ -135,23 +135,25 @@ class GuestOrderController extends Controller
      */
     public function updateCart(Request $request): RedirectResponse|JsonResponse
     {
-        // 1. Single item update (AJAX tombol +/- atau input angka)
-        if ($request->has('product_id') && $request->has('quantity')) {
+        // 1. Single item update (AJAX tombol +/- atau input angka atau auto-sync catatan)
+        if ($request->has('product_id') && ($request->has('quantity') || $request->has('notes'))) {
             $validatedSingle = $request->validate([
                 'product_id' => ['required', 'string'],
-                'quantity' => ['required', 'integer', 'min:0', 'max:99'],
+                'quantity' => ['nullable', 'integer', 'min:0', 'max:99'],
                 'notes' => ['nullable', 'string', 'max:500'],
             ]);
 
             $cart = session('cart', []);
             $pId = $validatedSingle['product_id'];
 
-            if ($validatedSingle['quantity'] <= 0) {
+            if (isset($validatedSingle['quantity']) && $validatedSingle['quantity'] <= 0) {
                 unset($cart[$pId]);
             } elseif (isset($cart[$pId])) {
-                $cart[$pId]['quantity'] = $validatedSingle['quantity'];
+                if (isset($validatedSingle['quantity'])) {
+                    $cart[$pId]['quantity'] = $validatedSingle['quantity'];
+                }
                 if ($request->has('notes')) {
-                    $cart[$pId]['notes'] = $validatedSingle['notes'] ?? '';
+                    $cart[$pId]['notes'] = (string) ($validatedSingle['notes'] ?? '');
                 }
             }
 
@@ -179,15 +181,20 @@ class GuestOrderController extends Controller
                 ]);
             }
 
+            if ($request->input('next_step') === 'checkout') {
+                return redirect()->route('checkout');
+            }
+
             return back()->with('success', 'Keranjang diperbarui.');
         }
 
-        // 2. Bulk form update (misal form submit "Simpan Perubahan Jumlah & Catatan")
+        // 2. Bulk form update (misal form submit "Simpan Perubahan Jumlah & Catatan" atau klik "Lanjut ke Checkout")
         $validated = $request->validate([
             'quantities' => ['required', 'array'],
             'quantities.*' => ['integer', 'min:0', 'max:99'],
             'notes' => ['nullable', 'array'],
             'notes.*' => ['nullable', 'string', 'max:500'],
+            'next_step' => ['nullable', 'string'],
         ]);
 
         $cart = session('cart', []);
@@ -204,7 +211,7 @@ class GuestOrderController extends Controller
             }
 
             if (isset($cart[$pKey]) && array_key_exists($pKey, $validated['notes'] ?? [])) {
-                $cart[$pKey]['notes'] = $validated['notes'][$pKey] ?? '';
+                $cart[$pKey]['notes'] = (string) ($validated['notes'][$pKey] ?? '');
             }
         }
 
@@ -223,6 +230,10 @@ class GuestOrderController extends Controller
                 'cart_total' => $cartTotal,
                 'cart_total_formatted' => 'Rp '.number_format($cartTotal, 0, ',', '.'),
             ]);
+        }
+
+        if ($request->input('next_step') === 'checkout') {
+            return redirect()->route('checkout');
         }
 
         return back()->with('success', 'Keranjang berhasil diperbarui.');
