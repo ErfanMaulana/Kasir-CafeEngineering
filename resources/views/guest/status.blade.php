@@ -54,6 +54,32 @@
         </div>
     @endif
 
+    {{-- BANNER PETUNJUK PEMBAYARAN TUNAI DI KASIR --}}
+    @if ($order->payment_method === 'cash' && in_array($order->payment_status, ['unpaid', 'pending']))
+        <div class="mb-5 rounded-2xl border-2 border-amber-300 bg-amber-50 p-4 text-xs font-semibold text-amber-950 shadow-sm flex items-start gap-3">
+            <span class="text-2xl shrink-0 leading-none">⚠️</span>
+            <div class="space-y-1">
+                <p class="font-black text-sm text-amber-950">Menunggu Pembayaran Tunai di Kasir</p>
+                <p class="leading-relaxed">
+                    ⚠️ Harap lakukan pembayaran tunai sebesar <strong class="text-vibrant font-black text-sm">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</strong> di Kasir untuk memproses pesanan Anda.
+                </p>
+                <p class="text-[11px] text-amber-700 font-medium">
+                    Tunjukkan nomor antrean <span class="font-black text-navy">{{ $order->queue_number }}</span> atas nama <span class="font-black text-navy">{{ $order->customer_name }}</span> ke kasir kafe.
+                </p>
+            </div>
+        </div>
+    @elseif ($order->payment_method === 'qris' && in_array($order->payment_status, ['unpaid', 'pending']))
+        <div class="mb-5 rounded-2xl border-2 border-blue-200 bg-blue-50 p-4 text-xs font-semibold text-blue-950 shadow-sm flex items-start gap-3">
+            <span class="text-2xl shrink-0 leading-none">📱</span>
+            <div class="space-y-1">
+                <p class="font-black text-sm text-navy">Menunggu Pembayaran QRIS</p>
+                <p class="leading-relaxed text-blue-900">
+                    Silakan scan QRIS di counter kasir sebesar <strong class="text-vibrant font-black text-sm">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</strong> untuk menyelesaikan transaksi pesanan Anda.
+                </p>
+            </div>
+        </div>
+    @endif
+
     {{-- KARTU UTAMA NOMOR ANTREAN --}}
     <section class="overflow-hidden rounded-3xl bg-gradient-to-b from-navy via-navy to-royal text-center text-white shadow-2xl">
         <div class="bg-royal/50 px-6 py-2.5 text-[11px] font-black uppercase tracking-widest text-blue-200 border-b border-white/10">
@@ -148,7 +174,11 @@
             <div>
                 <span class="font-bold text-slate-400 uppercase tracking-wider text-[10px]">Metode Bayar</span>
                 <p class="font-black text-navy text-sm mt-0.5">
-                    QRIS · <span class="capitalize text-emerald-600">{{ $order->payment_status }}</span>
+                    @if (strtolower($order->payment_method ?? '') === 'cash')
+                        Tunai (Kasir) · <span class="capitalize {{ in_array($order->payment_status, ['paid', 'lunas']) ? 'text-emerald-600' : 'text-amber-600' }}">{{ in_array($order->payment_status, ['unpaid', 'pending']) ? 'Belum Bayar' : $order->payment_status }}</span>
+                    @else
+                        QRIS · <span class="capitalize {{ in_array($order->payment_status, ['paid', 'lunas']) ? 'text-emerald-600' : 'text-amber-600' }}">{{ in_array($order->payment_status, ['unpaid', 'pending']) ? 'Belum Bayar' : $order->payment_status }}</span>
+                    @endif
                 </p>
             </div>
         </div>

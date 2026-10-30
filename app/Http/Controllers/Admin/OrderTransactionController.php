@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\View\View;
@@ -64,6 +65,37 @@ class OrderTransactionController extends Controller
             'cashPct' => $cashPct,
             'topPaymentMethod' => $topPaymentMethod,
         ]);
+    }
+
+    /**
+     * Perbarui status pembayaran pesanan (paid atau unpaid).
+     */
+    public function updatePaymentStatus(Request $request, Order $order): RedirectResponse
+    {
+        $validated = $request->validate([
+            'payment_status' => ['required', 'string', 'in:paid,unpaid,pending,failed'],
+        ]);
+
+        $order->update([
+            'payment_status' => $validated['payment_status'],
+            'paid_at' => $validated['payment_status'] === 'paid' ? now() : null,
+        ]);
+
+        return back()->with('success', "Status pembayaran pesanan {$order->queue_number} berhasil diperbarui!");
+    }
+
+    /**
+     * Hapus riwayat transaksi pesanan dan relasi itemnya.
+     */
+    public function destroy(Order $order): RedirectResponse
+    {
+        $queueNumber = $order->queue_number;
+        $customerName = $order->customer_name;
+
+        $order->items()->delete();
+        $order->delete();
+
+        return back()->with('success', "Riwayat transaksi {$queueNumber} milik {$customerName} berhasil dihapus!");
     }
 
     /**

@@ -150,7 +150,7 @@
         </span>
     </div>
 
-    <div class="overflow-x-auto">
+    <div class="overflow-x-auto min-h-[380px] pb-12">
         <table class="w-full min-w-[900px] text-left text-xs">
             <thead class="border-b border-slate-100 bg-slate-50/80">
                 <tr class="text-[11px] font-bold uppercase tracking-wider text-slate-400">
@@ -189,11 +189,11 @@
                         <td class="px-4 py-4">
                             @if ($order->order_type === 'dine_in')
                                 <span class="rounded-lg bg-blue-50 px-2.5 py-1 text-[11px] font-bold text-blue-700">
-                                    🍽 Dine-in{{ $order->table_number ? ' (Meja '.$order->table_number.')' : '' }}
+                                    Dine-in{{ $order->table_number ? ' (Meja '.$order->table_number.')' : '' }}
                                 </span>
                             @else
                                 <span class="rounded-lg bg-amber-50 px-2.5 py-1 text-[11px] font-bold text-amber-700">
-                                    🛍 Takeaway
+                                    Takeaway
                                 </span>
                             @endif
                         </td>
@@ -245,13 +245,63 @@
                             </span>
                         </td>
 
-                        {{-- Aksi --}}
-                        <td class="px-5 py-4 text-right">
-                            <button type="button"
-                                    onclick="openDetailModal({{ $order->id }})"
-                                    class="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-bold text-slate-600 hover:border-[#041562] hover:text-[#041562] transition shadow-xs">
-                                Detail
-                            </button>
+                        {{-- Aksi (Kebab Dropdown) --}}
+                        <td class="px-5 py-4 text-right relative">
+                            <div class="relative inline-block text-left">
+                                <button type="button"
+                                        onclick="toggleActionMenu(this, event)"
+                                        class="flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:border-[#041562] hover:text-[#041562] hover:bg-slate-50 transition shadow-xs"
+                                        title="Menu Aksi">
+                                    <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>
+                                    </svg>
+                                </button>
+
+                                <div class="action-dropdown-menu absolute right-0 mt-1.5 w-48 origin-top-right rounded-2xl bg-white p-1.5 shadow-xl ring-1 ring-black/5 border border-slate-100 z-30 hidden text-left space-y-0.5">
+                                    {{-- 1. Tombol Detail --}}
+                                    <button type="button"
+                                            onclick="openDetailModal({{ $order->id }}); closeAllDropdowns();"
+                                            class="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 hover:text-[#041562] transition">
+                                        <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                        <span>Lihat Detail</span>
+                                    </button>
+
+                                    {{-- 2. Toggle Status Pembayaran --}}
+                                    @if ($order->payment_status === 'paid')
+                                        <form method="POST" action="{{ route('admin.orders.update-payment', $order->id) }}">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="payment_status" value="unpaid">
+                                            <button type="submit"
+                                                    class="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-amber-700 hover:bg-amber-50 transition">
+                                                <svg class="h-4 w-4 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                                <span>Tandai Belum Bayar</span>
+                                            </button>
+                                        </form>
+                                    @else
+                                        <form method="POST" action="{{ route('admin.orders.update-payment', $order->id) }}">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="payment_status" value="paid">
+                                            <button type="submit"
+                                                    class="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-emerald-700 hover:bg-emerald-50 transition">
+                                                <svg class="h-4 w-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                                <span>Tandai Lunas</span>
+                                            </button>
+                                        </form>
+                                    @endif
+
+                                    <div class="border-t border-slate-100 my-1"></div>
+
+                                    {{-- 3. Hapus Transaksi --}}
+                                    <button type="button"
+                                            onclick="confirmDeleteOrder('{{ $order->id }}', '{{ $order->queue_number }}', '{{ addslashes($order->customer_name) }}')"
+                                            class="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 transition">
+                                        <svg class="h-4 w-4 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                        <span>Hapus Riwayat</span>
+                                    </button>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                 @empty
@@ -322,6 +372,38 @@
     </div>
 </div>
 
+{{-- ============================================================
+     MODAL KONFIRMASI HAPUS TRANSAKSI
+     ============================================================ --}}
+<div id="delete-order-modal"
+     class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-xs px-4">
+    <div class="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl text-center transform transition-all">
+        <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-100 text-rose-600 mb-4">
+            <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+        </div>
+
+        <h3 class="text-lg font-black text-slate-800">Hapus Riwayat Transaksi</h3>
+        <p id="delete-modal-message" class="mt-2 text-xs text-slate-500 leading-relaxed font-medium">
+            Apakah Anda yakin ingin menghapus transaksi ini? Data yang dihapus tidak dapat dikembalikan.
+        </p>
+
+        <form id="delete-order-form" method="POST" action="" class="mt-6 flex items-center justify-center gap-3">
+            @csrf
+            @method('DELETE')
+            <button type="button" onclick="closeDeleteModal()"
+                    class="w-1/2 rounded-xl border border-slate-200 bg-white py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-50 transition">
+                Batal
+            </button>
+            <button type="submit"
+                    class="w-1/2 rounded-xl bg-rose-600 py-2.5 text-xs font-black text-white hover:bg-rose-700 shadow-md transition active:scale-95">
+                Ya, Hapus
+            </button>
+        </form>
+    </div>
+</div>
+
 {{-- Data embed untuk modal --}}
 @php
     $ordersJson = $orders->getCollection()->map(function ($o) {
@@ -370,7 +452,7 @@ function openDetailModal(orderId) {
         </div>
         <div>
             <p class="text-slate-400 font-bold mb-0.5">Tipe Pesanan</p>
-            <p class="font-black text-slate-800">${order.order_type === 'dine_in' ? '🍽 Dine-in' + (order.table_number ? ' (Meja '+order.table_number+')' : '') : '🛍 Takeaway'}</p>
+            <p class="font-black text-slate-800">${order.order_type === 'dine_in' ? 'Dine-in' + (order.table_number ? ' (Meja '+order.table_number+')' : '') : 'Takeaway'}</p>
         </div>
         <div>
             <p class="text-slate-400 font-bold mb-0.5">Metode Bayar</p>
@@ -412,12 +494,66 @@ function openDetailModal(orderId) {
 
 function closeDetailModal() {
     const modal = document.getElementById('order-detail-modal');
+    if (!modal) return;
     modal.classList.add('hidden');
     modal.classList.remove('flex');
 }
 
+// Dropdown Action Menu
+function toggleActionMenu(button, event) {
+    event.stopPropagation();
+    const menu = button.nextElementSibling;
+    const isHidden = menu.classList.contains('hidden');
+    closeAllDropdowns();
+    if (isHidden) {
+        menu.classList.remove('hidden');
+    }
+}
+
+function closeAllDropdowns() {
+    document.querySelectorAll('.action-dropdown-menu').forEach(el => el.classList.add('hidden'));
+}
+
+window.addEventListener('click', closeAllDropdowns);
+
+// Modal Konfirmasi Hapus
+function confirmDeleteOrder(orderId, queueNumber, customerName) {
+    closeAllDropdowns();
+    const modal = document.getElementById('delete-order-modal');
+    const msg = document.getElementById('delete-modal-message');
+    const form = document.getElementById('delete-order-form');
+
+    msg.textContent = `Apakah Anda yakin ingin menghapus transaksi ${queueNumber} milik ${customerName}? Data yang dihapus tidak dapat dikembalikan.`;
+    form.action = `/admin/orders/${orderId}`;
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+function closeDeleteModal() {
+    const modal = document.getElementById('delete-order-modal');
+    if (!modal) return;
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
+
+const deleteModalEl = document.getElementById('delete-order-modal');
+if (deleteModalEl) {
+    deleteModalEl.addEventListener('click', function(e) {
+        if (e.target === this) closeDeleteModal();
+    });
+}
+
 document.getElementById('order-detail-modal').addEventListener('click', function(e) {
     if (e.target === this) closeDetailModal();
+});
+
+window.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeDetailModal();
+        closeDeleteModal();
+        closeAllDropdowns();
+    }
 });
 </script>
 

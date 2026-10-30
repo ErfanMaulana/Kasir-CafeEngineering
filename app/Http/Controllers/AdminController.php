@@ -105,26 +105,48 @@ class AdminController extends Controller
     /**
      * Kitchen Display System (KDS) live feed antrean dapur.
      */
-    public function kds(): View
+    public function kds(Request $request): View
     {
-        $orders = Order::query()
+        $filter = (string) $request->input('filter', 'today');
+
+        // 1. Pesanan aktif: pending, preparing, ready (selalu realtime)
+        $activeOrders = Order::query()
             ->with(['items.product'])
-            ->whereIn('order_status', ['pending', 'preparing', 'ready', 'completed'])
-            ->orderByRaw("CASE order_status WHEN 'pending' THEN 1 WHEN 'preparing' THEN 2 WHEN 'ready' THEN 3 ELSE 4 END")
+            ->whereIn('order_status', ['pending', 'preparing', 'ready'])
+            ->orderByRaw("CASE order_status WHEN 'pending' THEN 1 WHEN 'preparing' THEN 2 ELSE 3 END")
             ->oldest()
             ->get();
 
+        // 2. Pesanan selesai: completed dengan filter waktu & batas limit
+        $completedQuery = Order::query()
+            ->with(['items.product'])
+            ->where('order_status', 'completed');
+
+        match ($filter) {
+            'this_week' => $completedQuery->whereBetween('updated_at', [now()->startOfWeek(), now()->endOfWeek()]),
+            'this_month' => $completedQuery->whereMonth('updated_at', now()->month)->whereYear('updated_at', now()->year),
+            'this_year' => $completedQuery->whereYear('updated_at', now()->year),
+            default => $completedQuery->whereDate('updated_at', now()->today()),
+        };
+
+        $completedCount = (clone $completedQuery)->count();
+        $completedOrders = $completedQuery->latest('updated_at')->limit(20)->get();
+
+        $orders = $activeOrders->concat($completedOrders);
+
         return view('admin.kitchen', [
             'orders' => $orders,
+            'completedFilter' => $filter,
+            'completedCount' => $completedCount,
         ]);
     }
 
     /**
      * Alias kompatibilitas untuk antrean dapur (Kitchen Display System).
      */
-    public function kitchen(): View
+    public function kitchen(Request $request): View
     {
-        return $this->kds();
+        return $this->kds($request);
     }
 
     /**
@@ -161,7 +183,7 @@ class AdminController extends Controller
         $orderInstance = $order instanceof Order ? $order : Order::query()->findOrFail($order);
 
         $validated = $request->validate([
-            'payment_status' => ['required', 'string', 'in:pending,paid,failed'],
+            'payment_status' => ['required', 'string', 'in:pending,unpaid,paid,failed'],
         ]);
 
         $orderInstance->update([

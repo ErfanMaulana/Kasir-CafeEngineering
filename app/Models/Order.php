@@ -19,11 +19,13 @@ class Order extends Model
         'total_amount',
         'payment_method',
         'payment_status',
+        'paid_at',
         'order_status',
     ];
 
     protected $casts = [
         'total_amount' => 'decimal:2',
+        'paid_at' => 'datetime',
     ];
 
     public function items(): HasMany

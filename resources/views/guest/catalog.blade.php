@@ -516,15 +516,63 @@ document.addEventListener('DOMContentLoaded', () => {
         search.addEventListener('input', filterMenu);
     }
 
-    // 2. AJAX Add-to-Cart
+    // 2. Render Rincian Item Keranjang Samping
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>'"]/g, 
+            tag => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                "'": '&#39;',
+                '"': '&quot;'
+            }[tag] || tag)
+        );
+    }
+
+    function renderQuickCartList(items) {
+        const listContainer = document.getElementById('quick-cart-list');
+        if (!listContainer) return;
+
+        if (!items || items.length === 0) {
+            listContainer.innerHTML = `
+                <p id="empty-cart-text" class="py-10 text-center text-xs text-blue-200">
+                    Keranjang belanja Anda masih kosong.
+                </p>
+            `;
+            return;
+        }
+
+        let html = '';
+        items.forEach(item => {
+            html += `
+                <div class="flex items-start justify-between gap-2 text-xs">
+                    <div class="min-w-0 flex-1">
+                        <p class="font-bold text-white truncate">${escapeHtml(item.name)}</p>
+                        <p class="text-[11px] text-blue-200">
+                            ${item.quantity} &times; ${item.price_formatted}
+                        </p>
+                    </div>
+                    <span class="font-black text-white shrink-0">
+                        ${item.subtotal_formatted}
+                    </span>
+                </div>
+            `;
+        });
+        listContainer.innerHTML = html;
+    }
+
+    // 3. AJAX Add-to-Cart
     const forms = document.querySelectorAll('.add-cart-form');
     forms.forEach(form => {
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = form.querySelector('button');
-            const originalText = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<span>...</span>';
+            if (!btn) return;
+
+            // Animasi tekan visual cepat tanpa mengganti teks / warna tombol
+            btn.classList.add('scale-95');
+            setTimeout(() => btn.classList.remove('scale-95'), 150);
 
             try {
                 const res = await fetch(form.action, {
@@ -545,12 +593,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         badge.classList.add('flex');
                     }
 
-                    // Update floating bar
+                    // Update floating bar (Mobile)
                     const floatBar = document.getElementById('floating-cart');
                     const floatCount = document.getElementById('float-cart-count');
                     const floatTotal = document.getElementById('float-cart-total');
                     if (floatBar) {
-                        floatBar.classList.remove('hidden');
+                        if (data.cart_count > 0) {
+                            floatBar.classList.remove('hidden');
+                        } else {
+                            floatBar.classList.add('hidden');
+                        }
                         if (floatCount) floatCount.textContent = data.cart_count;
                         if (floatTotal) floatTotal.textContent = data.cart_total_formatted;
                     }
@@ -563,13 +615,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (qcSub) qcSub.textContent = data.cart_total_formatted;
                     if (qcTot) qcTot.textContent = data.cart_total_formatted;
 
-                    btn.classList.add('bg-emerald-600');
-                    btn.innerHTML = '<span>✓ Ditambah</span>';
-                    setTimeout(() => {
-                        btn.classList.remove('bg-emerald-600');
-                        btn.innerHTML = originalText;
-                        btn.disabled = false;
-                    }, 800);
+                    // Render list rincian item keranjang
+                    renderQuickCartList(data.items);
                 } else {
                     form.submit();
                 }

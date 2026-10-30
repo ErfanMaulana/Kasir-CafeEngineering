@@ -137,18 +137,37 @@
                 <h2 class="font-black text-navy text-base">Metode Pembayaran</h2>
             </div>
 
-            <label class="mt-4 flex cursor-pointer items-start gap-3.5 rounded-2xl border-2 border-royal bg-blue-50/50 p-4">
-                <input type="radio" name="payment_method" value="qris" checked class="mt-1 text-royal focus:ring-royal">
-                <div>
-                    <div class="flex items-center gap-2">
-                        <span class="font-black text-navy text-sm">QRIS Instant Settlement</span>
-                        <span class="rounded bg-emerald-100 px-2 py-0.5 text-[10px] font-black text-emerald-800 uppercase">Resmi</span>
+            <div class="mt-4 space-y-3">
+                {{-- Opsi 1: QRIS Instant Settlement (Default) --}}
+                <label class="relative flex cursor-pointer items-start gap-3.5 rounded-2xl border-2 p-4 transition has-[:checked]:border-royal has-[:checked]:bg-blue-50/60 border-slate-200">
+                    <input type="radio" name="payment_method" value="qris" class="mt-1 text-royal focus:ring-royal"
+                           @checked(old('payment_method', 'qris') === 'qris')>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="font-black text-navy text-sm">QRIS</span>
+                            
+                        </div>
+                        <p class="mt-1 text-xs text-slate-500 font-medium leading-relaxed">
+                            Dapat discan menggunakan semua aplikasi e-Wallet (GoPay, OVO, ShopeePay, DANA) maupun Mobile Banking (BCA, Mandiri, BNI, BRI, BSI).
+                        </p>
                     </div>
-                    <p class="mt-1 text-xs text-slate-600 font-medium leading-relaxed">
-                        Dapat discan menggunakan semua aplikasi e-Wallet (GoPay, OVO, ShopeePay, DANA) maupun Mobile Banking (BCA, Mandiri, BNI, BRI, BSI). Tunjukkan bukti pembayaran saat mengambil pesanan.
-                    </p>
-                </div>
-            </label>
+                </label>
+
+                {{-- Opsi 2: Tunai / Cash di Kasir --}}
+                <label class="relative flex cursor-pointer items-start gap-3.5 rounded-2xl border-2 p-4 transition has-[:checked]:border-royal has-[:checked]:bg-blue-50/60 border-slate-200">
+                    <input type="radio" name="payment_method" value="cash" class="mt-1 text-royal focus:ring-royal"
+                           @checked(old('payment_method') === 'cash')>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="font-black text-navy text-sm">Tunai / Cash di Kasir</span>
+                            
+                        </div>
+                        <p class="mt-1 text-xs text-slate-500 font-medium leading-relaxed">
+                            Lakukan pembayaran secara tunai di kasir/counter kafe sebelum pesanan diproses.
+                        </p>
+                    </div>
+                </label>
+            </div>
         </section>
 
         {{-- 4. RINGKASAN TAGIHAN --}}
@@ -168,7 +187,7 @@
             <button type="submit"
                     class="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-vibrant px-5 py-4 text-center text-base font-black text-white shadow-lg shadow-red-950/40 hover:bg-red-700 active:scale-98 transition">
                 <span>Konfirmasi &amp; Ambil Nomor Antrean</span>
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                {{-- <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg> --}}
             </button>
         </section>
 

@@ -21,6 +21,11 @@
     </div>
 
     <div class="flex items-center gap-2">
+        {{-- Jam Digital Realtime --}}
+        <div class="flex items-center gap-2 font-mono font-bold text-slate-700 bg-white px-3 py-1.5 rounded-lg border border-slate-200 text-sm">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+            <span id="live-clock">00:00:00 WIB</span>
+        </div>
         <button type="button" onclick="window.location.reload()"
                 class="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition">
             <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
@@ -37,17 +42,50 @@
         'ready'     => ['Siap Diambil',    'Panggil pelanggan',      'border-emerald-500', 'bg-emerald-50 text-emerald-700 border-emerald-200'],
         'completed' => ['Selesai Disajikan','Riwayat pesanan hari ini','border-slate-300', 'bg-slate-100 text-slate-500 border-slate-200'],
     ] as $status => [$title, $subtitle, $border, $badgeCls])
+        @php
+            $columnSubtitle = $subtitle;
+            if ($status === 'completed') {
+                $columnSubtitle = match($completedFilter ?? 'today') {
+                    'this_week'  => 'Riwayat minggu ini',
+                    'this_month' => 'Riwayat bulan ini',
+                    'this_year'  => 'Riwayat tahun ini',
+                    default      => 'Riwayat pesanan hari ini',
+                };
+            }
+            $badgeCount = $status === 'completed'
+                ? ($completedCount ?? $orders->where('order_status', 'completed')->count())
+                : $orders->where('order_status', $status)->count();
+        @endphp
 
         <section class="flex flex-col">
             {{-- HEADER KOLOM --}}
-            <div class="mb-3 flex items-end justify-between bg-white px-4 py-3 rounded-2xl shadow-xs border border-slate-100">
-                <div>
-                    <h2 class="font-black text-navy text-sm">{{ $title }}</h2>
-                    <p class="text-[11px] text-slate-400">{{ $subtitle }}</p>
+            <div class="mb-3 bg-white px-4 py-3 rounded-2xl shadow-xs border border-slate-100">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <h2 class="font-black text-navy text-sm">{{ $title }}</h2>
+                        <p class="text-[11px] text-slate-400">{{ $columnSubtitle }}</p>
+                    </div>
+                    <span class="rounded-full px-2.5 py-0.5 text-xs font-black border {{ $badgeCls }}">
+                        {{ $badgeCount }}
+                    </span>
                 </div>
-                <span class="rounded-full px-2.5 py-0.5 text-xs font-black border {{ $badgeCls }}">
-                    {{ $orders->where('order_status', $status)->count() }}
-                </span>
+
+                @if ($status === 'completed')
+                    {{-- Filter Waktu Pills --}}
+                    <div class="mt-2.5 flex items-center gap-1 border-t border-slate-100 pt-2 flex-wrap">
+                        @foreach ([
+                            'today'      => 'Hari Ini',
+                            'this_week'  => 'Minggu Ini',
+                            'this_month' => 'Bulan Ini',
+                            'this_year'  => 'Tahun Ini',
+                        ] as $fKey => $fLabel)
+                            <a href="?filter={{ $fKey }}"
+                               class="rounded-lg px-2 py-0.5 text-[10px] font-bold transition {{ ($completedFilter ?? 'today') === $fKey ? 'bg-royal text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
+                                {{ $fLabel }}
+                            </a>
+                        @endforeach
+                    </div>
+                @endif
             </div>
 
             {{-- DAFTAR KARTU PESANAN --}}
@@ -120,7 +158,7 @@
                             </div>
                         @else
                             <div class="text-right text-[11px] text-slate-400 font-medium">
-                                Selesai pada: {{ $order->updated_at?->format('H:i') }} WIB
+                                Selesai: {{ ($completedFilter ?? 'today') === 'today' ? $order->updated_at?->format('H:i') . ' WIB' : $order->updated_at?->format('d M, H:i') . ' WIB' }}
                             </div>
                         @endif
                     </article>
@@ -145,6 +183,17 @@
 
 @push('scripts')
 <script>
+// Jam Digital Realtime
+(function updateClock() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    const s = String(now.getSeconds()).padStart(2, '0');
+    const el = document.getElementById('live-clock');
+    if (el) { el.textContent = `${h}:${m}:${s} WIB`; }
+    setTimeout(updateClock, 1000);
+})();
+
 document.querySelectorAll('.announce-button').forEach(btn => btn.addEventListener('click', () => {
     const name = btn.dataset.name;
     const queue = btn.dataset.queue;

@@ -21,6 +21,7 @@ Route::controller(GuestOrderController::class)->group(function (): void {
     Route::get('/order/checkout', 'checkout')->name('guest.checkout');
     Route::post('/order/checkout', 'processCheckout')->name('guest.process_checkout');
     Route::get('/orders/status/{guest_token}', 'orderStatus')->name('guest.order_status');
+    Route::get('/orders/{guest_token}', 'orderStatus')->name('guest.order_token');
 });
 
 // Admin & Staff Panel Routes
@@ -51,3 +52,5 @@ Route::prefix('admin')->name('admin.')->controller(AdminController::class)->grou
 
 // Orders & Transactions Panel
 Route::get('/admin/orders', [OrderTransactionController::class, 'index'])->name('admin.orders.index');
+Route::patch('/admin/orders/{order}/payment-status', [OrderTransactionController::class, 'updatePaymentStatus'])->name('admin.orders.update-payment');
+Route::delete('/admin/orders/{order}', [OrderTransactionController::class, 'destroy'])->name('admin.orders.destroy');

@@ -53,6 +53,25 @@ class CafeOrderingTest extends TestCase
         $addResponse = $this->post(route('cart.add', $product->id));
         $addResponse->assertSessionHas('cart');
 
+        // Add to cart via AJAX JSON and verify items array in response
+        $ajaxResponse = $this->postJson(route('cart.add', $product->id));
+        $ajaxResponse->assertStatus(200);
+        $ajaxResponse->assertJson([
+            'success' => true,
+            'item_quantity' => 2,
+            'cart_count' => 2,
+            'cart_total' => 10000.0,
+            'items' => [
+                [
+                    'id' => (string) $product->id,
+                    'name' => 'Es Teh Manis',
+                    'quantity' => 2,
+                    'price' => 5000.0,
+                    'subtotal' => 10000.0,
+                ],
+            ],
+        ]);
+
         // View Cart
         $cartResponse = $this->get(route('cart'));
         $cartResponse->assertStatus(200);
@@ -74,8 +93,9 @@ class CafeOrderingTest extends TestCase
         $order = Order::query()->where('customer_name', 'Budi Santoso')->first();
         $this->assertNotNull($order);
         $this->assertSame('A-01', $order->queue_number);
-        $this->assertSame(5000.0, (float) $order->total_amount);
+        $this->assertSame(10000.0, (float) $order->total_amount);
         $this->assertSame('pending', $order->order_status);
+        $this->assertSame('unpaid', $order->payment_status);
 
         $processResponse->assertRedirect(route('order.status', $order->guest_token));
 
@@ -84,6 +104,43 @@ class CafeOrderingTest extends TestCase
         $statusResponse->assertStatus(200);
         $statusResponse->assertSee('A-01');
         $statusResponse->assertSee('Budi Santoso');
+    }
+
+    public function test_guest_can_checkout_with_cash_payment_and_see_cashier_payment_notice(): void
+    {
+        $category = Category::query()->create([
+            'name' => 'Makanan',
+            'slug' => 'makanan-cash',
+        ]);
+
+        $product = Product::query()->create([
+            'category_id' => $category->id,
+            'name' => 'Ayam Penyet Sambal Bawang',
+            'price' => 20000,
+            'is_available' => true,
+        ]);
+
+        $this->post(route('cart.add', $product->id));
+
+        $response = $this->post(route('checkout.process'), [
+            'customer_name' => 'Siti Nurhaliza',
+            'order_type' => 'takeaway',
+            'payment_method' => 'cash',
+        ]);
+
+        $order = Order::query()->where('customer_name', 'Siti Nurhaliza')->first();
+        $this->assertNotNull($order);
+        $this->assertSame('cash', $order->payment_method);
+        $this->assertSame('unpaid', $order->payment_status);
+        $this->assertSame('pending', $order->order_status);
+
+        $response->assertRedirect(route('order.status', $order->guest_token));
+        $response->assertSessionHas('success');
+
+        $statusResponse = $this->get(route('order.status', $order->guest_token));
+        $statusResponse->assertStatus(200);
+        $statusResponse->assertSee('Harap lakukan pembayaran tunai');
+        $statusResponse->assertSee('Rp 20.000');
     }
 
     public function test_admin_can_view_kds_and_update_order_status(): void
@@ -111,6 +168,24 @@ class CafeOrderingTest extends TestCase
 
         $updateResponse->assertSessionHas('success');
         $this->assertSame('preparing', $order->fresh()->order_status);
+
+        // KDS completed filter test
+        Order::query()->create([
+            'queue_number' => 'A-02',
+            'customer_name' => 'Doni Selesai',
+            'order_type' => 'dine_in',
+            'guest_token' => 'test-uuid-kds-completed',
+            'total_amount' => 15000,
+            'payment_method' => 'cash',
+            'payment_status' => 'paid',
+            'order_status' => 'completed',
+        ]);
+
+        $kdsResponse = $this->get(route('admin.kitchen', ['filter' => 'today']));
+        $kdsResponse->assertStatus(200);
+        $kdsResponse->assertSee('Doni Selesai');
+        $kdsResponse->assertSee('Hari Ini');
+        $kdsResponse->assertSee('Minggu Ini');
     }
 
     public function test_guest_can_update_cart_quantity_via_ajax(): void
@@ -234,5 +309,86 @@ class CafeOrderingTest extends TestCase
         $this->assertNotSame($oldImagePath, $product->image);
         Storage::disk('public')->assertMissing($oldImagePath);
         Storage::disk('public')->assertExists($product->image);
+    }
+
+    public function test_admin_can_update_order_payment_status_and_set_paid_at(): void
+    {
+        $order = Order::query()->create([
+            'queue_number' => 'A-02',
+            'customer_name' => 'Michie',
+            'order_type' => 'takeaway',
+            'guest_token' => 'test-uuid-payment-status',
+            'total_amount' => 18000,
+            'payment_method' => 'cash',
+            'payment_status' => 'unpaid',
+            'order_status' => 'completed',
+        ]);
+
+        $this->assertNull($order->paid_at);
+
+        // 1. Mark as paid
+        $response = $this->patch(route('admin.orders.update-payment', $order->id), [
+            'payment_status' => 'paid',
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+
+        $order->refresh();
+        $this->assertSame('paid', $order->payment_status);
+        $this->assertNotNull($order->paid_at);
+
+        // 2. Mark back as unpaid
+        $responseUnpaid = $this->patch(route('admin.orders.update-payment', $order->id), [
+            'payment_status' => 'unpaid',
+        ]);
+
+        $responseUnpaid->assertRedirect();
+        $order->refresh();
+        $this->assertSame('unpaid', $order->payment_status);
+        $this->assertNull($order->paid_at);
+    }
+
+    public function test_admin_can_delete_order_and_its_order_items(): void
+    {
+        $category = Category::query()->create([
+            'name' => 'Makanan',
+            'slug' => 'makanan-delete-test',
+        ]);
+
+        $product = Product::query()->create([
+            'category_id' => $category->id,
+            'name' => 'Mie Goreng',
+            'price' => 16000,
+            'is_available' => true,
+        ]);
+
+        $order = Order::query()->create([
+            'queue_number' => 'A-03',
+            'customer_name' => 'Edo',
+            'order_type' => 'takeaway',
+            'guest_token' => 'test-uuid-delete-order',
+            'total_amount' => 16000,
+            'payment_method' => 'qris',
+            'payment_status' => 'paid',
+            'order_status' => 'completed',
+        ]);
+
+        $order->items()->create([
+            'product_id' => $product->id,
+            'quantity' => 1,
+            'price' => 16000,
+            'subtotal' => 16000,
+        ]);
+
+        $this->assertDatabaseHas('orders', ['id' => $order->id]);
+        $this->assertDatabaseHas('order_items', ['order_id' => $order->id]);
+
+        $response = $this->delete(route('admin.orders.destroy', $order->id));
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseMissing('orders', ['id' => $order->id]);
+        $this->assertDatabaseMissing('order_items', ['order_id' => $order->id]);
     }
 }

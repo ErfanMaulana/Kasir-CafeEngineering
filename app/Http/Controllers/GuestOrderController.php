@@ -65,6 +65,22 @@ class GuestOrderController extends Controller
         });
 
         if ($request->expectsJson() || $request->wantsJson()) {
+            $formattedItems = collect($cart)->map(function (array $item, string|int $pId): array {
+                $qty = (int) ($item['quantity'] ?? 0);
+                $price = (float) ($item['price'] ?? 0);
+                $subtotal = $qty * $price;
+
+                return [
+                    'id' => (string) $pId,
+                    'name' => (string) ($item['name'] ?? ''),
+                    'quantity' => $qty,
+                    'price' => $price,
+                    'price_formatted' => 'Rp '.number_format($price, 0, ',', '.'),
+                    'subtotal' => $subtotal,
+                    'subtotal_formatted' => 'Rp '.number_format($subtotal, 0, ',', '.'),
+                ];
+            })->values()->all();
+
             return response()->json([
                 'success' => true,
                 'message' => "{$product->name} berhasil ditambahkan ke keranjang.",
@@ -72,6 +88,7 @@ class GuestOrderController extends Controller
                 'cart_count' => $cartCount,
                 'cart_total' => $cartTotal,
                 'cart_total_formatted' => 'Rp '.number_format($cartTotal, 0, ',', '.'),
+                'items' => $formattedItems,
             ]);
         }
 
@@ -267,7 +284,7 @@ class GuestOrderController extends Controller
             'customer_name' => ['required', 'string', 'max:50'],
             'order_type' => ['required', 'in:dine_in,takeaway'],
             'table_number' => ['required_if:order_type,dine_in', 'nullable', 'string', 'max:20'],
-            'payment_method' => ['required', 'in:qris'],
+            'payment_method' => ['required', 'in:qris,cash'],
         ]);
 
         $cart = session('cart', []);
@@ -305,7 +322,7 @@ class GuestOrderController extends Controller
                 'table_number' => $validated['order_type'] === 'dine_in' ? ($validated['table_number'] ?? null) : null,
                 'total_amount' => $total,
                 'payment_method' => $validated['payment_method'],
-                'payment_status' => 'pending',
+                'payment_status' => 'unpaid',
                 'order_status' => 'pending',
             ]);
 
@@ -318,8 +335,12 @@ class GuestOrderController extends Controller
 
         session()->forget('cart');
 
+        $flashMessage = $validated['payment_method'] === 'cash'
+            ? "Pesanan berhasil dibuat! Nomor antrean Anda: {$order->queue_number}. Silakan bayar tunai di kasir."
+            : "Pesanan berhasil dibuat! Nomor antrean Anda: {$order->queue_number}. Silakan selesaikan pembayaran via QRIS.";
+
         return redirect()->route('order.status', $order->guest_token)
-            ->with('success', "Pesanan berhasil dibuat! Nomor antrean Anda: {$order->queue_number}");
+            ->with('success', $flashMessage);
     }
 
     /**
