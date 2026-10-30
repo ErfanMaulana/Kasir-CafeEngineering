@@ -127,7 +127,7 @@
                 <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400">Metode Bayar</p>
                 <p class="mt-1.5 text-xl font-black text-[#041562] leading-tight">{{ $topPaymentMethod }}</p>
                 <p class="mt-1 text-[11px] text-slate-400">
-                    QRIS {{ $qrisPct }}% &nbsp;·&nbsp; Cash {{ $cashPct }}%
+                    QRIS {{ $qrisPct }}% &nbsp;·&nbsp; Rata-rata {{ $cashPct }}%
                 </p>
             </div>
             <span class="text-2xl">💳</span>
@@ -268,7 +268,12 @@
 
                                     {{-- 2. Toggle Status Pembayaran --}}
                                     @if ($order->payment_status === 'paid')
-                                        <form method="POST" action="{{ route('admin.orders.update-payment', $order->id) }}">
+                                        <form method="POST" action="{{ route('admin.orders.update-payment', $order->id) }}"
+                                              data-confirm="Tandai pesanan {{ $order->queue_number }} ({{ $order->customer_name }}) sebagai BELUM BAYAR?"
+                                              data-confirm-title="Ubah Status Bayar?"
+                                              data-confirm-icon="question"
+                                              data-confirm-color="#F59E0B"
+                                              data-confirm-btn="Ya, Tandai Belum Bayar">
                                             @csrf
                                             @method('PATCH')
                                             <input type="hidden" name="payment_status" value="unpaid">
@@ -279,7 +284,12 @@
                                             </button>
                                         </form>
                                     @else
-                                        <form method="POST" action="{{ route('admin.orders.update-payment', $order->id) }}">
+                                        <form method="POST" action="{{ route('admin.orders.update-payment', $order->id) }}"
+                                              data-confirm="Tandai pembayaran pesanan {{ $order->queue_number }} ({{ $order->customer_name }}) sebagai LUNAS?"
+                                              data-confirm-title="Konfirmasi Pembayaran?"
+                                              data-confirm-icon="question"
+                                              data-confirm-color="#11468F"
+                                              data-confirm-btn="Ya, Tandai Lunas">
                                             @csrf
                                             @method('PATCH')
                                             <input type="hidden" name="payment_status" value="paid">
@@ -372,37 +382,11 @@
     </div>
 </div>
 
-{{-- ============================================================
-     MODAL KONFIRMASI HAPUS TRANSAKSI
-     ============================================================ --}}
-<div id="delete-order-modal"
-     class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-xs px-4">
-    <div class="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl text-center transform transition-all">
-        <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-100 text-rose-600 mb-4">
-            <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-            </svg>
-        </div>
-
-        <h3 class="text-lg font-black text-slate-800">Nonaktifkan Riwayat Transaksi</h3>
-        <p id="delete-modal-message" class="mt-2 text-xs text-slate-500 leading-relaxed font-medium">
-            Apakah Anda yakin ingin menonaktifkan transaksi ini? Transaksi akan disembunyikan dari laporan dan omzet.
-        </p>
-
-        <form id="delete-order-form" method="POST" action="" class="mt-6 flex items-center justify-center gap-3">
-            @csrf
-            @method('DELETE')
-            <button type="button" onclick="closeDeleteModal()"
-                    class="w-1/2 rounded-xl border border-slate-200 bg-white py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-50 transition">
-                Batal
-            </button>
-            <button type="submit"
-                    class="w-1/2 rounded-xl bg-rose-600 py-2.5 text-xs font-black text-white hover:bg-rose-700 shadow-md transition active:scale-95">
-                Ya, Nonaktifkan
-            </button>
-        </form>
-    </div>
-</div>
+{{-- Form tersembunyi untuk eksekusi hapus transaksi via SweetAlert2 --}}
+<form id="delete-order-form" method="POST" action="" class="hidden">
+    @csrf
+    @method('DELETE')
+</form>
 
 {{-- Data embed untuk modal --}}
 @php
@@ -516,31 +500,32 @@ function closeAllDropdowns() {
 
 window.addEventListener('click', closeAllDropdowns);
 
-// Modal Konfirmasi Hapus
+// Modal Konfirmasi Hapus dengan SweetAlert2
 function confirmDeleteOrder(orderId, queueNumber, customerName) {
     closeAllDropdowns();
-    const modal = document.getElementById('delete-order-modal');
-    const msg = document.getElementById('delete-modal-message');
-    const form = document.getElementById('delete-order-form');
-
-    msg.textContent = `Apakah Anda yakin ingin menonaktifkan riwayat transaksi ${queueNumber} milik ${customerName}? Transaksi akan disembunyikan dari laporan dan omzet.`;
-    form.action = `/admin/orders/${orderId}`;
-
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-}
-
-function closeDeleteModal() {
-    const modal = document.getElementById('delete-order-modal');
-    if (!modal) return;
-    modal.classList.add('hidden');
-    modal.classList.remove('flex');
-}
-
-const deleteModalEl = document.getElementById('delete-order-modal');
-if (deleteModalEl) {
-    deleteModalEl.addEventListener('click', function(e) {
-        if (e.target === this) closeDeleteModal();
+    Swal.fire({
+        title: 'Hapus Riwayat Transaksi?',
+        text: `Apakah Anda yakin ingin menonaktifkan riwayat transaksi ${queueNumber} milik ${customerName}? Transaksi ini akan disembunyikan dari laporan dan omzet.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#DA1212',
+        cancelButtonColor: '#94A3B8',
+        confirmButtonText: 'Ya, Hapus',
+        cancelButtonText: 'Batal',
+        reverseButtons: true,
+        customClass: {
+            popup: 'rounded-3xl shadow-2xl p-6 font-sans',
+            title: 'text-lg font-black text-slate-800',
+            htmlContainer: 'text-xs text-slate-500 font-medium leading-relaxed',
+            confirmButton: 'px-5 py-2.5 rounded-xl text-white font-bold text-xs shadow-md transition active:scale-95',
+            cancelButton: 'px-5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 font-bold text-xs hover:bg-slate-50 transition active:scale-95'
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const form = document.getElementById('delete-order-form');
+            form.action = `/admin/orders/${orderId}`;
+            form.submit();
+        }
     });
 }
 

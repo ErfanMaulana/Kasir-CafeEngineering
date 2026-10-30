@@ -203,6 +203,9 @@
     }
 </script>
 
+{{-- SweetAlert2 CDN & Theme Helper --}}
+@include('partials.sweetalert')
+
 @stack('scripts')
 </body>
 </html>

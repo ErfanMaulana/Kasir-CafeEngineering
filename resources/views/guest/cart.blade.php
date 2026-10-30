@@ -237,18 +237,19 @@
 
 </main>
 
+{{-- SweetAlert2 CDN & Theme Helper --}}
+@include('partials.sweetalert')
+
 {{-- JAVASCRIPT REAL-TIME RECALCULATION & AJAX SYNC --}}
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
-    const toast = document.getElementById('ajax-toast');
-    const toastText = document.getElementById('ajax-toast-text');
-
-    function showToast(message) {
-        if (!toast) return;
-        toastText.textContent = message;
-        toast.classList.remove('hidden');
-        setTimeout(() => toast.classList.add('hidden'), 2000);
+    // Fungsi notifikasi toast menggunakan SweetAlert2
+    function showToast(message, icon = 'success') {
+        Toast.fire({
+            icon: icon,
+            title: message
+        });
     }
 
     // Format angka ke format Rupiah
@@ -342,39 +343,54 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Fungsi hapus item dari keranjang
-    async function removeItem(productId, productName) {
-        if (!confirm(`Hapus "${productName}" dari keranjang?`)) {
-            return;
-        }
-
-        const card = document.getElementById(`cart-item-${productId}`);
-        if (card) {
-            card.style.opacity = '0.3';
-            card.style.transform = 'scale(0.97)';
-        }
-
-        try {
-            const res = await fetch("{{ route('cart.remove') }}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify({ product_id: productId })
-            });
-
-            if (res.ok) {
-                if (card) card.remove();
-                recalculateDomTotals();
-                showToast(`✓ ${productName} dihapus`);
-            } else {
-                document.getElementById(`remove-form-${productId}`)?.submit();
+    // Fungsi hapus item dari keranjang dengan SweetAlert2
+    function removeItem(productId, productName) {
+        Swal.fire({
+            title: 'Hapus Menu?',
+            text: `Apakah Anda yakin ingin menghapus "${productName}" dari keranjang?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#DA1212',
+            cancelButtonColor: '#94A3B8',
+            confirmButtonText: 'Ya, Hapus',
+            cancelButtonText: 'Batal',
+            reverseButtons: true,
+            customClass: {
+                popup: 'rounded-3xl shadow-2xl p-6 font-sans',
+                confirmButton: 'px-5 py-2.5 rounded-xl text-white font-bold text-xs shadow-md',
+                cancelButton: 'px-5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 font-bold text-xs'
             }
-        } catch (e) {
-            document.getElementById(`remove-form-${productId}`)?.submit();
-        }
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                const card = document.getElementById(`cart-item-${productId}`);
+                if (card) {
+                    card.style.opacity = '0.3';
+                    card.style.transform = 'scale(0.97)';
+                }
+
+                try {
+                    const res = await fetch("{{ route('cart.remove') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json',
+                        },
+                        body: JSON.stringify({ product_id: productId })
+                    });
+
+                    if (res.ok) {
+                        if (card) card.remove();
+                        recalculateDomTotals();
+                        showToast(`${productName} dihapus dari keranjang`);
+                    } else {
+                        document.getElementById(`remove-form-${productId}`)?.submit();
+                    }
+                } catch (e) {
+                    document.getElementById(`remove-form-${productId}`)?.submit();
+                }
+            }
+        });
     }
 
     // Handler klik tombol (+) dan (-)

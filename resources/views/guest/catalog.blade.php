@@ -385,6 +385,9 @@
     })->keyBy('id');
 @endphp
 
+{{-- SweetAlert2 CDN & Theme Helper --}}
+@include('partials.sweetalert')
+
 {{-- JAVASCRIPT: FILTER, SEARCH, MODAL DETAIL, & ASYNC ADD TO CART --}}
 <script>
 const productsCatalog = @json($allCatalogProducts);
@@ -617,6 +620,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     // Render list rincian item keranjang
                     renderQuickCartList(data.items);
+
+                    // Tampilkan notifikasi toast SweetAlert2
+                    if (typeof showToast === 'function') {
+                        showToast('✓ Berhasil ditambahkan ke keranjang!');
+                    }
                 } else {
                     form.submit();
                 }

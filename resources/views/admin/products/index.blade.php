@@ -127,7 +127,9 @@
                                 </button>
                                 <span class="text-slate-200">|</span>
                                 <form method="POST" action="{{ route('admin.products.destroy', $product->id) }}"
-                                      onsubmit="return confirm('Hapus produk {{ $product->name }}? Tindakan ini tidak dapat dibatalkan.')">
+                                      data-confirm="Hapus produk {{ $product->name }}? Tindakan ini tidak dapat dibatalkan."
+                                      data-confirm-title="Hapus Produk?"
+                                      data-confirm-btn="Ya, Hapus">
                                     @csrf
                                     @method('DELETE')
                                     <button class="text-xs font-bold text-rose-500 hover:text-rose-700 hover:underline">
@@ -298,7 +300,9 @@
                         </div>
                         @if ($cat->products_count === 0)
                             <form method="POST" action="{{ route('admin.categories.destroy', $cat->id) }}"
-                                  onsubmit="return confirm('Hapus kategori {{ $cat->name }}?')">
+                                  data-confirm="Hapus kategori {{ $cat->name }}?"
+                                  data-confirm-title="Hapus Kategori?"
+                                  data-confirm-btn="Ya, Hapus">
                                 @csrf
                                 @method('DELETE')
                                 <button class="text-rose-600 font-bold hover:underline">Hapus</button>
@@ -469,7 +473,7 @@ document.querySelectorAll('.availability-toggle').forEach(btn => btn.addEventLis
             }
         });
         if (!res.ok) {
-            alert('Gagal memperbarui status ketersediaan stok.');
+            showToast('Gagal memperbarui status ketersediaan stok.', 'error');
             btn.disabled = false;
             return;
         }
@@ -481,8 +485,9 @@ document.querySelectorAll('.availability-toggle').forEach(btn => btn.addEventLis
         const label = btn.querySelector('.toggle-label');
         label.textContent = isAvail ? 'Tersedia (In Stock)' : 'Habis (Out of Stock)';
         label.className = `toggle-label text-xs font-bold ${isAvail ? 'text-emerald-700' : 'text-slate-500'}`;
+        showToast(isAvail ? 'Stok produk diubah menjadi Tersedia' : 'Stok produk diubah menjadi Habis', 'success');
     } catch (e) {
-        alert('Terjadi kesalahan jaringan.');
+        showToast('Terjadi kesalahan jaringan.', 'error');
     } finally {
         btn.disabled = false;
     }

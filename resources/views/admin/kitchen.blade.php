@@ -146,7 +146,9 @@
                                     </button>
                                 @else
                                     <form method="POST" action="{{ route('admin.orders.status', $order->id) }}"
-                                          onsubmit="return confirm('Batalkan pesanan {{ $order->queue_number }}?')">
+                                          data-confirm="Batalkan pesanan {{ $order->queue_number }} milik {{ $order->customer_name }}?"
+                                          data-confirm-title="Batalkan Pesanan?"
+                                          data-confirm-btn="Ya, Batalkan">
                                         @csrf
                                         @method('PATCH')
                                         <input type="hidden" name="order_status" value="cancelled">

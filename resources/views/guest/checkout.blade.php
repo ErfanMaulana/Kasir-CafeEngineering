@@ -217,5 +217,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
+{{-- SweetAlert2 CDN & Theme Helper --}}
+@include('partials.sweetalert')
+
 </body>
 </html>
