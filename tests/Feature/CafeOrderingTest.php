@@ -450,4 +450,44 @@ class CafeOrderingTest extends TestCase
         $kdsResponse->assertSee('Toast Cokelat Keju');
         $kdsResponse->assertSee('Catatan: kejunya banyakin');
     }
+
+    public function test_admin_can_export_orders_transaction_pdf(): void
+    {
+        $category = Category::query()->create([
+            'name' => 'Minuman PDF',
+            'slug' => 'minuman-pdf',
+        ]);
+
+        $product = Product::query()->create([
+            'category_id' => $category->id,
+            'name' => 'Kopi Susu Gula Aren',
+            'price' => 18000,
+            'is_available' => true,
+        ]);
+
+        $order = Order::query()->create([
+            'queue_number' => 'A-01',
+            'customer_name' => 'Erfan Maulana',
+            'order_type' => 'dine_in',
+            'table_number' => '04',
+            'guest_token' => 'pdf-uuid-001',
+            'total_amount' => 18000,
+            'payment_method' => 'qris',
+            'payment_status' => 'paid',
+            'order_status' => 'completed',
+        ]);
+
+        $order->items()->create([
+            'product_id' => $product->id,
+            'quantity' => 1,
+            'price' => 18000,
+            'subtotal' => 18000,
+            'notes' => 'less sugar',
+        ]);
+
+        $response = $this->get(route('admin.orders.export-pdf', ['period' => 'today']));
+        $response->assertStatus(200);
+        $this->assertSame('application/pdf', $response->headers->get('content-type'));
+        $this->assertStringContainsString('Laporan_Transaksi_Engineering_Cafe_today_', (string) $response->headers->get('content-disposition'));
+    }
 }

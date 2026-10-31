@@ -18,7 +18,7 @@
                 <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
                 LIVE POS TELEMETRY
             </span>
-            <span class="text-xs text-slate-500 font-bold">Node: Engineering Cafe · Hari Ini: {{ date('d M Y') }}</span>
+            <span class="text-xs text-slate-500 font-bold"> Engineering Cafe · Hari Ini: {{ date('d M Y') }}</span>
         </div>
         <h2 class="mt-2 text-2xl font-black text-[#041562]">Ringkasan Kinerja Kasir &amp; Antrean</h2>
     </div>
@@ -107,10 +107,10 @@
 </div>
 
 {{-- DUA KOLOM: GRAFIK PENJUALAN PER JAM & PESANAN TERBARU --}}
-<div class="mt-7 flex flex-col xl:grid xl:grid-cols-[1fr_380px] gap-6">
+<div class="mt-7 grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-6 w-full min-w-0">
 
     {{-- KOLOM KIRI: DISTRIBUSI VOLUME PENJUALAN PER JAM --}}
-    <div class="rounded-3xl bg-white p-6 shadow-xs border border-slate-200 flex flex-col justify-between">
+    <div class="rounded-3xl bg-white p-6 shadow-xs border border-slate-200 flex flex-col justify-between w-full min-w-0 overflow-hidden">
         <div>
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-4">
                 <div>
@@ -123,7 +123,7 @@
             </div>
 
             {{-- CANVAS CHART.JS BAR CHART --}}
-            <div class="mt-5 relative w-full h-[250px]">
+            <div class="mt-5 relative w-full h-[250px] sm:h-[300px] md:h-[350px]">
                 <canvas id="hourlySalesChart"></canvas>
             </div>
         </div>
@@ -135,7 +135,7 @@
     </div>
 
     {{-- KOLOM KANAN: PANEL PESANAN TERBARU DENGAN STATUS BADGE JELAS --}}
-    <div class="rounded-3xl bg-white p-6 shadow-xs border border-slate-200">
+    <div class="rounded-3xl bg-white p-6 shadow-xs border border-slate-200 w-full min-w-0 max-w-full overflow-hidden">
         <div class="flex items-center justify-between border-b border-slate-100 pb-4">
             <div>
                 <h3 class="text-base font-black text-[#041562]">Pesanan Terbaru</h3>
@@ -149,21 +149,23 @@
 
         <div class="mt-4 space-y-3 max-h-[360px] overflow-y-auto pr-1">
             @forelse ($recentOrders as $order)
-                <div class="rounded-2xl border border-slate-200 p-4 hover:border-[#11468F] transition-all bg-white shadow-xs">
-                    <div class="flex items-start justify-between gap-3">
-                        <div>
-                            <span class="rounded-lg bg-[#041562] px-2.5 py-1 text-xs font-black text-white">
+                <div class="rounded-2xl border border-slate-200 p-3.5 hover:border-[#11468F] transition-all bg-white shadow-xs">
+                    {{-- Baris 1: No Antrean + Nama Pembeli & Total Harga --}}
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <span class="rounded-lg bg-[#041562] px-2.5 py-1 text-xs font-black text-white shrink-0">
                                 {{ $order->queue_number }}
                             </span>
-                            <h4 class="mt-2 font-black text-[#041562] text-sm leading-tight">
+                            <h4 class="font-black text-[#041562] text-sm leading-tight truncate">
                                 {{ $order->customer_name }}
                             </h4>
                         </div>
-                        <span class="text-sm font-black text-[#11468F] shrink-0">
+                        <span class="text-sm font-black text-[#11468F] shrink-0 whitespace-nowrap">
                             Rp {{ number_format($order->total_amount, 0, ',', '.') }}
                         </span>
                     </div>
 
+                    {{-- Baris 2: Menu Pesanan --}}
                     <div class="mt-2 text-xs text-slate-500 font-medium truncate">
                         {{ $order->items->first()?->product?->name ?? 'Menu Produk' }}
                         @if ($order->items->count() > 1)
@@ -171,12 +173,12 @@
                         @endif
                     </div>
 
+                    {{-- Baris 3: Tipe Pesanan & Status Badge --}}
                     <div class="mt-3 flex items-center justify-between text-xs border-t border-slate-100 pt-2.5">
-                        <span class="text-slate-500 font-semibold text-[11px]">
+                        <span class="text-slate-500 font-semibold text-[11px] truncate">
                             {{ $order->order_type === 'dine_in' ? 'Dine-in (Meja ' . ($order->table_number ?: '-') . ')' : 'Takeaway' }}
                         </span>
 
-                        {{-- BADGE STATUS KONTRAST TINGGI: PENDING = KUNING/ORANGE, PREPARING = BIRU, READY = HIJAU --}}
                         @php
                             $statusStyle = match($order->order_status) {
                                 'pending'   => ['label' => 'Pending',   'cls' => 'bg-amber-100 text-amber-900 border border-amber-300'],
@@ -186,7 +188,7 @@
                                 default     => ['label' => ucfirst($order->order_status), 'cls' => 'bg-rose-100 text-rose-900 border border-rose-300']
                             };
                         @endphp
-                        <span class="rounded-full px-3 py-0.5 text-[11px] font-black {{ $statusStyle['cls'] }}">
+                        <span class="rounded-full px-3 py-0.5 text-[11px] font-black shrink-0 {{ $statusStyle['cls'] }}">
                             {{ $statusStyle['label'] }}
                         </span>
                     </div>
@@ -310,7 +312,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 scales: {
                     x: {
                         grid: { display: false },
-                        ticks: { font: { family: 'Plus Jakarta Sans', size: 10, weight: '600' }, color: '#64748b' }
+                        ticks: {
+                            font: { family: 'Plus Jakarta Sans', size: 9, weight: '600' },
+                            color: '#64748b',
+                            maxRotation: 0,
+                            autoSkip: true,
+                            maxTicksLimit: 7
+                        }
                     },
                     y: {
                         beginAtZero: true,

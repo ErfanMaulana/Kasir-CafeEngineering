@@ -102,25 +102,25 @@
         <a href="{{ route('admin.dashboard') }}"
            class="nav-link flex items-center gap-3 rounded-xl px-3.5 py-3 text-xs font-bold {{ request()->routeIs('admin.dashboard') || request()->routeIs('admin.index') ? 'active' : '' }}">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-            <span>Sales &amp; Analytics</span>
+            <span>Dashboard</span>
         </a>
 
         <a href="{{ route('admin.products') }}"
            class="nav-link flex items-center gap-3 rounded-xl px-3.5 py-3 text-xs font-bold {{ request()->routeIs('admin.products*') ? 'active' : '' }}">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-            <span>Menu &amp; Inventory</span>
+            <span>Produk &amp; Kategori</span>
         </a>
 
         <a href="{{ route('admin.orders.index') }}"
            class="nav-link flex items-center gap-3 rounded-xl px-3.5 py-3 text-xs font-bold {{ request()->routeIs('admin.orders*') ? 'active' : '' }}">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-            <span>Orders &amp; Transactions</span>
+            <span>Riwayat Transaksi</span>
         </a>
 
         <a href="{{ route('admin.kitchen') }}"
            class="nav-link flex items-center gap-3 rounded-xl px-3.5 py-3 text-xs font-bold {{ request()->routeIs('admin.kitchen') || request()->routeIs('admin.kds') ? 'active' : '' }}">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-            <span>Kitchen Live Feed (KDS)</span>
+            <span>Kelola Pesanan</span>
         </a>
 
         <div class="my-4 border-t border-white/10"></div>
@@ -150,7 +150,7 @@
 </aside>
 
 {{-- MAIN AREA CONTENT — margin-left mengimbangi sidebar fixed 256px --}}
-<div id="content-area" class="ml-64 flex min-h-screen flex-col w-full overflow-x-hidden">
+<div id="content-area" class="ml-64 flex min-h-screen flex-col">
 
     {{-- TOP BAR --}}
     <header class="flex items-center justify-between border-b border-slate-200 bg-white px-5 sm:px-8 py-3.5 shadow-xs sticky top-0 z-30">
@@ -182,12 +182,6 @@
 
     {{-- PAGE CONTENT CONTAINER --}}
     <main class="flex-1 overflow-x-hidden p-4 sm:p-6 lg:p-7">
-        @if (session('error'))
-            <div class="mb-5 flex items-center gap-3 rounded-2xl bg-rose-50 border border-rose-200 p-4 text-xs font-bold text-rose-800 shadow-xs">
-                <span>❌</span> {{ session('error') }}
-            </div>
-        @endif
-
         @yield('content')
     </main>
 </div>

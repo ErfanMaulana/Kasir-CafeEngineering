@@ -6,21 +6,6 @@
 
 @section('content')
 
-{{-- ALERT MESSAGES --}}
-@if (session('success'))
-    <div id="alert-success" class="mb-5 flex items-center justify-between gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs font-bold text-emerald-800 shadow-xs">
-        <div class="flex items-center gap-2.5">
-            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white">
-                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-            </span>
-            <span>{{ session('success') }}</span>
-        </div>
-        <button type="button" onclick="this.closest('#alert-success').remove()" class="rounded-lg p-1 text-emerald-600 hover:bg-emerald-100 transition">
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-        </button>
-    </div>
-@endif
-
 {{-- FILTER BAR --}}
 <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 
@@ -44,7 +29,7 @@
     </div>
 
     {{-- Search & Ekspor --}}
-    <div class="flex items-center gap-2 w-full sm:w-auto">
+    <div class="flex items-center gap-2">
         <form method="GET" action="{{ route('admin.orders.index') }}" class="flex items-center gap-2">
             <input type="hidden" name="period" value="{{ $period }}">
             <div class="relative">
@@ -53,19 +38,21 @@
                 </span>
                 <input type="search" name="search" value="{{ $search }}"
                        placeholder="No. Antrean / Nama Pembeli..."
-                       class="w-full sm:w-52 rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-3 text-xs font-medium outline-none focus:border-[#11468F] focus:ring-2 focus:ring-[#11468F]/20 transition">
+                       class="w-52 rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-3 text-xs font-medium outline-none focus:border-[#11468F] focus:ring-2 focus:ring-[#11468F]/20 transition">
             </div>
             <button type="submit" class="rounded-xl bg-[#041562] px-4 py-2 text-xs font-bold text-white hover:bg-[#11468F] transition">
                 Cari
             </button>
         </form>
 
-        {{-- Tombol Ekspor (placeholder) --}}
-        <button type="button" onclick="alert('Fitur ekspor laporan akan segera hadir.')"
-                class="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-600 hover:border-[#041562] hover:text-[#041562] transition">
+        {{-- Tombol Ekspor PDF --}}
+        <a href="{{ route('admin.orders.export-pdf', ['period' => request('period', 'today'), 'search' => request('search')]) }}"
+           target="_blank"
+           class="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:border-[#041562] hover:text-[#041562] hover:bg-slate-50 shadow-xs transition"
+           title="Unduh Laporan Transaksi PDF">
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-            Ekspor
-        </button>
+            <span>Ekspor PDF</span>
+        </a>
     </div>
 </div>
 
@@ -136,7 +123,7 @@
 </div>
 
 {{-- TABEL RIWAYAT TRANSAKSI --}}
-<div class="overflow-hidden rounded-3xl bg-white shadow-xs border border-slate-100">
+<div class="w-full overflow-x-auto rounded-3xl border border-slate-100 shadow-xs bg-white">
     <div class="flex items-center justify-between border-b border-slate-100 px-6 py-4">
         <div>
             <h2 class="text-sm font-black text-navy">Riwayat Transaksi</h2>
@@ -150,19 +137,19 @@
         </span>
     </div>
 
-    <div class="overflow-x-auto w-full min-h-[380px] pb-12">
+    <div class="min-h-[380px] pb-12">
         <table class="w-full min-w-[900px] text-left text-xs">
             <thead class="border-b border-slate-100 bg-slate-50/80">
                 <tr class="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                    <th class="px-5 py-3.5">No. Antrean</th>
-                    <th class="px-4 py-3.5">Tanggal &amp; Waktu</th>
-                    <th class="px-4 py-3.5">Nama Pemanggil</th>
-                    <th class="px-4 py-3.5">Tipe</th>
-                    <th class="px-4 py-3.5">Total</th>
-                    <th class="px-4 py-3.5">Metode Bayar</th>
-                    <th class="px-4 py-3.5">Status Bayar</th>
-                    <th class="px-4 py-3.5">Status Pesanan</th>
-                    <th class="px-5 py-3.5 text-right">Aksi</th>
+                    <th class="px-5 py-3.5 whitespace-nowrap">No. Antrean</th>
+                    <th class="px-4 py-3.5 whitespace-nowrap">Tanggal &amp; Waktu</th>
+                    <th class="px-4 py-3.5 whitespace-nowrap">Nama Pemanggil</th>
+                    <th class="px-4 py-3.5 whitespace-nowrap">Tipe</th>
+                    <th class="px-4 py-3.5 whitespace-nowrap">Total</th>
+                    <th class="px-4 py-3.5 whitespace-nowrap">Metode Bayar</th>
+                    <th class="px-4 py-3.5 whitespace-nowrap">Status Bayar</th>
+                    <th class="px-4 py-3.5 whitespace-nowrap">Status Pesanan</th>
+                    <th class="px-5 py-3.5 text-right whitespace-nowrap">Aksi</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
@@ -170,83 +157,83 @@
                     <tr class="hover:bg-slate-50/70 transition">
 
                         {{-- No. Antrean --}}
-                        <td class="px-5 py-4">
+                        <td class="px-5 py-4 whitespace-nowrap">
                             <span class="inline-flex items-center justify-center h-8 w-14 rounded-xl bg-[#041562] text-white text-xs font-black">
                                 {{ $order->queue_number }}
                             </span>
                         </td>
 
                         {{-- Tanggal & Waktu --}}
-                        <td class="px-4 py-4">
+                        <td class="px-4 py-4 whitespace-nowrap">
                             <p class="font-bold text-slate-700">{{ $order->created_at->format('d M Y') }}</p>
                             <p class="text-[11px] text-slate-400">{{ $order->created_at->format('H:i') }} WIB</p>
                         </td>
 
                         {{-- Nama Pemanggil --}}
-                        <td class="px-4 py-4 font-bold text-slate-800">{{ $order->customer_name }}</td>
+                        <td class="px-4 py-4 font-bold text-slate-800 whitespace-nowrap">{{ $order->customer_name }}</td>
 
                         {{-- Tipe Pesanan --}}
-                        <td class="px-4 py-4">
+                        <td class="px-4 py-4 whitespace-nowrap">
                             @if ($order->order_type === 'dine_in')
-                                <span class="rounded-lg bg-blue-50 px-2.5 py-1 text-[11px] font-bold text-blue-700">
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-100 whitespace-nowrap">
                                     Dine-in{{ $order->table_number ? ' (Meja '.$order->table_number.')' : '' }}
                                 </span>
                             @else
-                                <span class="rounded-lg bg-amber-50 px-2.5 py-1 text-[11px] font-bold text-amber-700">
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 whitespace-nowrap">
                                     Takeaway
                                 </span>
                             @endif
                         </td>
 
                         {{-- Total Pembayaran --}}
-                        <td class="px-4 py-4 font-black text-slate-800">
+                        <td class="px-4 py-4 font-black text-slate-800 whitespace-nowrap">
                             Rp {{ number_format($order->total_amount, 0, ',', '.') }}
                         </td>
 
                         {{-- Metode Bayar --}}
-                        <td class="px-4 py-4">
+                        <td class="px-4 py-4 whitespace-nowrap">
                             @if (strtolower($order->payment_method ?? '') === 'qris')
-                                <span class="rounded-lg bg-violet-50 px-2.5 py-1 text-[11px] font-bold text-violet-700">QRIS</span>
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-violet-50 text-violet-700 border border-violet-100 whitespace-nowrap">QRIS</span>
                             @elseif (strtolower($order->payment_method ?? '') === 'cash')
-                                <span class="rounded-lg bg-green-50 px-2.5 py-1 text-[11px] font-bold text-green-700">Cash</span>
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100 whitespace-nowrap">Cash</span>
                             @else
-                                <span class="rounded-lg bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-500">—</span>
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-500 whitespace-nowrap">—</span>
                             @endif
                         </td>
 
                         {{-- Status Bayar --}}
-                        <td class="px-4 py-4">
+                        <td class="px-4 py-4 whitespace-nowrap">
                             @php
                                 $payBadge = match($order->payment_status) {
-                                    'paid'    => ['bg-emerald-50 text-emerald-700', '✓ Lunas'],
-                                    'failed'  => ['bg-rose-50 text-rose-700', '✗ Gagal'],
-                                    default   => ['bg-amber-50 text-amber-700', '⏳ Belum Bayar'],
+                                    'paid'    => ['bg-emerald-50 text-emerald-700 border border-emerald-200', '✓ Lunas'],
+                                    'failed'  => ['bg-rose-50 text-rose-700 border border-rose-200', '✗ Gagal'],
+                                    default   => ['bg-amber-50 text-amber-700 border border-amber-200', 'Belum Bayar'],
                                 };
                             @endphp
-                            <span class="rounded-lg {{ $payBadge[0] }} px-2.5 py-1 text-[11px] font-bold">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap {{ $payBadge[0] }}">
                                 {{ $payBadge[1] }}
                             </span>
                         </td>
 
                         {{-- Status Pesanan --}}
-                        <td class="px-4 py-4">
+                        <td class="px-4 py-4 whitespace-nowrap">
                             @php
                                 $orderBadge = match($order->order_status) {
-                                    'pending'    => ['bg-amber-50 text-amber-700',  '⏳ Pending'],
-                                    'preparing'  => ['bg-blue-50 text-blue-700',    '👨‍🍳 Diproses'],
-                                    'ready'      => ['bg-teal-50 text-teal-700',    '✅ Siap'],
-                                    'completed'  => ['bg-emerald-50 text-emerald-700', '✓ Selesai'],
-                                    'cancelled'  => ['bg-rose-50 text-rose-700',    '✗ Dibatalkan'],
-                                    default      => ['bg-slate-100 text-slate-500', $order->order_status],
+                                    'pending'    => ['bg-amber-50 text-amber-700 border border-amber-200',  '⏳ Pending'],
+                                    'preparing'  => ['bg-blue-50 text-blue-700 border border-blue-200',    '👨‍🍳 Diproses'],
+                                    'ready'      => ['bg-teal-50 text-teal-700 border border-teal-200',    '✅ Siap'],
+                                    'completed'  => ['bg-emerald-50 text-emerald-700 border border-emerald-200', '✓ Selesai'],
+                                    'cancelled'  => ['bg-rose-50 text-rose-700 border border-rose-200',    '✗ Dibatalkan'],
+                                    default      => ['bg-slate-100 text-slate-500 border border-slate-200', $order->order_status],
                                 };
                             @endphp
-                            <span class="rounded-lg {{ $orderBadge[0] }} px-2.5 py-1 text-[11px] font-bold">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap {{ $orderBadge[0] }}">
                                 {{ $orderBadge[1] }}
                             </span>
                         </td>
 
                         {{-- Aksi (Kebab Dropdown) --}}
-                        <td class="px-5 py-4 text-right relative">
+                        <td class="px-5 py-4 text-right relative whitespace-nowrap">
                             <div class="relative inline-block text-left">
                                 <button type="button"
                                         onclick="toggleActionMenu(this, event)"
@@ -458,7 +445,7 @@ function openDetailModal(orderId) {
                         <span>📝 Catatan: ${item.notes}</span>
                     </div>
                 ` : ''}
-                <p class="text-[11px] text-slate-500 mt-1">${item.quantity}x × ${formatRupiah(item.price)}</p>
+                <p class="text-[11px] text-slate-500 mt-1">${item.quantity}x ${formatRupiah(item.price)}</p>
             </div>
             <p class="font-black text-slate-800 text-xs shrink-0">${formatRupiah(item.subtotal)}</p>
         </div>

@@ -34,8 +34,11 @@
         toast: true,
         position: 'top-end',
         showConfirmButton: false,
-        timer: 2500,
+        timer: 3000,
         timerProgressBar: true,
+        customClass: {
+            popup: 'rounded-2xl shadow-xl border border-slate-100 p-4'
+        },
         didOpen: (toast) => {
             toast.addEventListener('mouseenter', Swal.stopTimer);
             toast.addEventListener('mouseleave', Swal.resumeTimer);

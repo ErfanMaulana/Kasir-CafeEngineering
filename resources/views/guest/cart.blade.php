@@ -336,7 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (summaryPorsi) summaryPorsi.textContent = data.cart_count;
                     if (headerCount) headerCount.textContent = `${data.cart_count} Item`;
                 }
-                showToast('✓ Jumlah pesanan diperbarui');
+                showToast('Jumlah pesanan diperbarui');
             }
         } catch (e) {
             console.error('Gagal sinkronisasi kuantitas:', e);

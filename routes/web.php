@@ -52,5 +52,6 @@ Route::prefix('admin')->name('admin.')->controller(AdminController::class)->grou
 
 // Orders & Transactions Panel
 Route::get('/admin/orders', [OrderTransactionController::class, 'index'])->name('admin.orders.index');
+Route::get('/admin/orders/export-pdf', [OrderTransactionController::class, 'exportPdf'])->name('admin.orders.export-pdf');
 Route::patch('/admin/orders/{order}/payment-status', [OrderTransactionController::class, 'updatePaymentStatus'])->name('admin.orders.update-payment');
 Route::delete('/admin/orders/{order}', [OrderTransactionController::class, 'destroy'])->name('admin.orders.destroy');

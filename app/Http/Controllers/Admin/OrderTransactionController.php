@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\Response;
 
 class OrderTransactionController extends Controller
 {
@@ -65,6 +67,76 @@ class OrderTransactionController extends Controller
             'cashPct' => $cashPct,
             'topPaymentMethod' => $topPaymentMethod,
         ]);
+    }
+
+    /**
+     * Ekspor laporan riwayat transaksi dan penjualan ke format PDF resmi.
+     */
+    public function exportPdf(Request $request): Response
+    {
+        $period = $request->input('period', 'today');
+        $search = $request->input('search', '');
+
+        [$startDate, $endDate] = $this->resolveDateRange($period);
+
+        $query = Order::query()
+            ->with(['items.product'])
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->orderByDesc('created_at');
+
+        if ($search !== '') {
+            $query->where(function ($q) use ($search): void {
+                $q->where('queue_number', 'like', "%{$search}%")
+                    ->orWhere('customer_name', 'like', "%{$search}%");
+            });
+        }
+
+        $orders = $query->get();
+
+        // --- Statistik Agregat ---
+        $statsBase = Order::query()
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->where('order_status', '!=', 'cancelled');
+
+        $totalRevenue = (float) (clone $statsBase)->sum('total_amount');
+        $totalOrders = (int) (clone $statsBase)->count();
+        $avgOrderValue = $totalOrders > 0 ? $totalRevenue / $totalOrders : 0.0;
+
+        $qrisCount = (int) (clone $statsBase)->where('payment_method', 'qris')->count();
+        $cashCount = (int) (clone $statsBase)->where('payment_method', 'cash')->count();
+        $paidCount = $qrisCount + $cashCount;
+        $qrisPct = $paidCount > 0 ? round(($qrisCount / $paidCount) * 100) : 0;
+        $cashPct = $paidCount > 0 ? (100 - $qrisPct) : 0;
+
+        $topPaymentMethod = $qrisCount >= $cashCount ? 'QRIS' : 'Cash';
+
+        $periodLabels = [
+            'today' => 'Hari Ini',
+            'this_week' => 'Minggu Ini',
+            'this_month' => 'Bulan Ini',
+            'this_year' => 'Tahun Ini',
+            '5_years' => '5 Tahun Terakhir',
+        ];
+        $periodLabel = $periodLabels[$period] ?? 'Hari Ini';
+
+        $pdf = Pdf::loadView('admin.reports.transaction_pdf', [
+            'orders' => $orders,
+            'period' => $period,
+            'periodLabel' => $periodLabel,
+            'search' => $search,
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+            'totalRevenue' => $totalRevenue,
+            'totalOrders' => $totalOrders,
+            'avgOrderValue' => $avgOrderValue,
+            'qrisPct' => $qrisPct,
+            'cashPct' => $cashPct,
+            'topPaymentMethod' => $topPaymentMethod,
+        ])->setPaper('a4', 'portrait');
+
+        $filename = 'Laporan_Transaksi_Engineering_Cafe_'.$period.'_'.now()->format('Ymd_His').'.pdf';
+
+        return $pdf->download($filename);
     }
 
     /**

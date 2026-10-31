@@ -27,44 +27,6 @@
     </div>
 </div>
 
-{{-- ALERT MESSAGES --}}
-@if (session('success'))
-    <div id="alert-success" class="mb-5 flex items-center justify-between gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs font-bold text-emerald-800 shadow-xs transition-all">
-        <div class="flex items-center gap-2.5 min-w-0">
-            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white text-xs shadow-xs">
-                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                </svg>
-            </span>
-            <span>{{ session('success') }}</span>
-        </div>
-        <button type="button" onclick="this.closest('#alert-success').remove()" 
-                class="rounded-lg p-1 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-900 transition" 
-                title="Tutup Notifikasi">
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
-        </button>
-    </div>
-@endif
-@if (session('error'))
-    <div id="alert-error" class="mb-5 flex items-center justify-between gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-bold text-rose-800 shadow-xs transition-all">
-        <div class="flex items-center gap-2.5 min-w-0">
-            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-rose-500 text-white text-xs shadow-xs">
-                !
-            </span>
-            <span>{{ session('error') }}</span>
-        </div>
-        <button type="button" onclick="this.closest('#alert-error').remove()" 
-                class="rounded-lg p-1 text-rose-600 hover:bg-rose-100 hover:text-rose-900 transition" 
-                title="Tutup Notifikasi">
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
-        </button>
-    </div>
-@endif
-
 {{-- TABEL PRODUK --}}
 <div class="overflow-hidden rounded-3xl bg-white shadow-sm border border-slate-100">
     <div class="overflow-x-auto">
@@ -108,14 +70,15 @@
                             Rp {{ number_format($product->price, 0, ',', '.') }}
                         </td>
                         <td class="px-4 py-4">
-                            <button type="button" class="availability-toggle flex items-center gap-2.5 cursor-pointer"
+                            <button type="button" class="availability-toggle flex items-center gap-2 cursor-pointer w-full sm:w-auto"
                                     data-url="{{ route('admin.products.availability', $product->id) }}"
                                     data-state="{{ $product->is_available ? 1 : 0 }}">
-                                <span class="toggle-track relative h-6 w-11 rounded-full transition-colors {{ $product->is_available ? 'bg-emerald-500' : 'bg-slate-300' }}">
+                                <span class="toggle-track relative h-6 w-11 shrink-0 rounded-full transition-colors {{ $product->is_available ? 'bg-emerald-500' : 'bg-slate-300' }}">
                                     <span class="toggle-dot absolute top-1 h-4 w-4 rounded-full bg-white shadow-md transition-all {{ $product->is_available ? 'left-6' : 'left-1' }}"></span>
                                 </span>
                                 <span class="toggle-label text-xs font-bold {{ $product->is_available ? 'text-emerald-700' : 'text-slate-500' }}">
-                                    {{ $product->is_available ? 'Tersedia (In Stock)' : 'Habis (Out of Stock)' }}
+                                    <span class="hidden sm:inline">{{ $product->is_available ? 'Tersedia (In Stock)' : 'Habis (Out of Stock)' }}</span>
+                                    <span class="inline sm:hidden">{{ $product->is_available ? 'Tersedia' : 'Habis' }}</span>
                                 </span>
                             </button>
                         </td>

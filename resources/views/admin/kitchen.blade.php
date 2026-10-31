@@ -35,7 +35,7 @@
 </div>
 
 {{-- GRID KOLOM STATUS KDS (PENDING -> PREPARING -> READY -> COMPLETED) --}}
-<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+<div class="grid gap-4 xl:grid-cols-4">
     @foreach ([
         'pending'   => ['Menunggu',        'Pesanan baru masuk',     'border-vibrant',     'bg-red-50 text-vibrant border-red-200'],
         'preparing' => ['Sedang Dimasak',  'Proses dapur / barista', 'border-amber-500',   'bg-amber-50 text-amber-700 border-amber-200'],
