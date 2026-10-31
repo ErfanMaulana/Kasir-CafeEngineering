@@ -150,7 +150,7 @@
 </aside>
 
 {{-- MAIN AREA CONTENT — margin-left mengimbangi sidebar fixed 256px --}}
-<div id="content-area" class="ml-64 flex min-h-screen flex-col">
+<div id="content-area" class="ml-64 flex min-h-screen flex-col w-full overflow-x-hidden">
 
     {{-- TOP BAR --}}
     <header class="flex items-center justify-between border-b border-slate-200 bg-white px-5 sm:px-8 py-3.5 shadow-xs sticky top-0 z-30">
@@ -181,7 +181,7 @@
     </header>
 
     {{-- PAGE CONTENT CONTAINER --}}
-    <main class="flex-1 overflow-auto p-5 sm:p-7">
+    <main class="flex-1 overflow-x-hidden p-4 sm:p-6 lg:p-7">
         @if (session('error'))
             <div class="mb-5 flex items-center gap-3 rounded-2xl bg-rose-50 border border-rose-200 p-4 text-xs font-bold text-rose-800 shadow-xs">
                 <span>❌</span> {{ session('error') }}

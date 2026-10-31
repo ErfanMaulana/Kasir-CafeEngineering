@@ -44,7 +44,7 @@
     </div>
 
     {{-- Search & Ekspor --}}
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-2 w-full sm:w-auto">
         <form method="GET" action="{{ route('admin.orders.index') }}" class="flex items-center gap-2">
             <input type="hidden" name="period" value="{{ $period }}">
             <div class="relative">
@@ -53,7 +53,7 @@
                 </span>
                 <input type="search" name="search" value="{{ $search }}"
                        placeholder="No. Antrean / Nama Pembeli..."
-                       class="w-52 rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-3 text-xs font-medium outline-none focus:border-[#11468F] focus:ring-2 focus:ring-[#11468F]/20 transition">
+                       class="w-full sm:w-52 rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-3 text-xs font-medium outline-none focus:border-[#11468F] focus:ring-2 focus:ring-[#11468F]/20 transition">
             </div>
             <button type="submit" class="rounded-xl bg-[#041562] px-4 py-2 text-xs font-bold text-white hover:bg-[#11468F] transition">
                 Cari
@@ -150,7 +150,7 @@
         </span>
     </div>
 
-    <div class="overflow-x-auto min-h-[380px] pb-12">
+    <div class="overflow-x-auto w-full min-h-[380px] pb-12">
         <table class="w-full min-w-[900px] text-left text-xs">
             <thead class="border-b border-slate-100 bg-slate-50/80">
                 <tr class="text-[11px] font-bold uppercase tracking-wider text-slate-400">

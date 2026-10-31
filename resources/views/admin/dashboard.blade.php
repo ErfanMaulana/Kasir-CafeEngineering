@@ -107,7 +107,7 @@
 </div>
 
 {{-- DUA KOLOM: GRAFIK PENJUALAN PER JAM & PESANAN TERBARU --}}
-<div class="mt-7 grid gap-6 xl:grid-cols-[1fr_380px]">
+<div class="mt-7 flex flex-col xl:grid xl:grid-cols-[1fr_380px] gap-6">
 
     {{-- KOLOM KIRI: DISTRIBUSI VOLUME PENJUALAN PER JAM --}}
     <div class="rounded-3xl bg-white p-6 shadow-xs border border-slate-200 flex flex-col justify-between">
