@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Category;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -145,6 +146,9 @@ class CafeOrderingTest extends TestCase
 
     public function test_admin_can_view_kds_and_update_order_status(): void
     {
+        $admin = User::factory()->create();
+        $this->actingAs($admin);
+
         $order = Order::query()->create([
             'queue_number' => 'A-01',
             'customer_name' => 'Alisa',
@@ -232,6 +236,9 @@ class CafeOrderingTest extends TestCase
 
     public function test_admin_can_view_dashboard_without_errors(): void
     {
+        $admin = User::factory()->create();
+        $this->actingAs($admin);
+
         Order::query()->create([
             'queue_number' => 'A-01',
             'customer_name' => 'Doni',
@@ -253,6 +260,9 @@ class CafeOrderingTest extends TestCase
     public function test_admin_can_store_and_update_product_with_image_upload(): void
     {
         Storage::fake('public');
+
+        $admin = User::factory()->create();
+        $this->actingAs($admin);
 
         $category = Category::query()->create([
             'name' => 'Snack',
@@ -313,6 +323,9 @@ class CafeOrderingTest extends TestCase
 
     public function test_admin_can_update_order_payment_status_and_set_paid_at(): void
     {
+        $admin = User::factory()->create();
+        $this->actingAs($admin);
+
         $order = Order::query()->create([
             'queue_number' => 'A-02',
             'customer_name' => 'Michie',
@@ -351,6 +364,9 @@ class CafeOrderingTest extends TestCase
 
     public function test_admin_can_delete_order_and_its_order_items(): void
     {
+        $admin = User::factory()->create();
+        $this->actingAs($admin);
+
         $category = Category::query()->create([
             'name' => 'Makanan',
             'slug' => 'makanan-delete-test',
@@ -396,6 +412,9 @@ class CafeOrderingTest extends TestCase
 
     public function test_cart_notes_are_saved_and_persisted_to_order_items_and_visible_in_kds(): void
     {
+        $admin = User::factory()->create();
+        $this->actingAs($admin);
+
         $category = Category::query()->create([
             'name' => 'Snack',
             'slug' => 'snack-toast',
@@ -453,6 +472,9 @@ class CafeOrderingTest extends TestCase
 
     public function test_admin_can_export_orders_transaction_pdf(): void
     {
+        $admin = User::factory()->create();
+        $this->actingAs($admin);
+
         $category = Category::query()->create([
             'name' => 'Minuman PDF',
             'slug' => 'minuman-pdf',

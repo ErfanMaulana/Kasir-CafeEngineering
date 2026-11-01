@@ -139,13 +139,22 @@
                 EC
             </div>
             <div>
-                <p class="text-xs font-bold text-white leading-tight">Staff Kasir</p>
+                <p class="text-xs font-bold text-white leading-tight">{{ Auth::user()->name ?? 'Admin' }}</p>
                 <p class="text-[10px] text-blue-200">Fakultas Teknik</p>
             </div>
         </div>
-        <a href="{{ route('catalog') }}" class="text-blue-200 hover:text-white transition" title="Lihat Toko">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1"/></svg>
-        </a>
+        <form method="POST" action="{{ route('admin.logout') }}">
+            @csrf
+            <button
+                type="submit"
+                title="Logout"
+                class="text-blue-200 hover:text-white transition rounded-lg p-1 hover:bg-white/10"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1"/>
+                </svg>
+            </button>
+        </form>
     </div>
 </aside>
 

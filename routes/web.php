@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\OrderTransactionController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Auth\AdminLoginController;
 use App\Http\Controllers\GuestOrderController;
 use Illuminate\Support\Facades\Route;
 
@@ -24,34 +25,49 @@ Route::controller(GuestOrderController::class)->group(function (): void {
     Route::get('/orders/{guest_token}', 'orderStatus')->name('guest.order_token');
 });
 
-// Admin & Staff Panel Routes
-Route::prefix('admin')->name('admin.')->controller(AdminController::class)->group(function (): void {
-    Route::get('/', 'dashboard')->name('index');
-    Route::get('/dashboard', 'dashboard')->name('dashboard');
-
-    // Kitchen Display System (KDS)
-    Route::get('/kds', 'kds')->name('kds');
-    Route::get('/kitchen', 'kitchen')->name('kitchen');
-
-    // Update Status Pesanan & Pembayaran
-    Route::patch('/order/{order}/status', 'updateOrderStatus')->name('order.update_status');
-    Route::patch('/orders/{order_id}/status', 'updateOrderStatus')->name('orders.status');
-    Route::patch('/order/{order}/payment', 'updatePaymentStatus')->name('order.update_payment');
-
-    // Manajemen Kategori
-    Route::post('/categories', 'storeCategory')->name('categories.store');
-    Route::delete('/categories/{id}', 'destroyCategory')->name('categories.destroy');
-
-    // Manajemen Produk
-    Route::get('/products', 'products')->name('products');
-    Route::post('/products', 'storeProduct')->name('products.store');
-    Route::put('/products/{id}', 'updateProduct')->name('products.update');
-    Route::delete('/products/{id}', 'destroyProduct')->name('products.destroy');
-    Route::patch('/products/{id}/availability', 'toggleProductAvailability')->name('products.availability');
+// ─── Admin Auth Routes (Public) ───────────────────────────────────────────────
+Route::prefix('admin')->name('admin.')->group(function (): void {
+    Route::get('/login', [AdminLoginController::class, 'showLoginForm'])
+        ->name('login')
+        ->middleware('guest');
+    Route::post('/login', [AdminLoginController::class, 'login'])
+        ->name('login.post');
+    Route::post('/logout', [AdminLoginController::class, 'logout'])
+        ->name('logout')
+        ->middleware('auth');
 });
 
-// Orders & Transactions Panel
-Route::get('/admin/orders', [OrderTransactionController::class, 'index'])->name('admin.orders.index');
-Route::get('/admin/orders/export-pdf', [OrderTransactionController::class, 'exportPdf'])->name('admin.orders.export-pdf');
-Route::patch('/admin/orders/{order}/payment-status', [OrderTransactionController::class, 'updatePaymentStatus'])->name('admin.orders.update-payment');
-Route::delete('/admin/orders/{order}', [OrderTransactionController::class, 'destroy'])->name('admin.orders.destroy');
+// ─── Admin & Staff Panel Routes (Protected) ───────────────────────────────────
+Route::middleware('auth')->group(function (): void {
+
+    Route::prefix('admin')->name('admin.')->controller(AdminController::class)->group(function (): void {
+        Route::get('/', 'dashboard')->name('index');
+        Route::get('/dashboard', 'dashboard')->name('dashboard');
+
+        // Kitchen Display System (KDS)
+        Route::get('/kds', 'kds')->name('kds');
+        Route::get('/kitchen', 'kitchen')->name('kitchen');
+
+        // Update Status Pesanan & Pembayaran
+        Route::patch('/order/{order}/status', 'updateOrderStatus')->name('order.update_status');
+        Route::patch('/orders/{order_id}/status', 'updateOrderStatus')->name('orders.status');
+        Route::patch('/order/{order}/payment', 'updatePaymentStatus')->name('order.update_payment');
+
+        // Manajemen Kategori
+        Route::post('/categories', 'storeCategory')->name('categories.store');
+        Route::delete('/categories/{id}', 'destroyCategory')->name('categories.destroy');
+
+        // Manajemen Produk
+        Route::get('/products', 'products')->name('products');
+        Route::post('/products', 'storeProduct')->name('products.store');
+        Route::put('/products/{id}', 'updateProduct')->name('products.update');
+        Route::delete('/products/{id}', 'destroyProduct')->name('products.destroy');
+        Route::patch('/products/{id}/availability', 'toggleProductAvailability')->name('products.availability');
+    });
+
+    // Orders & Transactions Panel
+    Route::get('/admin/orders', [OrderTransactionController::class, 'index'])->name('admin.orders.index');
+    Route::get('/admin/orders/export-pdf', [OrderTransactionController::class, 'exportPdf'])->name('admin.orders.export-pdf');
+    Route::patch('/admin/orders/{order}/payment-status', [OrderTransactionController::class, 'updatePaymentStatus'])->name('admin.orders.update-payment');
+    Route::delete('/admin/orders/{order}', [OrderTransactionController::class, 'destroy'])->name('admin.orders.destroy');
+});
