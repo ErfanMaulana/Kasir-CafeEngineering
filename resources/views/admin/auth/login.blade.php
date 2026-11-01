@@ -37,10 +37,10 @@
         }
     </style>
 </head>
-<body class="min-h-screen bg-slate-100 flex items-center justify-center p-4 lg:p-8 antialiased selection:bg-blue-600 selection:text-white">
+<body class="min-h-screen w-full bg-white lg:bg-slate-100 flex items-center justify-center p-0 lg:p-8 antialiased selection:bg-blue-600 selection:text-white">
 
     {{-- Main Container Card --}}
-    <div class="w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[520px] relative">
+    <div class="w-full min-h-screen lg:min-h-[540px] lg:max-w-4xl bg-white rounded-none lg:rounded-3xl shadow-none lg:shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 relative">
 
         {{-- ======================================================== --}}
         {{-- PANEL KIRI: BRANDING SIDE (5 Kolom Desktop / Top Mobile)  --}}
@@ -76,7 +76,7 @@
                 </h1>
 
                 <p class="text-xs sm:text-sm text-blue-100/85 font-normal max-w-xs leading-relaxed mt-2.5">
-                    Sistem Manajemen Kasir &amp; Kitchen Display System &mdash; Fakultas Teknik Universitas Siliwangi
+                    Sistem Manajemen Kasir &amp; Kitchen Display System
                 </p>
             </div>
 
@@ -115,15 +115,15 @@
         {{-- ======================================================== --}}
         {{-- PANEL KANAN: LOGIN FORM SIDE (7 Kolom Desktop)           --}}
         {{-- ======================================================== --}}
-        <div class="lg:col-span-7 bg-white p-6 sm:p-8 lg:p-12 flex flex-col justify-center relative z-20">
+        <div class="lg:col-span-7 bg-white p-6 sm:p-8 lg:p-10 flex flex-col justify-center relative z-20">
 
             {{-- Header Form --}}
             <div class="mb-6 lg:mb-8 text-center lg:text-left">
                 <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-                    Admin Portal Sign In
+                    Login Admin
                 </h2>
                 <p class="text-xs sm:text-sm text-slate-500 mt-1 font-medium">
-                    Masukkan akun staf untuk mengakses panel kasir &amp; dapur
+                    Masukkan akun untuk mengakses panel Admin
                 </p>
             </div>
 
