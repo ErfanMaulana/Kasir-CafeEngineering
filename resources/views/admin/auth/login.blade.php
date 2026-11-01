@@ -148,7 +148,7 @@
                 {{-- Field 1: Username / E-mail Address --}}
                 <div class="space-y-1.5">
                     <label for="username" class="block text-xs font-bold text-slate-600 uppercase tracking-wider">
-                        Username / E-mail Address
+                        E-mail Address
                     </label>
                     <div class="relative">
                         <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
