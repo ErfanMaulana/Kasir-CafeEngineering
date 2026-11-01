@@ -512,4 +512,47 @@ class CafeOrderingTest extends TestCase
         $this->assertSame('application/pdf', $response->headers->get('content-type'));
         $this->assertStringContainsString('Laporan_Transaksi_Engineering_Cafe_today_', (string) $response->headers->get('content-disposition'));
     }
+
+    public function test_unauthenticated_user_is_redirected_to_admin_login(): void
+    {
+        $response = $this->get(route('admin.dashboard'));
+        $response->assertRedirect(route('admin.login'));
+    }
+
+    public function test_admin_can_login_with_valid_credentials(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'admin@engineeringcafe.unsil.ac.id',
+            'password' => '3ngin33rinG',
+        ]);
+
+        $response = $this->post(route('admin.login.post'), [
+            'email' => 'admin@engineeringcafe.unsil.ac.id',
+            'password' => '3ngin33rinG',
+        ]);
+
+        $response->assertRedirect(route('admin.dashboard'));
+        $this->assertAuthenticatedAs($user);
+    }
+
+    public function test_admin_login_fails_with_invalid_credentials_or_weak_password(): void
+    {
+        $response = $this->post(route('admin.login.post'), [
+            'email' => 'admin@engineeringcafe.unsil.ac.id',
+            'password' => 'simple', // gagal regex keamanan
+        ]);
+
+        $response->assertSessionHasErrors('password');
+        $this->assertGuest();
+    }
+
+    public function test_admin_can_logout_and_is_redirected_to_login(): void
+    {
+        $admin = User::factory()->create();
+        $this->actingAs($admin);
+
+        $response = $this->post(route('admin.logout'));
+        $response->assertRedirect(route('admin.login'));
+        $this->assertGuest();
+    }
 }

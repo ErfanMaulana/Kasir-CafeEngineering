@@ -26,6 +26,8 @@ Route::controller(GuestOrderController::class)->group(function (): void {
 });
 
 // ─── Admin Auth Routes (Public) ───────────────────────────────────────────────
+Route::get('/login', fn () => redirect()->route('admin.login'))->name('login');
+
 Route::prefix('admin')->name('admin.')->group(function (): void {
     Route::get('/login', [AdminLoginController::class, 'showLoginForm'])
         ->name('login')
