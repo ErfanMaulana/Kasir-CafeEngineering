@@ -27,123 +27,158 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600;1,700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .login-bg {
-            background: linear-gradient(135deg, #041562 0%, #11468F 50%, #041562 100%);
+        body, button, input, select, textarea { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .input-underline {
+            transition: all 0.2s ease-in-out;
         }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.97);
-            backdrop-filter: blur(20px);
-        }
-        .input-field {
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        .input-field:focus {
+        .input-underline:focus {
             border-color: #11468F;
-            box-shadow: 0 0 0 3px rgba(17, 70, 143, 0.12);
-        }
-        .btn-login {
-            background: linear-gradient(135deg, #041562 0%, #11468F 100%);
-            transition: opacity 0.2s, transform 0.15s;
-        }
-        .btn-login:hover { opacity: 0.92; }
-        .btn-login:active { transform: scale(0.98); }
-
-        /* Floating particles background */
-        .particle {
-            position: absolute;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.06);
-            animation: float 8s ease-in-out infinite;
-        }
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(180deg); }
+            box-shadow: 0 4px 12px -2px rgba(17, 70, 143, 0.12);
         }
     </style>
 </head>
-<body class="login-bg min-h-screen flex items-center justify-center px-4 py-10 relative overflow-hidden">
+<body class="min-h-screen bg-slate-100 flex items-center justify-center p-4 lg:p-8 antialiased selection:bg-blue-600 selection:text-white">
 
-    {{-- Decorative particles --}}
-    <div class="particle w-32 h-32 top-10 left-10" style="animation-delay: 0s;"></div>
-    <div class="particle w-20 h-20 top-1/3 right-20" style="animation-delay: 2s;"></div>
-    <div class="particle w-16 h-16 bottom-20 left-1/4" style="animation-delay: 4s;"></div>
-    <div class="particle w-24 h-24 bottom-10 right-10" style="animation-delay: 1s;"></div>
-    <div class="particle w-10 h-10 top-1/2 left-1/3" style="animation-delay: 3s;"></div>
+    {{-- Main Container Card --}}
+    <div class="w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[520px] relative">
 
-    {{-- Decorative grid lines --}}
-    <div class="absolute inset-0 opacity-5" style="background-image: linear-gradient(rgba(255,255,255,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.3) 1px, transparent 1px); background-size: 40px 40px;"></div>
+        {{-- ======================================================== --}}
+        {{-- PANEL KIRI: BRANDING SIDE (5 Kolom Desktop / Top Mobile)  --}}
+        {{-- ======================================================== --}}
+        <div class="lg:col-span-5 bg-gradient-to-br from-[#041156] via-[#11468F] to-blue-600 text-white relative flex flex-col justify-between p-6 sm:p-8 lg:p-10 overflow-hidden min-h-[280px] lg:min-h-full">
 
-    <div class="relative z-10 w-full max-w-md">
+            {{-- Lingkaran dekoratif latar belakang --}}
+            <div class="absolute -top-16 -left-16 w-56 h-56 rounded-full bg-white/5 blur-xl pointer-events-none"></div>
+            <div class="absolute -bottom-20 -right-10 w-64 h-64 rounded-full bg-blue-400/10 blur-2xl pointer-events-none"></div>
 
-        {{-- Logo / Brand Header --}}
-        <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white shadow-xl mb-4">
-                <span class="text-navy font-black text-xl">EC</span>
+            {{-- Konten Atas / Tengah --}}
+            <div class="relative z-20 flex flex-col items-center text-center my-auto pt-2 lg:pt-4">
+                <span class="text-xs sm:text-sm font-semibold tracking-wider text-blue-200/90 uppercase mb-3 sm:mb-4">
+                    Welcome to
+                </span>
+
+                {{-- Logo Bundar Bersinar --}}
+                <div class="relative group my-2">
+                    <div class="absolute -inset-1 rounded-full bg-white/20 blur group-hover:bg-white/30 transition duration-300"></div>
+                    <div class="relative flex h-20 w-20 sm:h-24 sm:w-24 items-center justify-center rounded-full bg-white shadow-xl">
+                        <svg class="h-10 w-10 sm:h-12 sm:w-12 text-[#11468F]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+                            <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+                            <line x1="6" y1="1" x2="6" y2="4"></line>
+                            <line x1="10" y1="1" x2="10" y2="4"></line>
+                            <line x1="14" y1="1" x2="14" y2="4"></line>
+                        </svg>
+                    </div>
+                </div>
+
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mt-3">
+                    Engineering Cafe
+                </h1>
+
+                <p class="text-xs sm:text-sm text-blue-100/85 font-normal max-w-xs leading-relaxed mt-2.5">
+                    Sistem Manajemen Kasir &amp; Kitchen Display System &mdash; Fakultas Teknik Universitas Siliwangi
+                </p>
             </div>
-            <h1 class="text-2xl font-black text-white tracking-tight">Engineering Cafe</h1>
-            <p class="text-blue-200 text-sm font-medium mt-1">Fakultas Teknik · Universitas Siliwangi</p>
+
+            {{-- Footer Sisi Kiri --}}
+            <div class="relative z-20 pt-4 pb-2 text-center lg:text-left border-t border-white/10 lg:border-none">
+                <p class="text-[10px] tracking-widest uppercase font-semibold text-blue-200/70">
+                    Fakultas Teknik <span class="mx-1">|</span> Universitas Siliwangi
+                </p>
+            </div>
+
+            {{-- ======================================================= --}}
+            {{-- WAVY CLOUD SVG DIVIDER (Desktop: Kanan / Mobile: Bawah) --}}
+            {{-- ======================================================= --}}
+
+            {{-- Kurva Desktop (Sisi Kanan Panel Biru menumpuk ke putih) --}}
+            <svg class="hidden lg:block absolute top-0 -right-[1px] h-full w-24 pointer-events-none z-10" viewBox="0 0 120 700" preserveAspectRatio="none">
+                {{-- Lapisan 1: Awan tipis transparan --}}
+                <path d="M0,0 C45,110 15,220 50,350 C85,480 30,580 60,700 L120,700 L120,0 Z" fill="rgba(255,255,255,0.18)"/>
+                {{-- Lapisan 2: Awan sedang transparan --}}
+                <path d="M25,0 C68,105 38,235 72,360 C102,475 58,585 88,700 L120,700 L120,0 Z" fill="rgba(255,255,255,0.32)"/>
+                {{-- Lapisan 3: Putih solid bersatu mulus dengan form sisi kanan --}}
+                <path d="M50,0 C88,95 62,205 96,315 C126,425 78,535 106,625 C115,660 112,685 120,700 L120,0 Z" fill="#ffffff"/>
+            </svg>
+
+            {{-- Kurva Mobile (Sisi Bawah Panel Biru menumpuk ke form putih) --}}
+            <svg class="lg:hidden absolute bottom-0 left-0 w-full h-10 sm:h-12 pointer-events-none z-10 -mb-[1px]" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                {{-- Lapisan 1: Awan tipis transparan --}}
+                <path d="M0,35 C160,85 360,10 520,50 C680,85 880,15 1020,55 C1110,75 1170,45 1200,35 L1200,120 L0,120 Z" fill="rgba(255,255,255,0.18)"/>
+                {{-- Lapisan 2: Awan sedang transparan --}}
+                <path d="M0,55 C210,15 410,85 610,40 C810,85 1010,25 1200,65 L1200,120 L0,120 Z" fill="rgba(255,255,255,0.32)"/>
+                {{-- Lapisan 3: Putih solid bersatu mulus dengan card form di bawah --}}
+                <path d="M0,75 C190,45 370,95 550,65 C730,35 910,85 1090,55 C1145,48 1180,60 1200,70 L1200,120 L0,120 Z" fill="#ffffff"/>
+            </svg>
         </div>
 
-        {{-- Login Card --}}
-        <div class="glass-card rounded-3xl shadow-2xl p-8">
+        {{-- ======================================================== --}}
+        {{-- PANEL KANAN: LOGIN FORM SIDE (7 Kolom Desktop)           --}}
+        {{-- ======================================================== --}}
+        <div class="lg:col-span-7 bg-white p-6 sm:p-8 lg:p-12 flex flex-col justify-center relative z-20">
 
-            {{-- Card Header --}}
-            <div class="text-center mb-7">
-                <h2 class="text-xl font-black text-navy">Portal Staf Admin</h2>
-                <p class="text-slate-500 text-sm mt-1">Masukkan kredensial akun admin Anda untuk melanjutkan</p>
+            {{-- Header Form --}}
+            <div class="mb-6 lg:mb-8 text-center lg:text-left">
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                    Admin Portal Sign In
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-500 mt-1 font-medium">
+                    Masukkan akun staf untuk mengakses panel kasir &amp; dapur
+                </p>
             </div>
 
-            {{-- Error Alert --}}
+            {{-- Alert Error Blade --}}
             @if ($errors->any())
-                <div class="mb-5 flex items-start gap-3 rounded-2xl bg-red-50 border border-red-200 px-4 py-3.5">
-                    <svg class="h-5 w-5 text-red-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                <div class="mb-5 flex items-start gap-3 rounded-2xl bg-rose-50 border border-rose-200 p-3.5 sm:p-4 animate-shake">
+                    <svg class="h-5 w-5 text-rose-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                     </svg>
-                    <div>
+                    <div class="text-xs sm:text-sm text-rose-700 font-medium">
                         @foreach ($errors->all() as $error)
-                            <p class="text-red-700 text-sm font-medium">{{ $error }}</p>
+                            <p>{{ $error }}</p>
                         @endforeach
                     </div>
                 </div>
             @endif
 
-            {{-- Login Form --}}
-            <form method="POST" action="{{ route('admin.login.post') }}" class="space-y-5">
+            {{-- Form Login --}}
+            <form method="POST" action="{{ route('admin.login') }}" class="space-y-5">
                 @csrf
 
-                {{-- Email Field --}}
-                <div>
-                    <label for="email" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                        Email Admin
+                {{-- Field 1: Username / E-mail Address --}}
+                <div class="space-y-1.5">
+                    <label for="username" class="block text-xs font-bold text-slate-600 uppercase tracking-wider">
+                        Username / E-mail Address
                     </label>
                     <div class="relative">
-                        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-                            <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/>
                             </svg>
                         </div>
                         <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            value="{{ old('email') }}"
+                            type="text"
+                            id="username"
+                            name="username"
+                            value="{{ old('username', old('email')) }}"
                             placeholder="admin@engineeringcafe.unsil.ac.id"
-                            autocomplete="email"
+                            autocomplete="username"
                             required
-                            class="input-field w-full rounded-2xl border border-slate-200 bg-slate-50 py-3.5 pl-11 pr-4 text-sm font-medium text-slate-800 placeholder-slate-400 outline-none @error('email') border-red-300 bg-red-50 @enderror"
+                            class="input-underline w-full rounded-xl border border-slate-200 bg-slate-50/70 py-3 pl-10 pr-4 text-sm font-semibold text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none @error('username') border-rose-300 bg-rose-50/50 @enderror"
                         >
                     </div>
                 </div>
 
-                {{-- Password Field --}}
-                <div>
-                    <label for="password" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                        Password
-                    </label>
+                {{-- Field 2: Password --}}
+                <div class="space-y-1.5">
+                    <div class="flex items-center justify-between">
+                        <label for="password" class="block text-xs font-bold text-slate-600 uppercase tracking-wider">
+                            Password
+                        </label>
+                    </div>
                     <div class="relative">
-                        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-                            <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                             </svg>
                         </div>
@@ -154,13 +189,14 @@
                             placeholder="••••••••••••"
                             autocomplete="current-password"
                             required
-                            class="input-field w-full rounded-2xl border border-slate-200 bg-slate-50 py-3.5 pl-11 pr-12 text-sm font-medium text-slate-800 placeholder-slate-400 outline-none @error('password') border-red-300 bg-red-50 @enderror"
+                            class="input-underline w-full rounded-xl border border-slate-200 bg-slate-50/70 py-3 pl-10 pr-11 text-sm font-semibold text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none @error('password') border-rose-300 bg-rose-50/50 @enderror"
                         >
                         <button
                             type="button"
                             onclick="togglePassword()"
-                            class="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-slate-600 transition"
+                            class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400 hover:text-slate-600 focus:outline-none transition"
                             tabindex="-1"
+                            title="Tampilkan / Sembunyikan Password"
                         >
                             <svg id="eye-icon" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -171,61 +207,52 @@
                             </svg>
                         </button>
                     </div>
-                    <p class="mt-2 text-[11px] text-slate-400 font-medium">
-                        Password harus mengandung 1 huruf besar & 1 angka/simbol
+                    <p class="text-[11px] text-slate-400 font-medium">
+                        Kombinasi minimal 1 huruf besar dan 1 angka/simbol.
                     </p>
                 </div>
 
-                {{-- Remember Me --}}
-                <div class="flex items-center gap-2">
-                    <input
-                        type="checkbox"
-                        id="remember"
-                        name="remember"
-                        class="h-4 w-4 rounded border-slate-300 text-navy accent-navy"
-                    >
-                    <label for="remember" class="text-sm text-slate-600 font-medium cursor-pointer">
-                        Ingat saya di perangkat ini
+                {{-- Checkbox Remember Me --}}
+                <div class="flex items-center justify-between pt-1">
+                    <label class="flex items-center gap-2 cursor-pointer select-none">
+                        <input
+                            type="checkbox"
+                            name="remember"
+                            class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 accent-blue-600"
+                        >
+                        <span class="text-xs font-semibold text-slate-600">Ingat sesi saya</span>
                     </label>
+
+                    <a href="{{ route('catalog') }}" class="text-xs font-bold text-blue-600 hover:text-blue-800 transition">
+                        Buka Menu Pembeli &rarr;
+                    </a>
                 </div>
 
-                {{-- Submit Button --}}
-                <button
-                    type="submit"
-                    class="btn-login w-full rounded-2xl py-3.5 text-sm font-black text-white shadow-lg mt-2"
-                >
-                    Masuk Ke Panel Kasir →
-                </button>
+                {{-- Action Buttons --}}
+                <div class="pt-3">
+                    <button
+                        type="submit"
+                        class="w-full inline-flex items-center justify-center rounded-xl sm:rounded-full bg-gradient-to-r from-blue-600 to-[#11468F] py-3.5 px-6 text-sm font-extrabold text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:from-blue-700 hover:to-[#041562] hover:scale-[1.01] active:scale-[0.99] transition-all duration-200"
+                    >
+                        <span>Sign In ke Panel Admin</span>
+                        <svg class="ml-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                        </svg>
+                    </button>
+                </div>
             </form>
 
-            {{-- Divider --}}
-            <div class="relative my-6">
-                <div class="absolute inset-0 flex items-center">
-                    <div class="w-full border-t border-slate-100"></div>
-                </div>
-                <div class="relative flex justify-center">
-                    <span class="bg-white px-3 text-xs text-slate-400 font-medium">Akses Terbatas</span>
-                </div>
+            {{-- Footer Info --}}
+            <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
+                <span>&copy; {{ date('Y') }} Engineering Cafe</span>
+                <span class="font-semibold text-slate-500">FT &middot; Mugarsari</span>
             </div>
 
-            {{-- Security Note --}}
-            <div class="flex items-center gap-3 rounded-2xl bg-slate-50 border border-slate-100 px-4 py-3">
-                <svg class="h-4 w-4 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                </svg>
-                <p class="text-[11px] text-slate-500 font-medium leading-relaxed">
-                    Halaman ini hanya dapat diakses oleh staf administrasi yang berwenang. Sesi akan diamankan secara otomatis.
-                </p>
-            </div>
         </div>
-
-        {{-- Footer --}}
-        <p class="text-center text-blue-200/70 text-xs font-medium mt-6">
-            © {{ date('Y') }} Engineering Cafe · Fakultas Teknik · Universitas Siliwangi
-        </p>
 
     </div>
 
+    {{-- Script Toggle Password & SweetAlert2 --}}
     <script>
         function togglePassword() {
             const input = document.getElementById('password');
@@ -262,4 +289,3 @@
     </script>
 </body>
 </html>
-

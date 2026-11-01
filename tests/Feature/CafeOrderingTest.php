@@ -535,6 +535,22 @@ class CafeOrderingTest extends TestCase
         $this->assertAuthenticatedAs($user);
     }
 
+    public function test_admin_can_login_using_username_field(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'admin@engineeringcafe.unsil.ac.id',
+            'password' => '3ngin33rinG',
+        ]);
+
+        $response = $this->post(route('admin.login'), [
+            'username' => 'EngineringAdminCafe',
+            'password' => '3ngin33rinG',
+        ]);
+
+        $response->assertRedirect(route('admin.dashboard'));
+        $this->assertAuthenticatedAs($user);
+    }
+
     public function test_admin_login_fails_with_invalid_credentials_or_weak_password(): void
     {
         $response = $this->post(route('admin.login.post'), [

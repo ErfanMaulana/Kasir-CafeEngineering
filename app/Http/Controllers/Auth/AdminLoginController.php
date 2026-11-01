@@ -21,21 +21,34 @@ class AdminLoginController extends Controller
     /**
      * Proses autentikasi login admin.
      *
+     * Mendukung input 'username' maupun 'email'.
      * Validasi keamanan password: harus mengandung minimal 1 huruf besar dan 1 angka/simbol.
      */
     public function login(Request $request): RedirectResponse
     {
+        $loginInput = $request->input('username', $request->input('email'));
+
+        // Dukung username default 'EngineringAdminCafe' atau alamat email resmi
+        $email = ($loginInput === 'EngineringAdminCafe')
+            ? 'admin@engineeringcafe.unsil.ac.id'
+            : $loginInput;
+
+        $request->merge([
+            'username' => $loginInput,
+            'email' => $email,
+        ]);
+
         $request->validate([
-            'email' => ['required', 'string'],
+            'username' => ['required', 'string'],
             'password' => ['required', 'string', 'regex:/^(?=.*[A-Z])(?=.*[\d\W]).+$/'],
         ], [
-            'email.required' => 'Email atau username wajib diisi.',
+            'username.required' => 'Username atau E-mail wajib diisi.',
             'password.required' => 'Password wajib diisi.',
             'password.regex' => 'Password harus mengandung minimal 1 huruf besar dan 1 angka atau simbol.',
         ]);
 
         $credentials = [
-            'email' => $request->email,
+            'email' => $email,
             'password' => $request->password,
         ];
 
@@ -47,8 +60,8 @@ class AdminLoginController extends Controller
         }
 
         return back()->withErrors([
-            'email' => 'Email atau Password salah. Pastikan password memenuhi kriteria keamanan.',
-        ])->withInput($request->only('email'));
+            'username' => 'Username/E-mail atau Password salah. Pastikan password memenuhi kriteria keamanan.',
+        ])->withInput($request->only('username', 'email'));
     }
 
     /**
