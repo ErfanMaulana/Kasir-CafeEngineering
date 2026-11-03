@@ -179,7 +179,7 @@
 
             <div class="mt-4 flex items-baseline justify-between">
                 <span class="text-sm font-medium text-blue-200">Total yang harus dibayar</span>
-                <span class="text-3xl font-black text-white">
+                <span class="text-2xl font-black text-white">
                     Rp {{ number_format($cartTotal, 0, ',', '.') }}
                 </span>
             </div>

@@ -31,6 +31,15 @@
         .product-card { transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease; }
         .product-card:hover { transform: translateY(-3px); box-shadow: 0 12px 28px -6px rgba(4, 21, 98, 0.12); }
         .category-tab { transition: all 0.2s ease; }
+        @media (max-width: 639px) {
+            .category-tabs-scroll {
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+            }
+            .category-tabs-scroll::-webkit-scrollbar {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen bg-[#EEEEEE] text-slate-800 antialiased pb-28 lg:pb-12">
@@ -56,9 +65,9 @@
                 <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
                 <span>Antrean: ~3-5 Menit</span>
             </div>
-            <a href="{{ route('admin.dashboard') }}" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-600 hover:border-royal hover:text-royal transition">
+            {{-- <a href="{{ route('admin.dashboard') }}" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-600 hover:border-royal hover:text-royal transition">
                 Portal Kasir/KDS
-            </a>
+            </a> --}}
         </div>
     </div>
 </header>
@@ -110,7 +119,7 @@
                 </div>
 
                 {{-- FILTER TABS KATEGORI DINAMIS --}}
-                <div class="flex items-center gap-2 overflow-x-auto pb-1 pt-1 no-scrollbar">
+                <div class="category-tabs-scroll flex touch-pan-x items-center gap-2 overflow-x-auto pb-1 pt-1">
                     <button type="button" data-filter="all"
                             class="category-tab whitespace-nowrap rounded-full bg-royal px-5 py-2.5 text-xs font-bold text-white shadow-xs">
                         Semua Menu
@@ -180,9 +189,9 @@
                                     </div>
 
                                     {{-- AREA BAWAH (HARGA & TOMBOL TAMBAH) --}}
-                                    <div class="flex items-center justify-between gap-2 mt-auto pt-2 border-t border-slate-50">
-                                        <div class="min-w-0">
-                                            <p class="font-extrabold text-slate-900 text-sm lg:text-base whitespace-nowrap">
+                                    <div class="mt-auto flex w-full items-center justify-between gap-1 border-t border-slate-50 pt-2">
+                                        <div class="min-w-0 overflow-hidden">
+                                            <p class="truncate whitespace-nowrap font-extrabold text-slate-900 text-sm lg:text-base">
                                                 Rp {{ number_format($product->price, 0, ',', '.') }}
                                             </p>
                                         </div>
@@ -190,8 +199,11 @@
                                         <form method="POST" action="{{ route('cart.add', $product->id) }}" class="add-cart-form shrink-0" data-product-id="{{ $product->id }}">
                                             @csrf
                                             <button type="submit"
-                                                    class="bg-[#DA1212] hover:bg-red-700 text-white font-medium text-xs lg:text-sm px-3 py-1.5 rounded-lg transition-colors shrink-0 whitespace-nowrap active:scale-95 shadow-xs">
-                                                <span>+ Tambah</span>
+                                                    class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#DA1212] p-0 text-center font-medium text-white transition-colors active:scale-95 shadow-xs hover:bg-red-700 sm:h-auto sm:w-auto sm:rounded-lg sm:px-3 sm:py-1.5 sm:text-xs lg:text-sm">
+                                                <svg class="h-4 w-4 sm:hidden" viewBox="0 0 16 16" aria-hidden="true">
+                                                    <path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                                </svg>
+                                                <span class="hidden sm:inline">+ Tambah</span>
                                             </button>
                                         </form>
                                     </div>
@@ -359,7 +371,7 @@
                 <button type="submit" id="detail-submit-btn"
                         class="flex items-center gap-2 rounded-xl bg-vibrant px-5 py-3 text-xs sm:text-sm font-black text-white shadow-md hover:bg-red-700 active:scale-95 transition">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-                    <span>+ Tambah ke Keranjang</span>
+                    <span>Tambah ke Keranjang</span>
                 </button>
             </form>
         </div>
@@ -623,7 +635,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     // Tampilkan notifikasi toast SweetAlert2
                     if (typeof showToast === 'function') {
-                        showToast('✓ Berhasil ditambahkan ke keranjang!');
+                        showToast('Berhasil ditambahkan ke keranjang!');
                     }
                 } else {
                     form.submit();
