@@ -55,7 +55,7 @@ class AdminLoginController extends Controller
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
 
-            return redirect()->intended(route('admin.dashboard'))
+            return redirect('/admin/dashboard')
                 ->with('success', 'Selamat Datang Kembali, Admin!');
         }
 
@@ -74,6 +74,6 @@ class AdminLoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('admin.login');
+        return redirect('/admin/login');
     }
 }

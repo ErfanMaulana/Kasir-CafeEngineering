@@ -143,7 +143,7 @@
                 <p class="text-[10px] text-blue-200">Fakultas Teknik</p>
             </div>
         </div>
-        <form method="POST" action="{{ route('admin.logout') }}">
+        <form method="POST" action="{{ route('admin.logout', absolute: false) }}">
             @csrf
             <button
                 type="submit"

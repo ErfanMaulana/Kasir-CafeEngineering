@@ -26,9 +26,12 @@ Route::controller(GuestOrderController::class)->group(function (): void {
 });
 
 // ─── Admin Auth Routes (Public) ───────────────────────────────────────────────
-Route::get('/login', fn () => redirect()->route('admin.login'))->name('login');
+Route::get('/login', fn () => redirect('/admin/login'))->name('login');
 
 Route::prefix('admin')->name('admin.')->group(function (): void {
+    Route::get('/', fn () => redirect('/admin/login'))
+        ->name('index')
+        ->middleware('guest');
     Route::get('/login', [AdminLoginController::class, 'showLoginForm'])
         ->name('login')
         ->middleware('guest');
@@ -41,9 +44,7 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
 
 // ─── Admin & Staff Panel Routes (Protected) ───────────────────────────────────
 Route::middleware('auth')->group(function (): void {
-
     Route::prefix('admin')->name('admin.')->controller(AdminController::class)->group(function (): void {
-        Route::get('/', 'dashboard')->name('index');
         Route::get('/dashboard', 'dashboard')->name('dashboard');
 
         // Kitchen Display System (KDS)

@@ -142,7 +142,7 @@
             @endif
 
             {{-- Form Login --}}
-            <form method="POST" action="{{ route('admin.login') }}" class="space-y-5">
+            <form method="POST" action="{{ request()->getPathInfo() }}" class="space-y-5">
                 @csrf
 
                 {{-- Field 1: Username / E-mail Address --}}
@@ -161,7 +161,7 @@
                             id="username"
                             name="username"
                             value="{{ old('username', old('email')) }}"
-                            placeholder="admin@engineeringcafe.unsil.ac.id"
+                            placeholder="masukkan email anda"
                             autocomplete="username"
                             required
                             class="input-underline w-full rounded-xl border border-slate-200 bg-slate-50/70 py-3 pl-10 pr-4 text-sm font-semibold text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none @error('username') border-rose-300 bg-rose-50/50 @enderror"

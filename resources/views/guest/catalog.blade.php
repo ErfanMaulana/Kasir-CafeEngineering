@@ -121,7 +121,7 @@
                 {{-- FILTER TABS KATEGORI DINAMIS --}}
                 <div class="category-tabs-scroll flex touch-pan-x items-center gap-2 overflow-x-auto pb-1 pt-1">
                     <button type="button" data-filter="all"
-                            class="category-tab whitespace-nowrap rounded-full bg-royal px-5 py-2.5 text-xs font-bold text-white shadow-xs">
+                            class="category-tab active whitespace-nowrap rounded-full bg-royal px-5 py-2.5 text-xs font-bold text-white shadow-xs">
                         Semua Menu
                     </button>
                     @foreach ($categories as $category)
@@ -148,6 +148,7 @@
                                     $qty = (int) ($cart[(string)$product->id]['quantity'] ?? 0);
                                 @endphp
                                 <article class="product-card bg-white rounded-2xl p-3 lg:p-4 border border-slate-100 shadow-sm flex flex-col justify-between h-full"
+                                         data-category="{{ $category->slug }}"
                                          data-name="{{ strtolower($product->name . ' ' . $product->description . ' ' . ($product->ingredients ?? '')) }}">
                                     
                                     {{-- GAMBAR PRODUK (KLIK UNTUK MODAL DETAIL) --}}
@@ -196,7 +197,7 @@
                                             </p>
                                         </div>
 
-                                        <form method="POST" action="{{ route('cart.add', $product->id) }}" class="add-cart-form shrink-0" data-product-id="{{ $product->id }}">
+                                        <form method="POST" action="{{ route('cart.add', $product->id, absolute: false) }}" class="add-cart-form shrink-0" data-product-id="{{ $product->id }}">
                                             @csrf
                                             <button type="submit"
                                                     class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#DA1212] p-0 text-center font-medium text-white transition-colors active:scale-95 shadow-xs hover:bg-red-700 sm:h-auto sm:w-auto sm:rounded-lg sm:px-3 sm:py-1.5 sm:text-xs lg:text-sm">
@@ -391,7 +392,7 @@
                 'price_formatted' => 'Rp ' . number_format($p->price, 0, ',', '.'),
                 'image_url' => $p->image_url,
                 'is_available' => (bool) $p->is_available,
-                'add_url' => route('cart.add', $p->id),
+                'add_url' => route('cart.add', $p->id, absolute: false),
             ];
         });
     })->keyBy('id');
@@ -492,37 +493,42 @@ window.addEventListener('keydown', (e) => {
 document.addEventListener('DOMContentLoaded', () => {
     const tabs = document.querySelectorAll('.category-tab');
     const sections = document.querySelectorAll('.category-section');
+    const cards = document.querySelectorAll('.product-card');
     const search = document.getElementById('product-search');
+    let activeCategory = 'all';
 
     // 1. Filter Kategori & Search
     function filterMenu() {
-        const activeTab = document.querySelector('.category-tab.bg-royal')?.dataset.filter || 'all';
         const query = (search?.value || '').toLowerCase().trim();
+        const visibleSections = new Set();
+
+        cards.forEach(card => {
+            const name = (card.dataset.name || '').toLowerCase();
+            const category = (card.dataset.category || '').toLowerCase();
+            const matchesSearch = name.includes(query);
+            const matchesCategory = activeCategory === 'all' || category === activeCategory;
+            const visible = matchesSearch && matchesCategory;
+
+            card.classList.toggle('hidden', !visible);
+            if (visible) {
+                visibleSections.add(card.closest('.category-section'));
+            }
+        });
 
         sections.forEach(section => {
-            const sectionCategory = section.dataset.category;
-            const categoryMatch = (activeTab === 'all' || sectionCategory === activeTab);
-            const cards = section.querySelectorAll('.product-card');
-            let hasVisibleCards = false;
-
-            cards.forEach(card => {
-                const text = card.dataset.name || '';
-                const searchMatch = !query || text.includes(query);
-                const visible = categoryMatch && searchMatch;
-                card.style.display = visible ? 'flex' : 'none';
-                if (visible) hasVisibleCards = true;
-            });
-
-            section.style.display = hasVisibleCards ? 'block' : 'none';
+            section.classList.toggle('hidden', !visibleSections.has(section));
         });
     }
 
     tabs.forEach(tab => {
         tab.addEventListener('click', () => {
+            activeCategory = (tab.dataset.filter || 'all').toLowerCase();
             tabs.forEach(t => {
-                t.className = 'category-tab whitespace-nowrap rounded-full bg-white px-5 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-100 hover:text-navy shadow-xs border border-slate-100';
+                t.classList.remove('active', 'bg-royal', 'text-white');
+                t.classList.add('bg-white', 'text-slate-600', 'border', 'border-slate-100');
             });
-            tab.className = 'category-tab whitespace-nowrap rounded-full bg-royal px-5 py-2.5 text-xs font-bold text-white shadow-xs';
+            tab.classList.add('active', 'bg-royal', 'text-white');
+            tab.classList.remove('bg-white', 'text-slate-600', 'border-slate-100');
             filterMenu();
         });
     });

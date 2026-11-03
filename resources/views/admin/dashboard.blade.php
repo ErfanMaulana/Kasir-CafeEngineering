@@ -5,7 +5,7 @@
 @section('page_title', 'Dashboard Penjualan')
 
 @push('head')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js" onerror="window.chartJsUnavailable = true"></script>
 @endpush
 
 @section('content')
@@ -277,57 +277,129 @@ document.addEventListener('DOMContentLoaded', () => {
         const labels = Object.values(hourlyData).map(item => item.hour);
         const counts = Object.values(hourlyData).map(item => item.count);
 
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Jumlah Pesanan',
-                    data: counts,
-                    backgroundColor: '#11468F',
-                    hoverBackgroundColor: '#041562',
-                    borderRadius: 8,
-                    borderSkipped: false,
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: '#041562',
-                        titleFont: { family: 'Plus Jakarta Sans', weight: 'bold' },
-                        bodyFont: { family: 'Plus Jakarta Sans' },
-                        padding: 10,
-                        cornerRadius: 8,
-                        callbacks: {
-                            label: function(context) {
-                                const count = context.raw || 0;
-                                return ` ${count} Pesanan Masuk`;
+        const renderFallbackChart = () => {
+            const canvas = ctx;
+            const container = canvas.parentElement;
+            const width = Math.max(container.clientWidth, 320);
+            const height = Math.max(container.clientHeight, 250);
+            const ratio = window.devicePixelRatio || 1;
+            const padding = { top: 16, right: 12, bottom: 34, left: 28 };
+            const maxCount = Math.max(...counts, 1);
+            const context = canvas.getContext('2d');
+
+            if (!context) {
+                return;
+            }
+
+            canvas.width = width * ratio;
+            canvas.height = height * ratio;
+            canvas.style.width = `${width}px`;
+            canvas.style.height = `${height}px`;
+            context.setTransform(ratio, 0, 0, ratio, 0, 0);
+            context.clearRect(0, 0, width, height);
+
+            const chartWidth = width - padding.left - padding.right;
+            const chartHeight = height - padding.top - padding.bottom;
+            const step = chartWidth / counts.length;
+            const barWidth = Math.max(step * 0.6, 8);
+
+            context.font = '10px "Plus Jakarta Sans", sans-serif';
+            context.textAlign = 'center';
+            context.textBaseline = 'top';
+            context.strokeStyle = '#e2e8f0';
+            context.fillStyle = '#64748b';
+            context.lineWidth = 1;
+
+            [0, maxCount].forEach(value => {
+                const y = padding.top + chartHeight - (value / maxCount) * chartHeight;
+                context.beginPath();
+                context.moveTo(padding.left, y);
+                context.lineTo(width - padding.right, y);
+                context.stroke();
+                context.textAlign = 'right';
+                context.fillText(value, padding.left - 8, y - 5);
+            });
+
+            counts.forEach((count, index) => {
+                const barHeight = (count / maxCount) * chartHeight;
+                const x = padding.left + index * step + (step - barWidth) / 2;
+                const y = padding.top + chartHeight - barHeight;
+
+                context.fillStyle = '#11468F';
+                context.beginPath();
+                context.roundRect(x, y, barWidth, barHeight, 6);
+                context.fill();
+
+                if (index % 2 === 0 || counts.length <= 7) {
+                    context.fillStyle = '#64748b';
+                    context.textAlign = 'center';
+                    context.fillText(labels[index], x + barWidth / 2, height - padding.bottom + 12);
+                }
+            });
+        };
+
+        if (typeof Chart === 'undefined' || window.chartJsUnavailable) {
+            renderFallbackChart();
+            window.addEventListener('resize', renderFallbackChart);
+            return;
+        }
+
+        try {
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Jumlah Pesanan',
+                        data: counts,
+                        backgroundColor: '#11468F',
+                        hoverBackgroundColor: '#041562',
+                        borderRadius: 8,
+                        borderSkipped: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#041562',
+                            titleFont: { family: 'Plus Jakarta Sans', weight: 'bold' },
+                            bodyFont: { family: 'Plus Jakarta Sans' },
+                            padding: 10,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: function(context) {
+                                    const count = context.raw || 0;
+                                    return ` ${count} Pesanan Masuk`;
+                                }
                             }
                         }
-                    }
-                },
-                scales: {
-                    x: {
-                        grid: { display: false },
-                        ticks: {
-                            font: { family: 'Plus Jakarta Sans', size: 9, weight: '600' },
-                            color: '#64748b',
-                            maxRotation: 0,
-                            autoSkip: true,
-                            maxTicksLimit: 7
-                        }
                     },
-                    y: {
-                        beginAtZero: true,
-                        grid: { color: '#f1f5f9' },
-                        ticks: { stepSize: 1, font: { family: 'Plus Jakarta Sans', size: 10 }, color: '#64748b' }
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                font: { family: 'Plus Jakarta Sans', size: 9, weight: '600' },
+                                color: '#64748b',
+                                maxRotation: 0,
+                                autoSkip: true,
+                                maxTicksLimit: 7
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#f1f5f9' },
+                            ticks: { stepSize: 1, font: { family: 'Plus Jakarta Sans', size: 10 }, color: '#64748b' }
+                        }
                     }
                 }
-            }
-        });
+            });
+        } catch (error) {
+            console.warn('Chart.js gagal dirender, menggunakan grafik fallback.', error);
+            renderFallbackChart();
+        }
     }
 });
 </script>

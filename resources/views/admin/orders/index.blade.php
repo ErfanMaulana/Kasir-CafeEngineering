@@ -205,8 +205,8 @@
                         <td class="px-4 py-4 whitespace-nowrap">
                             @php
                                 $payBadge = match($order->payment_status) {
-                                    'paid'    => ['bg-emerald-50 text-emerald-700 border border-emerald-200', '✓ Lunas'],
-                                    'failed'  => ['bg-rose-50 text-rose-700 border border-rose-200', '✗ Gagal'],
+                                    'paid'    => ['bg-emerald-50 text-emerald-700 border border-emerald-200', 'Lunas'],
+                                    'failed'  => ['bg-rose-50 text-rose-700 border border-rose-200', 'Gagal'],
                                     default   => ['bg-amber-50 text-amber-700 border border-amber-200', 'Belum Bayar'],
                                 };
                             @endphp
@@ -219,11 +219,11 @@
                         <td class="px-4 py-4 whitespace-nowrap">
                             @php
                                 $orderBadge = match($order->order_status) {
-                                    'pending'    => ['bg-amber-50 text-amber-700 border border-amber-200',  '⏳ Pending'],
-                                    'preparing'  => ['bg-blue-50 text-blue-700 border border-blue-200',    '👨‍🍳 Diproses'],
-                                    'ready'      => ['bg-teal-50 text-teal-700 border border-teal-200',    '✅ Siap'],
-                                    'completed'  => ['bg-emerald-50 text-emerald-700 border border-emerald-200', '✓ Selesai'],
-                                    'cancelled'  => ['bg-rose-50 text-rose-700 border border-rose-200',    '✗ Dibatalkan'],
+                                    'pending'    => ['bg-amber-50 text-amber-700 border border-amber-200',  'Pending'],
+                                    'preparing'  => ['bg-blue-50 text-blue-700 border border-blue-200',    'Diproses'],
+                                    'ready'      => ['bg-teal-50 text-teal-700 border border-teal-200',    'Siap'],
+                                    'completed'  => ['bg-emerald-50 text-emerald-700 border border-emerald-200', 'Selesai'],
+                                    'cancelled'  => ['bg-rose-50 text-rose-700 border border-rose-200',    'Dibatalkan'],
                                     default      => ['bg-slate-100 text-slate-500 border border-slate-200', $order->order_status],
                                 };
                             @endphp
