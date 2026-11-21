@@ -6,6 +6,23 @@
 
 @push('head')
 <meta http-equiv="refresh" content="15">
+<style>
+    @keyframes kdsSoftPulse {
+        0%, 100% {
+            box-shadow: 0 0 0 0 rgba(218, 18, 18, 0.55);
+            transform: scale(1);
+        }
+        50% {
+            box-shadow: 0 0 0 10px rgba(218, 18, 18, 0);
+            transform: scale(1.02);
+        }
+    }
+    .kds-new-ticket-pulse {
+        animation: kdsSoftPulse 1.25s ease-in-out infinite;
+        outline: 3px solid #DA1212 !important;
+        outline-offset: 2px;
+    }
+</style>
 @endpush
 
 @section('content')
@@ -21,6 +38,14 @@
     </div>
 
     <div class="flex items-center gap-2">
+        {{-- Tombol Toggle Suara Notifikasi Pesanan Baru --}}
+        <button id="kds-sound-toggle-btn" type="button" onclick="toggleKdsSound()"
+                class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold transition shadow-xs hover:bg-slate-50"
+                title="Aktifkan / Matikan Notifikasi Suara Pesanan Baru">
+            <span id="kds-sound-icon">🔔</span>
+            <span id="kds-sound-text">Suara Aktif</span>
+        </button>
+
         {{-- Jam Digital Realtime --}}
         <div class="flex items-center gap-2 font-mono font-bold text-slate-700 bg-white px-3 py-1.5 rounded-lg border border-slate-200 text-sm">
             <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
@@ -91,7 +116,7 @@
             {{-- DAFTAR KARTU PESANAN --}}
             <div class="space-y-3.5 flex-1">
                 @forelse ($orders->where('order_status', $status) as $order)
-                    <article class="rounded-2xl border-t-8 {{ $border }} bg-white p-4 shadow-sm hover:shadow-md transition">
+                    <article id="order-card-{{ $order->id }}" data-order-id="{{ $order->id }}" class="rounded-2xl border-t-8 {{ $border }} bg-white p-4 shadow-sm hover:shadow-md transition">
                         <div class="flex items-start justify-between gap-3">
                             <div>
                                 <p class="text-4xl font-black text-navy tracking-tight">{{ $order->queue_number }}</p>
@@ -196,6 +221,168 @@
     setTimeout(updateClock, 1000);
 })();
 
+// ==========================================
+// 1. MANAJEMEN NOTIFIKASI SUARA (WEB AUDIO API)
+// ==========================================
+let kdsAudioCtx = null;
+
+function getKdsAudioContext() {
+    if (!kdsAudioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) {
+            kdsAudioCtx = new AudioContextClass();
+        }
+    }
+    if (kdsAudioCtx && kdsAudioCtx.state === 'suspended') {
+        kdsAudioCtx.resume();
+    }
+    return kdsAudioCtx;
+}
+
+// Efek suara Bell/Ding Kasir Cafe (harmoni kristal 3-nada)
+function playKitchenDing() {
+    try {
+        const ctx = getKdsAudioContext();
+        if (!ctx) return;
+
+        const now = ctx.currentTime;
+
+        // Nada 1: Bell fundamental (830Hz - G#5)
+        const osc1 = ctx.createOscillator();
+        const gain1 = ctx.createGain();
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(830, now);
+        gain1.gain.setValueAtTime(0.35, now);
+        gain1.gain.exponentialRampToValueAtTime(0.0001, now + 0.9);
+        osc1.connect(gain1);
+        gain1.connect(ctx.destination);
+        osc1.start(now);
+        osc1.stop(now + 0.9);
+
+        // Nada 2: Bell overtone (1046.5Hz - C6)
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.type = 'triangle';
+        osc2.frequency.setValueAtTime(1046.5, now + 0.08);
+        gain2.gain.setValueAtTime(0.28, now + 0.08);
+        gain2.gain.exponentialRampToValueAtTime(0.0001, now + 1.2);
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        osc2.start(now + 0.08);
+        osc2.stop(now + 1.2);
+
+        // Nada 3: Chime resonansi tinggi (1318.5Hz - E6)
+        const osc3 = ctx.createOscillator();
+        const gain3 = ctx.createGain();
+        osc3.type = 'sine';
+        osc3.frequency.setValueAtTime(1318.5, now + 0.16);
+        gain3.gain.setValueAtTime(0.22, now + 0.16);
+        gain3.gain.exponentialRampToValueAtTime(0.0001, now + 1.5);
+        osc3.connect(gain3);
+        gain3.connect(ctx.destination);
+        osc3.start(now + 0.16);
+        osc3.stop(now + 1.5);
+    } catch (err) {
+        console.warn('Gagal memutar audio alert KDS:', err);
+    }
+}
+
+// ==========================================
+// 2. TOGGLE MUTE / UNMUTE DI LOCALSTORAGE
+// ==========================================
+function isKdsSoundEnabled() {
+    const saved = localStorage.getItem('kds_sound_enabled');
+    return saved === null ? true : saved === 'true';
+}
+
+function updateSoundToggleButtonUI(enabled) {
+    const btn = document.getElementById('kds-sound-toggle-btn');
+    const icon = document.getElementById('kds-sound-icon');
+    const text = document.getElementById('kds-sound-text');
+    if (!btn || !icon || !text) return;
+
+    if (enabled) {
+        icon.textContent = '🔔';
+        text.textContent = 'Suara Aktif';
+        btn.className = 'inline-flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800 hover:bg-emerald-100 transition shadow-xs';
+    } else {
+        icon.textContent = '🔕';
+        text.textContent = 'Suara Mati';
+        btn.className = 'inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-500 hover:bg-slate-200 transition shadow-xs';
+    }
+}
+
+function toggleKdsSound() {
+    const current = isKdsSoundEnabled();
+    const newState = !current;
+    localStorage.setItem('kds_sound_enabled', String(newState));
+    updateSoundToggleButtonUI(newState);
+
+    // Aktifkan AudioContext browser & bunyikan preview 1 kali saat di-unmute
+    if (newState) {
+        playKitchenDing();
+    }
+}
+
+// Inisialisasi tampilan tombol suara dari localStorage
+updateSoundToggleButtonUI(isKdsSoundEnabled());
+
+// ==========================================
+// 3. DETEKSI TIKET PESANAN BARU (MENUNGGU)
+// ==========================================
+(function checkNewPendingOrders() {
+    const currentPendingIds = @json($orders->where('order_status', 'pending')->pluck('id')->values());
+    const storageKey = 'kds_pending_order_ids';
+    const rawStored = localStorage.getItem(storageKey);
+
+    if (rawStored !== null) {
+        try {
+            const previousIds = JSON.parse(rawStored);
+            if (Array.isArray(previousIds)) {
+                // Cari ID pesanan baru yang belum tercatat sebelumnya
+                const newOrderIds = currentPendingIds.filter(id => !previousIds.includes(id));
+
+                if (newOrderIds.length > 0) {
+                    // Putar efek lonceng kasir jika suara aktif
+                    if (isKdsSoundEnabled()) {
+                        playKitchenDing();
+                    }
+
+                    // Berikan efek highlight pulse selama 5 detik pada kartu pesanan baru
+                    newOrderIds.forEach(id => {
+                        const card = document.getElementById(`order-card-${id}`);
+                        if (card) {
+                            card.classList.add('kds-new-ticket-pulse');
+
+                            // Tambahkan penanda badge pesanan baru masuk
+                            const badge = document.createElement('div');
+                            badge.id = `new-badge-${id}`;
+                            badge.className = 'mb-2 inline-flex items-center gap-1 rounded-full bg-red-100 border border-red-300 px-2.5 py-0.5 text-[11px] font-black text-red-700 animate-pulse';
+                            badge.innerHTML = '<span>🔔</span> PESANAN BARU MASUK!';
+                            card.insertBefore(badge, card.firstChild);
+
+                            // Hilangkan animasi pulse & badge setelah 5 detik
+                            setTimeout(() => {
+                                card.classList.remove('kds-new-ticket-pulse');
+                                const badgeEl = document.getElementById(`new-badge-${id}`);
+                                if (badgeEl) badgeEl.remove();
+                            }, 5000);
+                        }
+                    });
+                }
+            }
+        } catch (e) {
+            console.warn('Gagal membaca kds_pending_order_ids dari storage:', e);
+        }
+    }
+
+    // Selalu perbarui cache daftar ID pesanan berstatus 'Menunggu' yang ada saat ini
+    localStorage.setItem(storageKey, JSON.stringify(currentPendingIds));
+})();
+
+// ==========================================
+// 4. PEMANGGILAN SUARA PELANGGAN (TEXT-TO-SPEECH)
+// ==========================================
 document.querySelectorAll('.announce-button').forEach(btn => btn.addEventListener('click', () => {
     const name = btn.dataset.name;
     const queue = btn.dataset.queue;
