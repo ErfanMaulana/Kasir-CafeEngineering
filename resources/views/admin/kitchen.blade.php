@@ -9,17 +9,18 @@
 <style>
     @keyframes kdsSoftPulse {
         0%, 100% {
-            box-shadow: 0 0 0 0 rgba(218, 18, 18, 0.55);
+            box-shadow: 0 0 0 0 rgba(218, 18, 18, 0.65);
+            outline: 3px solid #DA1212;
             transform: scale(1);
         }
         50% {
-            box-shadow: 0 0 0 10px rgba(218, 18, 18, 0);
+            box-shadow: 0 0 0 12px rgba(245, 158, 11, 0.35);
+            outline: 3px solid #F59E0B;
             transform: scale(1.02);
         }
     }
     .kds-new-ticket-pulse {
-        animation: kdsSoftPulse 1.25s ease-in-out infinite;
-        outline: 3px solid #DA1212 !important;
+        animation: kdsSoftPulse 1.2s ease-in-out infinite;
         outline-offset: 2px;
     }
 </style>
@@ -44,6 +45,14 @@
                 title="Aktifkan / Matikan Notifikasi Suara Pesanan Baru">
             <span id="kds-sound-icon">🔔</span>
             <span id="kds-sound-text">Suara Aktif</span>
+        </button>
+
+        {{-- Tombol Tes Suara & Izin Audio Browser --}}
+        <button id="kds-sound-test-btn" type="button" onclick="testKdsAudioAlert()"
+                class="inline-flex items-center gap-1 rounded-xl border border-blue-200 bg-blue-50 px-2.5 py-1.5 text-xs font-bold text-royal hover:bg-blue-100 active:scale-95 transition shadow-xs"
+                title="Klik untuk mengizinkan audio browser & menguji suara chime dan pengumuman pesanan">
+            <span>🔊</span>
+            <span>Tes Suara</span>
         </button>
 
         {{-- Jam Digital Realtime --}}
@@ -222,7 +231,7 @@
 })();
 
 // ==========================================
-// 1. MANAJEMEN NOTIFIKASI SUARA (WEB AUDIO API)
+// 1. MANAJEMEN NOTIFIKASI SUARA (WEB AUDIO API & SPEECH)
 // ==========================================
 let kdsAudioCtx = null;
 
@@ -287,8 +296,20 @@ function playKitchenDing() {
     }
 }
 
+// Pengumuman suara berbasis Web Speech API (bahasa Indonesia)
+function speakKdsAnnouncement(text) {
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'id-ID';
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
+        window.speechSynthesis.speak(utterance);
+    }
+}
+
 // ==========================================
-// 2. TOGGLE MUTE / UNMUTE DI LOCALSTORAGE
+// 2. TOGGLE MUTE / UNMUTE DI LOCALSTORAGE & TES SUARA
 // ==========================================
 function isKdsSoundEnabled() {
     const saved = localStorage.getItem('kds_sound_enabled');
@@ -320,7 +341,38 @@ function toggleKdsSound() {
 
     // Aktifkan AudioContext browser & bunyikan preview 1 kali saat di-unmute
     if (newState) {
+        getKdsAudioContext();
         playKitchenDing();
+    }
+}
+
+// Tombol Tes Suara (mengaktifkan izin browser audio autoplay & uji suara lonceng + pengumuman)
+function testKdsAudioAlert() {
+    getKdsAudioContext();
+    if (!isKdsSoundEnabled()) {
+        localStorage.setItem('kds_sound_enabled', 'true');
+        updateSoundToggleButtonUI(true);
+    }
+    playKitchenDing();
+    setTimeout(() => {
+        speakKdsAnnouncement('Tes suara berhasil! Sistem notifikasi pesanan dapur aktif.');
+    }, 600);
+
+    if (typeof Swal !== 'undefined') {
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3500,
+            timerProgressBar: true,
+            customClass: {
+                popup: 'rounded-2xl shadow-xl text-sm font-semibold',
+            },
+        });
+        Toast.fire({
+            icon: 'success',
+            title: '🔊 Tes Suara & Izin Audio Browser Aktif!',
+        });
     }
 }
 
@@ -330,8 +382,20 @@ updateSoundToggleButtonUI(isKdsSoundEnabled());
 // ==========================================
 // 3. DETEKSI TIKET PESANAN BARU (MENUNGGU)
 // ==========================================
+@php
+    $pendingOrdersList = $orders->where('order_status', 'pending')->map(function ($o) {
+        return [
+            'id' => $o->id,
+            'queue_number' => $o->queue_number,
+            'customer_name' => $o->customer_name,
+        ];
+    })->values();
+@endphp
+
 (function checkNewPendingOrders() {
-    const currentPendingIds = @json($orders->where('order_status', 'pending')->pluck('id')->values());
+    const currentPendingOrders = @json($pendingOrdersList);
+
+    const currentPendingIds = currentPendingOrders.map(o => o.id);
     const storageKey = 'kds_pending_order_ids';
     const rawStored = localStorage.getItem(storageKey);
 
@@ -339,24 +403,52 @@ updateSoundToggleButtonUI(isKdsSoundEnabled());
         try {
             const previousIds = JSON.parse(rawStored);
             if (Array.isArray(previousIds)) {
-                // Cari ID pesanan baru yang belum tercatat sebelumnya
-                const newOrderIds = currentPendingIds.filter(id => !previousIds.includes(id));
+                // Cari pesanan baru yang belum tercatat sebelumnya
+                const newOrders = currentPendingOrders.filter(o => !previousIds.includes(o.id));
 
-                if (newOrderIds.length > 0) {
-                    // Putar efek lonceng kasir jika suara aktif
+                if (newOrders.length > 0) {
                     if (isKdsSoundEnabled()) {
+                        // Step 1: Putar nada chime/bell
                         playKitchenDing();
+
+                        // Step 2: Ucapkan kalimat pengumuman suara
+                        const queueNames = newOrders.map(o => o.queue_number).join(', ');
+                        const speechText = newOrders.length === 1
+                            ? `Pesanan masuk! Nomor antrean ${newOrders[0].queue_number}`
+                            : `Pesanan masuk! Nomor antrean ${queueNames}`;
+
+                        setTimeout(() => {
+                            speakKdsAnnouncement(speechText);
+                        }, 700);
+
+                        // Tampilkan SweetAlert2 Toast ringan di pojok layar
+                        if (typeof Swal !== 'undefined') {
+                            const Toast = Swal.mixin({
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 5000,
+                                timerProgressBar: true,
+                                customClass: {
+                                    popup: 'rounded-2xl shadow-xl text-sm font-semibold',
+                                },
+                            });
+                            Toast.fire({
+                                icon: 'warning',
+                                title: `🔔 Pesanan Baru: ${queueNames}`,
+                            });
+                        }
                     }
 
-                    // Berikan efek highlight pulse selama 5 detik pada kartu pesanan baru
-                    newOrderIds.forEach(id => {
-                        const card = document.getElementById(`order-card-${id}`);
+                    // Step 3: Berikan efek highlight pulse & badge selama 5 detik pada kartu tiket baru
+                    newOrders.forEach(order => {
+                        const card = document.getElementById(`order-card-${order.id}`);
                         if (card) {
                             card.classList.add('kds-new-ticket-pulse');
 
                             // Tambahkan penanda badge pesanan baru masuk
                             const badge = document.createElement('div');
-                            badge.id = `new-badge-${id}`;
+                            badge.id = `new-badge-${order.id}`;
                             badge.className = 'mb-2 inline-flex items-center gap-1 rounded-full bg-red-100 border border-red-300 px-2.5 py-0.5 text-[11px] font-black text-red-700 animate-pulse';
                             badge.innerHTML = '<span>🔔</span> PESANAN BARU MASUK!';
                             card.insertBefore(badge, card.firstChild);
@@ -364,7 +456,7 @@ updateSoundToggleButtonUI(isKdsSoundEnabled());
                             // Hilangkan animasi pulse & badge setelah 5 detik
                             setTimeout(() => {
                                 card.classList.remove('kds-new-ticket-pulse');
-                                const badgeEl = document.getElementById(`new-badge-${id}`);
+                                const badgeEl = document.getElementById(`new-badge-${order.id}`);
                                 if (badgeEl) badgeEl.remove();
                             }, 5000);
                         }
