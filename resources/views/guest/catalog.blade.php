@@ -40,6 +40,27 @@
                 display: none;
             }
         }
+
+        /* Custom Thin Scrollbar untuk Widget Keranjang */
+        .cart-scrollbar::-webkit-scrollbar {
+            width: 5px;
+        }
+        .cart-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        .cart-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 10px;
+        }
+        .cart-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.45);
+        }
+        /* Dukungan Firefox */
+        .cart-scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.25) rgba(255, 255, 255, 0.05);
+        }
     </style>
 </head>
 <body class="min-h-screen bg-[#EEEEEE] text-slate-800 antialiased pb-28 lg:pb-12">
@@ -247,7 +268,7 @@
 
         {{-- SIDEBAR DESKTOP KERANJANG CEPAT --}}
         <aside class="hidden lg:block">
-            <div class="sticky top-20 rounded-3xl bg-navy p-6 text-white shadow-2xl">
+            <div class="sticky top-6 rounded-3xl bg-navy p-6 text-white shadow-2xl">
                 <div class="flex items-center justify-between">
                     <div>
                         <span class="text-[10px] font-bold uppercase tracking-widest text-blue-200">Pesanan Aktif</span>
@@ -258,9 +279,9 @@
                     </span>
                 </div>
 
-                <div id="quick-cart-list" class="my-5 max-h-[380px] space-y-3.5 overflow-y-auto pr-1 border-y border-white/10 py-4">
+                <div id="quick-cart-list" class="my-4 max-h-[280px] space-y-3 overflow-y-auto cart-scrollbar pr-2.5 border-y border-white/10 py-3.5">
                     @forelse ($cart as $productId => $item)
-                        <div class="flex items-start justify-between gap-2 text-xs">
+                        <div class="flex items-start justify-between gap-3 text-xs">
                             <div class="min-w-0 flex-1">
                                 <p class="font-bold text-white truncate">{{ $item['name'] }}</p>
                                 <p class="text-[11px] text-blue-200">
@@ -615,7 +636,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let html = '';
         items.forEach(item => {
             html += `
-                <div class="flex items-start justify-between gap-2 text-xs">
+                <div class="flex items-start justify-between gap-3 text-xs">
                     <div class="min-w-0 flex-1">
                         <p class="font-bold text-white truncate">${escapeHtml(item.name)}</p>
                         <p class="text-[11px] text-blue-200">

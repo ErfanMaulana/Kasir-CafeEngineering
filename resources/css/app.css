@@ -28,3 +28,24 @@ input[type=number] {
     appearance: textfield;
 }
 
+/* Custom Thin Scrollbar untuk Widget Keranjang */
+.cart-scrollbar::-webkit-scrollbar {
+    width: 5px;
+}
+.cart-scrollbar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+.cart-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 10px;
+}
+.cart-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.45);
+}
+/* Dukungan Firefox */
+.cart-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.25) rgba(255, 255, 255, 0.05);
+}
+
