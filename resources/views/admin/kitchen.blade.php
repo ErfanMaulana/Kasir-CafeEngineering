@@ -23,6 +23,26 @@
         animation: kdsSoftPulse 1.2s ease-in-out infinite;
         outline-offset: 2px;
     }
+
+    /* Custom Scrollbar Ramping untuk Daftar Item Kartu Tiket */
+    .kds-item-scroll::-webkit-scrollbar {
+        width: 4px;
+    }
+    .kds-item-scroll::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 8px;
+    }
+    .kds-item-scroll::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 8px;
+    }
+    .kds-item-scroll::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+    .kds-item-scroll {
+        scrollbar-width: thin;
+        scrollbar-color: #cbd5e1 #f1f5f9;
+    }
 </style>
 @endpush
 
@@ -136,27 +156,26 @@
                             </span>
                         </div>
 
-                        {{-- DAFTAR ITEM --}}
-                        <ul class="my-3 space-y-2 border-y border-slate-100 py-3 text-xs">
+                        {{-- DAFTAR ITEM (Maksimal 5 baris terlihat, selebihnya scrollable) --}}
+                        <div class="max-h-[138px] overflow-y-auto kds-item-scroll pr-2 space-y-1.5 my-3 border-y border-slate-100 py-2 text-xs">
                             @foreach ($order->items as $item)
-                                <li>
-                                    <div class="flex justify-between gap-2">
-                                        <span class="font-medium text-slate-800">
-                                            <b class="text-royal font-black mr-1">{{ $item->quantity }}x</b>
-                                            {{ $item->product->name ?? 'Menu Produk' }}
+                                <div>
+                                    <div class="flex items-center justify-between text-xs">
+                                        <span class="text-slate-700 truncate pr-2">
+                                            <strong class="text-royal font-black mr-1">{{ $item->quantity }}x</strong> {{ $item->product->name ?? 'Menu Produk' }}
                                         </span>
-                                        <span class="font-bold text-navy shrink-0">
+                                        <span class="font-semibold text-slate-800 shrink-0">
                                             Rp {{ number_format($item->subtotal, 0, ',', '.') }}
                                         </span>
                                     </div>
                                     @if (!empty($item->notes))
-                                        <div class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-2 py-1 mt-1 flex items-center gap-1 font-medium">
+                                        <div class="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-2 py-0.5 mt-1 flex items-center gap-1 font-medium">
                                             <span>📝 Catatan: {{ $item->notes }}</span>
                                         </div>
                                     @endif
-                                </li>
+                                </div>
                             @endforeach
-                        </ul>
+                        </div>
 
                         {{-- TOMBOL TINDAKAN 1-KLIK --}}
                         @if ($status !== 'completed')

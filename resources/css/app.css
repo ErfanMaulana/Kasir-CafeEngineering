@@ -49,3 +49,23 @@ input[type=number] {
     scrollbar-color: rgba(255, 255, 255, 0.25) rgba(255, 255, 255, 0.05);
 }
 
+/* Custom Scrollbar Ramping untuk Daftar Item Kartu Tiket KDS */
+.kds-item-scroll::-webkit-scrollbar {
+    width: 4px;
+}
+.kds-item-scroll::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 8px;
+}
+.kds-item-scroll::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 8px;
+}
+.kds-item-scroll::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+.kds-item-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
