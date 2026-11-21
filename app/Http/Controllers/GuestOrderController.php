@@ -21,7 +21,7 @@ class GuestOrderController extends Controller
     {
         $categories = Category::query()
             ->with(['products' => function ($query): void {
-                $query->where('is_available', true)->orderBy('name');
+                $query->orderByDesc('is_available')->orderBy('name');
             }])
             ->orderBy('name')
             ->get();
@@ -43,8 +43,32 @@ class GuestOrderController extends Controller
         $product = Product::query()->findOrFail($id);
         abort_unless($product->is_available, 404, 'Produk sedang tidak tersedia.');
 
+        if ($product->daily_stock !== null && $product->daily_stock <= 0) {
+            if ($request->expectsJson() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Maaf, porsi harian menu '{$product->name}' sudah habis.",
+                ], 422);
+            }
+
+            return back()->with('error', "Maaf, porsi harian menu '{$product->name}' sudah habis.");
+        }
+
         $cart = session('cart', []);
         $productId = (string) $product->getKey();
+        $currentQty = isset($cart[$productId]) ? (int) $cart[$productId]['quantity'] : 0;
+
+        if ($product->daily_stock !== null && ($currentQty + 1) > $product->daily_stock) {
+            $msg = "Kuota porsi harian menu '{$product->name}' tidak mencukupi (tersisa {$product->daily_stock} porsi).";
+            if ($request->expectsJson() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $msg,
+                ], 422);
+            }
+
+            return back()->with('error', $msg);
+        }
 
         if (isset($cart[$productId])) {
             $cart[$productId]['quantity']++;
@@ -308,10 +332,29 @@ class GuestOrderController extends Controller
             $total = 0.0;
 
             foreach ($cart as $productId => $cartItem) {
-                $product = Product::query()->findOrFail($productId);
+                $product = Product::query()->lockForUpdate()->findOrFail($productId);
                 abort_unless($product->is_available, 422, "Menu '{$product->name}' sedang tidak tersedia.");
 
                 $quantity = max(1, (int) ($cartItem['quantity'] ?? 1));
+
+                // Pengurangan kuota porsi harian otomatis
+                if ($product->daily_stock !== null) {
+                    abort_if(
+                        $product->daily_stock < $quantity,
+                        422,
+                        "Maaf, porsi harian menu '{$product->name}' tidak mencukupi (tersisa {$product->daily_stock} porsi)."
+                    );
+
+                    $newStock = max(0, $product->daily_stock - $quantity);
+                    $product->daily_stock = $newStock;
+
+                    if ($newStock === 0) {
+                        $product->is_available = false;
+                    }
+
+                    $product->save();
+                }
+
                 $unitPrice = (float) $product->price;
                 $subtotal = $unitPrice * $quantity;
                 $total += $subtotal;

@@ -17,12 +17,14 @@ class Product extends Model
         'description',
         'ingredients',
         'price',
+        'daily_stock',
         'image',
         'is_available',
     ];
 
     protected $casts = [
         'price' => 'decimal:2',
+        'daily_stock' => 'integer',
         'is_available' => 'boolean',
     ];
 

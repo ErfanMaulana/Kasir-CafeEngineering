@@ -54,7 +54,28 @@
                                     </div>
                                 @endif
                                 <div>
-                                    <p class="font-black text-navy text-sm">{{ $product->name }}</p>
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <p class="font-black text-navy text-sm">{{ $product->name }}</p>
+                                        @if ($product->daily_stock !== null)
+                                            @if ($product->daily_stock <= 0)
+                                                <span class="rounded-full bg-slate-100 border border-slate-200 px-2 py-0.5 text-[10px] font-black text-slate-500">
+                                                    Habis (0 porsi)
+                                                </span>
+                                            @elseif ($product->daily_stock <= 5)
+                                                <span class="rounded-full bg-rose-50 border border-rose-200 px-2 py-0.5 text-[10px] font-black text-rose-700 animate-pulse">
+                                                    Sisa: {{ $product->daily_stock }} porsi
+                                                </span>
+                                            @else
+                                                <span class="rounded-full bg-amber-50 border border-amber-200 px-2 py-0.5 text-[10px] font-bold text-amber-800">
+                                                    Sisa: {{ $product->daily_stock }} porsi
+                                                </span>
+                                            @endif
+                                        @else
+                                            <span class="rounded-full bg-slate-50 border border-slate-200/60 px-2 py-0.5 text-[10px] font-medium text-slate-400">
+                                                Stok Unlimited
+                                            </span>
+                                        @endif
+                                    </div>
                                     <p class="max-w-xs truncate text-[11px] text-slate-400 font-medium">
                                         {{ $product->description ?: 'Tidak ada deskripsi tambahan.' }}
                                     </p>
@@ -135,7 +156,7 @@
                            class="mt-1.5 w-full rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs font-medium focus:border-royal focus:bg-white focus:outline-none focus:ring-1 focus:ring-royal">
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <label class="block font-bold text-slate-700">Kategori <span class="text-vibrant">*</span></label>
                         <select id="product-category" name="category_id" required
@@ -151,6 +172,15 @@
                         <input id="product-price" name="price" type="number" min="0" step="500" required placeholder="Contoh: 15000"
                                class="mt-1.5 w-full rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs font-medium focus:border-royal focus:bg-white focus:outline-none focus:ring-1 focus:ring-royal">
                     </div>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700">
+                        Kuota Porsi Harian <span class="text-slate-400 font-normal text-[11px]">(Kosongkan jika tanpa batas)</span>
+                    </label>
+                    <input id="product-daily-stock" name="daily_stock" type="number" min="0" placeholder="Contoh: 20 (opsional, kosongkan jika tanpa batas)"
+                           class="mt-1.5 w-full rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs font-medium focus:border-royal focus:bg-white focus:outline-none focus:ring-1 focus:ring-royal">
+                    <p class="mt-1 text-[11px] text-slate-400">Jika diisi, sistem otomatis memotong kuota saat checkout dan mengubah status menjadi 'Habis' ketika kuota mencapai 0.</p>
                 </div>
 
                 <div>
@@ -391,6 +421,7 @@ document.querySelector('[data-open-modal]').addEventListener('click', () => {
     document.getElementById('modal-title').textContent = 'Tambah Produk Menu';
     document.getElementById('method-field').value = '';
     document.getElementById('product-ingredients').value = '';
+    document.getElementById('product-daily-stock').value = '';
     form.action = "{{ route('admin.products.store') }}";
     openModal();
 });
@@ -405,6 +436,7 @@ document.querySelectorAll('[data-open-edit]').forEach(btn => btn.addEventListene
     document.getElementById('product-name').value = p.name;
     document.getElementById('product-category').value = p.category_id;
     document.getElementById('product-price').value = Math.round(p.price);
+    document.getElementById('product-daily-stock').value = (p.daily_stock !== null && p.daily_stock !== undefined) ? p.daily_stock : '';
     document.getElementById('product-description').value = p.description || '';
     document.getElementById('product-ingredients').value = p.ingredients || '';
     document.getElementById('product-available').checked = Boolean(p.is_available);

@@ -571,4 +571,91 @@ class CafeOrderingTest extends TestCase
         $response->assertRedirect(route('admin.login'));
         $this->assertGuest();
     }
+
+    public function test_admin_can_set_and_view_daily_stock_quota_for_products(): void
+    {
+        $admin = User::factory()->create();
+        $this->actingAs($admin);
+
+        $category = Category::query()->create([
+            'name' => 'Snack Porsi',
+            'slug' => 'snack-porsi',
+        ]);
+
+        $response = $this->post(route('admin.products.store'), [
+            'category_id' => $category->id,
+            'name' => 'Pisang Bakar Keju',
+            'price' => 12000,
+            'daily_stock' => 15,
+            'is_available' => '1',
+        ]);
+
+        $response->assertRedirect();
+        $product = Product::query()->where('name', 'Pisang Bakar Keju')->first();
+        $this->assertNotNull($product);
+        $this->assertSame(15, $product->daily_stock);
+
+        $indexResponse = $this->get(route('admin.products'));
+        $indexResponse->assertStatus(200);
+        $indexResponse->assertSee('Sisa: 15 porsi');
+    }
+
+    public function test_checkout_automatically_decrements_daily_stock_and_disables_product_when_depleted(): void
+    {
+        $category = Category::query()->create([
+            'name' => 'Kopi Porsi',
+            'slug' => 'kopi-porsi',
+        ]);
+
+        $product = Product::query()->create([
+            'category_id' => $category->id,
+            'name' => 'Cold Brew Signature',
+            'price' => 18000,
+            'daily_stock' => 2,
+            'is_available' => true,
+        ]);
+
+        // 1. Add to cart 2 items
+        $this->post(route('cart.add', $product->id));
+        $this->post(route('cart.add', $product->id));
+
+        // 2. Checkout
+        $checkoutResponse = $this->post(route('checkout.process'), [
+            'customer_name' => 'Rian Hidayat',
+            'order_type' => 'dine_in',
+            'table_number' => 'Meja 03',
+            'payment_method' => 'cash',
+        ]);
+
+        $checkoutResponse->assertRedirect();
+        $product->refresh();
+
+        // Kuota porsi harus menjadi 0 dan otomatis tidak tersedia
+        $this->assertSame(0, $product->daily_stock);
+        $this->assertFalse($product->is_available);
+
+        // 3. Tambah ke keranjang berikutnya harus ditolak karena stok habis
+        $failResponse = $this->post(route('cart.add', $product->id));
+        $this->assertTrue(in_array($failResponse->getStatusCode(), [404, 422, 302], true));
+    }
+
+    public function test_guest_catalog_displays_low_stock_warning_when_daily_stock_is_five_or_less(): void
+    {
+        $category = Category::query()->create([
+            'name' => 'Makanan Terbatas',
+            'slug' => 'makanan-terbatas',
+        ]);
+
+        Product::query()->create([
+            'category_id' => $category->id,
+            'name' => 'Nasi Goreng Wagyu',
+            'price' => 35000,
+            'daily_stock' => 3,
+            'is_available' => true,
+        ]);
+
+        $response = $this->get(route('catalog'));
+        $response->assertStatus(200);
+        $response->assertSee('Tersisa 3 porsi');
+    }
 }

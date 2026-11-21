@@ -187,6 +187,24 @@
                                             onclick="openDetailModal({{ $product->id }})" title="Klik untuk lihat detail & komposisi">
                                             {{ $product->name }}
                                         </h3>
+
+                                        @php
+                                            $isOutOfStock = ! $product->is_available || ($product->daily_stock !== null && $product->daily_stock <= 0);
+                                        @endphp
+
+                                        @if ($isOutOfStock)
+                                            <span class="mt-1 inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold text-slate-500 bg-slate-100 border border-slate-200 rounded-md px-1.5 py-0.5">
+                                                Habis
+                                            </span>
+                                        @elseif ($product->daily_stock !== null && $product->daily_stock <= 5)
+                                            <span class="mt-1 inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-extrabold text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-1.5 py-0.5 animate-pulse">
+                                                🔥 Tersisa {{ $product->daily_stock }} porsi
+                                            </span>
+                                        @elseif ($product->daily_stock !== null)
+                                            <span class="mt-1 inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-semibold text-slate-500 bg-slate-50 border border-slate-200/60 rounded-md px-1.5 py-0.5">
+                                                Sisa: {{ $product->daily_stock }} porsi
+                                            </span>
+                                        @endif
                                     </div>
 
                                     {{-- AREA BAWAH (HARGA & TOMBOL TAMBAH) --}}
@@ -197,16 +215,23 @@
                                             </p>
                                         </div>
 
-                                        <form method="POST" action="{{ route('cart.add', $product->id, absolute: false) }}" class="add-cart-form shrink-0" data-product-id="{{ $product->id }}">
-                                            @csrf
-                                            <button type="submit"
-                                                    class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#DA1212] p-0 text-center font-medium text-white transition-colors active:scale-95 shadow-xs hover:bg-red-700 sm:h-auto sm:w-auto sm:rounded-lg sm:px-3 sm:py-1.5 sm:text-xs lg:text-sm">
-                                                <svg class="h-4 w-4 sm:hidden" viewBox="0 0 16 16" aria-hidden="true">
-                                                    <path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                                                </svg>
-                                                <span class="hidden sm:inline">+ Tambah</span>
+                                        @if ($isOutOfStock)
+                                            <button type="button" disabled
+                                                    class="inline-flex h-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-400 border border-slate-200 cursor-not-allowed">
+                                                <span>Habis</span>
                                             </button>
-                                        </form>
+                                        @else
+                                            <form method="POST" action="{{ route('cart.add', $product->id, absolute: false) }}" class="add-cart-form shrink-0" data-product-id="{{ $product->id }}">
+                                                @csrf
+                                                <button type="submit"
+                                                        class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#DA1212] p-0 text-center font-medium text-white transition-colors active:scale-95 shadow-xs hover:bg-red-700 sm:h-auto sm:w-auto sm:rounded-lg sm:px-3 sm:py-1.5 sm:text-xs lg:text-sm">
+                                                    <svg class="h-4 w-4 sm:hidden" viewBox="0 0 16 16" aria-hidden="true">
+                                                        <path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                                    </svg>
+                                                    <span class="hidden sm:inline">+ Tambah</span>
+                                                </button>
+                                            </form>
+                                        @endif
                                     </div>
                                 </article>
                             @empty
@@ -392,6 +417,7 @@
                 'price_formatted' => 'Rp ' . number_format($p->price, 0, ',', '.'),
                 'image_url' => $p->image_url,
                 'is_available' => (bool) $p->is_available,
+                'daily_stock' => $p->daily_stock,
                 'add_url' => route('cart.add', $p->id, absolute: false),
             ];
         });
@@ -428,14 +454,36 @@ function openDetailModal(id) {
         fallbackEl.classList.remove('hidden');
     }
 
-    // Stock badge
+    // Stock badge & Tombol Tambah Modal
     const stockEl = document.getElementById('detail-stock');
-    if (p.is_available) {
-        stockEl.className = 'rounded-full bg-emerald-50 border border-emerald-200 px-3 py-1 text-xs font-bold text-emerald-700 flex items-center gap-1.5';
-        stockEl.innerHTML = '<span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span><span>Tersedia (In Stock)</span>';
-    } else {
+    const submitBtn = document.getElementById('detail-submit-btn');
+    const isOut = !p.is_available || (p.daily_stock !== null && p.daily_stock <= 0);
+
+    if (isOut) {
         stockEl.className = 'rounded-full bg-slate-100 border border-slate-200 px-3 py-1 text-xs font-bold text-slate-500 flex items-center gap-1.5';
         stockEl.innerHTML = '<span class="h-2 w-2 rounded-full bg-slate-400"></span><span>Habis (Out of Stock)</span>';
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.className = 'flex items-center gap-2 rounded-xl bg-slate-200 px-5 py-3 text-xs sm:text-sm font-bold text-slate-400 cursor-not-allowed';
+            submitBtn.innerHTML = '<span>Stok Habis</span>';
+        }
+    } else if (p.daily_stock !== null && p.daily_stock <= 5) {
+        stockEl.className = 'rounded-full bg-amber-50 border border-amber-300 px-3 py-1 text-xs font-bold text-amber-700 flex items-center gap-1.5';
+        stockEl.innerHTML = `<span class="h-2 w-2 rounded-full bg-amber-500 animate-ping"></span><span>Tersisa ${p.daily_stock} porsi (Segera Habis!)</span>`;
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.className = 'flex items-center gap-2 rounded-xl bg-vibrant px-5 py-3 text-xs sm:text-sm font-black text-white shadow-md hover:bg-red-700 active:scale-95 transition';
+            submitBtn.innerHTML = '<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg><span>Tambah ke Keranjang</span>';
+        }
+    } else {
+        stockEl.className = 'rounded-full bg-emerald-50 border border-emerald-200 px-3 py-1 text-xs font-bold text-emerald-700 flex items-center gap-1.5';
+        const stockLabel = p.daily_stock !== null ? `Tersisa ${p.daily_stock} porsi` : 'Tersedia (In Stock)';
+        stockEl.innerHTML = `<span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span><span>${stockLabel}</span>`;
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.className = 'flex items-center gap-2 rounded-xl bg-vibrant px-5 py-3 text-xs sm:text-sm font-black text-white shadow-md hover:bg-red-700 active:scale-95 transition';
+            submitBtn.innerHTML = '<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg><span>Tambah ke Keranjang</span>';
+        }
     }
 
     // Ingredients pills
