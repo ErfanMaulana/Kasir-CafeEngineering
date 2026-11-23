@@ -17,6 +17,7 @@ class Product extends Model
         'description',
         'ingredients',
         'price',
+        'cost_price',
         'daily_stock',
         'image',
         'is_available',
@@ -24,6 +25,7 @@ class Product extends Model
 
     protected $casts = [
         'price' => 'decimal:2',
+        'cost_price' => 'integer',
         'daily_stock' => 'integer',
         'is_available' => 'boolean',
     ];

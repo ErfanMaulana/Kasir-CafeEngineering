@@ -42,9 +42,31 @@ class OrderTransactionController extends Controller
             ->whereBetween('created_at', [$startDate, $endDate])
             ->where('order_status', '!=', 'cancelled');
 
+        if ($search !== '') {
+            $statsBase->where(function ($q) use ($search): void {
+                $q->where('queue_number', 'like', "%{$search}%")
+                    ->orWhere('customer_name', 'like', "%{$search}%");
+            });
+        }
+
         $totalRevenue = (float) (clone $statsBase)->sum('total_amount');
         $totalOrders = (int) (clone $statsBase)->count();
         $avgOrderValue = $totalOrders > 0 ? $totalRevenue / $totalOrders : 0.0;
+
+        $paidOrders = (clone $statsBase)
+            ->with('items')
+            ->where('payment_status', 'paid')
+            ->get();
+        $totalOmzet = (float) $paidOrders->sum('total_amount');
+        $totalModal = (float) $paidOrders->sum(
+            fn (Order $order): float => (float) $order->items->sum(
+                fn ($item): float => ((float) ($item->cost_price ?? 0)) * (int) $item->quantity
+            )
+        );
+        $totalKeuntungan = $totalOmzet - $totalModal;
+        $marginPersen = $totalOmzet > 0
+            ? round(($totalKeuntungan / $totalOmzet) * 100, 1)
+            : 0;
 
         $qrisCount = (int) (clone $statsBase)->where('payment_method', 'qris')->count();
         $cashCount = (int) (clone $statsBase)->where('payment_method', 'cash')->count();
@@ -61,6 +83,8 @@ class OrderTransactionController extends Controller
             'startDate' => $startDate,
             'endDate' => $endDate,
             'totalRevenue' => $totalRevenue,
+            'totalKeuntungan' => $totalKeuntungan,
+            'marginPersen' => $marginPersen,
             'totalOrders' => $totalOrders,
             'avgOrderValue' => $avgOrderValue,
             'qrisPct' => $qrisPct,
@@ -93,17 +117,29 @@ class OrderTransactionController extends Controller
 
         $orders = $query->get();
 
-        // --- Statistik Agregat ---
-        $statsBase = Order::query()
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->where('order_status', '!=', 'cancelled');
+        $orders->each(function (Order $order): void {
+            $order->total_hpp = (float) $order->items->sum(
+                fn ($item): float => ((float) ($item->cost_price ?? 0)) * (int) $item->quantity
+            );
+            $order->total_profit = (float) $order->total_amount - $order->total_hpp;
+        });
 
-        $totalRevenue = (float) (clone $statsBase)->sum('total_amount');
-        $totalOrders = (int) (clone $statsBase)->count();
+        // --- Statistik Agregat ---
+        $summaryOrders = $orders->filter(
+            fn (Order $order): bool => $order->order_status !== 'cancelled'
+        );
+
+        $totalRevenue = (float) $summaryOrders->sum('total_amount');
+        $totalHpp = (float) $summaryOrders->sum('total_hpp');
+        $totalKeuntungan = $totalRevenue - $totalHpp;
+        $marginPersen = $totalRevenue > 0
+            ? round(($totalKeuntungan / $totalRevenue) * 100, 1)
+            : 0.0;
+        $totalOrders = (int) $summaryOrders->count();
         $avgOrderValue = $totalOrders > 0 ? $totalRevenue / $totalOrders : 0.0;
 
-        $qrisCount = (int) (clone $statsBase)->where('payment_method', 'qris')->count();
-        $cashCount = (int) (clone $statsBase)->where('payment_method', 'cash')->count();
+        $qrisCount = (int) $summaryOrders->where('payment_method', 'qris')->count();
+        $cashCount = (int) $summaryOrders->where('payment_method', 'cash')->count();
         $paidCount = $qrisCount + $cashCount;
         $qrisPct = $paidCount > 0 ? round(($qrisCount / $paidCount) * 100) : 0;
         $cashPct = $paidCount > 0 ? (100 - $qrisPct) : 0;
@@ -127,6 +163,9 @@ class OrderTransactionController extends Controller
             'startDate' => $startDate,
             'endDate' => $endDate,
             'totalRevenue' => $totalRevenue,
+            'totalHpp' => $totalHpp,
+            'totalKeuntungan' => $totalKeuntungan,
+            'marginPersen' => $marginPersen,
             'totalOrders' => $totalOrders,
             'avgOrderValue' => $avgOrderValue,
             'qrisPct' => $qrisPct,

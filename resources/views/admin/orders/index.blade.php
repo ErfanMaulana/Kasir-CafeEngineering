@@ -56,8 +56,8 @@
     </div>
 </div>
 
-{{-- STATS CARDS (4 Kartu Ringkasan) --}}
-<div class="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+{{-- STATS CARDS (5 Kartu Ringkasan) --}}
+<div class="mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
 
     {{-- Total Omzet --}}
     <div class="stat-card rounded-2xl bg-white p-5 shadow-xs border border-slate-100">
@@ -78,6 +78,20 @@
                 </p>
             </div>
             <span class="text-2xl">💰</span>
+        </div>
+    </div>
+
+    {{-- Total Keuntungan --}}
+    <div class="stat-card rounded-2xl bg-white p-5 shadow-xs border border-slate-100">
+        <div class="flex items-start justify-between">
+            <div class="min-w-0">
+                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400">Total Keuntungan</p>
+                <p class="mt-1.5 text-xl xl:text-2xl font-black text-emerald-600 leading-tight break-words">
+                    {{ $totalKeuntungan < 0 ? '-Rp ' : 'Rp ' }}{{ number_format(abs($totalKeuntungan), 0, ',', '.') }}
+                </p>
+                <p class="mt-1 text-[11px] text-emerald-600">Margin: {{ number_format($marginPersen, 1, '.', '') }}%</p>
+            </div>
+            <span class="ml-2 shrink-0 text-2xl">📈</span>
         </div>
     </div>
 

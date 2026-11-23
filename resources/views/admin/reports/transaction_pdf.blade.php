@@ -75,7 +75,7 @@
             border: 1px solid #cbd5e1;
             padding: 8px 10px;
             border-radius: 6px;
-            width: 25%;
+            width: 33.33%;
         }
         .stats-label {
             font-size: 9px;
@@ -242,11 +242,25 @@
     {{-- KARTU STATISTIK AGREGAT --}}
     <table class="stats-table">
         <tr>
-            <td class="stats-card" style="margin-right: 5px;">
+            <td class="stats-card">
                 <p class="stats-label">Total Omzet</p>
                 <p class="stats-value" style="color: #041562;">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</p>
                 <p class="stats-sub">Pendapatan Bersih</p>
             </td>
+            <td class="stats-card">
+                <p class="stats-label">Total Modal (HPP)</p>
+                <p class="stats-value" style="color: #b45309;">Rp {{ number_format($totalHpp, 0, ',', '.') }}</p>
+                <p class="stats-sub">Biaya Produksi</p>
+            </td>
+            <td class="stats-card">
+                <p class="stats-label">Total Keuntungan</p>
+                <p class="stats-value" style="color: {{ $totalKeuntungan >= 0 ? '#15803d' : '#dc2626' }};">
+                    {{ $totalKeuntungan < 0 ? '-Rp ' : 'Rp ' }}{{ number_format(abs($totalKeuntungan), 0, ',', '.') }}
+                </p>
+                <p class="stats-sub">Margin: {{ number_format($marginPersen, 1, '.', '') }}%</p>
+            </td>
+        </tr>
+        <tr>
             <td class="stats-card">
                 <p class="stats-label">Total Pesanan</p>
                 <p class="stats-value" style="color: #11468F;">{{ $totalOrders }}</p>
@@ -269,14 +283,16 @@
     <table class="data-table">
         <thead>
             <tr>
-                <th style="width: 7%; text-align: center;">Antrean</th>
-                <th style="width: 14%;">Tanggal &amp; Waktu</th>
-                <th style="width: 13%;">Pelanggan</th>
-                <th style="width: 11%;">Tipe</th>
-                <th style="width: 27%;">Rincian Menu &amp; Catatan</th>
-                <th style="width: 9%; text-align: center;">Metode</th>
-                <th style="width: 9%; text-align: center;">Status</th>
-                <th style="width: 10%; text-align: right;">Total</th>
+                <th style="width: 6%; text-align: center;">Antrean</th>
+                <th style="width: 11%;">Tanggal &amp; Waktu</th>
+                <th style="width: 10%;">Pelanggan</th>
+                <th style="width: 8%;">Tipe</th>
+                <th style="width: 22%;">Rincian Menu &amp; Catatan</th>
+                <th style="width: 7%; text-align: center;">Metode</th>
+                <th style="width: 7%; text-align: center;">Status</th>
+                <th style="width: 9%; text-align: right;">Total</th>
+                <th style="width: 10%; text-align: right;">Modal (HPP)</th>
+                <th style="width: 10%; text-align: right;">Keuntungan</th>
             </tr>
         </thead>
         <tbody>
@@ -331,10 +347,16 @@
                     <td style="text-align: right; font-weight: bold; color: #041562;">
                         Rp {{ number_format($order->total_amount, 0, ',', '.') }}
                     </td>
+                    <td style="text-align: right; font-weight: bold; color: #b45309;">
+                        Rp {{ number_format($order->total_hpp, 0, ',', '.') }}
+                    </td>
+                    <td style="text-align: right; font-weight: bold; color: {{ $order->total_profit > 0 ? '#15803d' : ($order->total_profit < 0 ? '#dc2626' : '#64748b') }};">
+                        {{ $order->total_profit < 0 ? '-Rp ' : 'Rp ' }}{{ number_format(abs($order->total_profit), 0, ',', '.') }}
+                    </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="8" style="text-align: center; padding: 20px; color: #94a3b8;">
+                    <td colspan="10" style="text-align: center; padding: 20px; color: #94a3b8;">
                         Tidak ada catatan riwayat transaksi pada filter periode ini.
                     </td>
                 </tr>
@@ -347,7 +369,13 @@
                         Total Akumulasi Transaksi:
                     </td>
                     <td style="text-align: right; padding: 8px; font-size: 11px; color: #041562;">
-                        Rp {{ number_format($orders->sum('total_amount'), 0, ',', '.') }}
+                        Rp {{ number_format($totalRevenue, 0, ',', '.') }}
+                    </td>
+                    <td style="text-align: right; padding: 8px; font-size: 11px; color: #b45309;">
+                        Rp {{ number_format($totalHpp, 0, ',', '.') }}
+                    </td>
+                    <td style="text-align: right; padding: 8px; font-size: 11px; color: {{ $totalKeuntungan >= 0 ? '#15803d' : '#dc2626' }};">
+                        {{ $totalKeuntungan < 0 ? '-Rp ' : 'Rp ' }}{{ number_format(abs($totalKeuntungan), 0, ',', '.') }}
                     </td>
                 </tr>
             </tfoot>

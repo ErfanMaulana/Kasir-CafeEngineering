@@ -89,6 +89,7 @@ class ProductController extends Controller
             'description' => ['nullable', 'string', 'max:1000'],
             'ingredients' => ['nullable', 'string', 'max:2000'],
             'price' => ['required', 'numeric', 'min:0'],
+            'cost_price' => ['required', 'numeric', 'min:0'],
             'image' => ['nullable', 'string', 'max:255'],
             'is_available' => ['nullable', 'boolean'],
         ]);

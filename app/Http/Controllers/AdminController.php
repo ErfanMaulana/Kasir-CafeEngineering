@@ -338,6 +338,7 @@ class AdminController extends Controller
             'description' => ['nullable', 'string', 'max:1000'],
             'ingredients' => ['nullable', 'string', 'max:2000'],
             'price' => ['required', 'numeric', 'min:0'],
+            'cost_price' => ['required', 'numeric', 'min:0'],
             'daily_stock' => ['nullable', 'integer', 'min:0'],
             'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
             'is_available' => ['nullable', 'boolean'],

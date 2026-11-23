@@ -363,6 +363,7 @@ class GuestOrderController extends Controller
                     'product_id' => $product->getKey(),
                     'quantity' => $quantity,
                     'price' => $unitPrice,
+                    'cost_price' => (int) $product->cost_price,
                     'subtotal' => $subtotal,
                     'notes' => (string) ($cartItem['notes'] ?? ''),
                 ];

@@ -47,6 +47,7 @@ class CafeOrderingTest extends TestCase
             'category_id' => $category->id,
             'name' => 'Es Teh Manis',
             'price' => 5000,
+            'cost_price' => 3000,
             'is_available' => true,
         ]);
 
@@ -97,6 +98,7 @@ class CafeOrderingTest extends TestCase
         $this->assertSame(10000.0, (float) $order->total_amount);
         $this->assertSame('pending', $order->order_status);
         $this->assertSame('unpaid', $order->payment_status);
+        $this->assertSame(3000, (int) $order->items()->first()->cost_price);
 
         $processResponse->assertRedirect(route('order.status', $order->guest_token));
 
@@ -277,6 +279,7 @@ class CafeOrderingTest extends TestCase
             'category_id' => $category->id,
             'name' => 'Butter Croissant',
             'price' => 20000,
+            'cost_price' => 13000,
             'description' => 'Pastry mentega renyah dan gurih',
             'is_available' => '1',
             'image' => $fakeImage,
@@ -295,6 +298,7 @@ class CafeOrderingTest extends TestCase
             'category_id' => $category->id,
             'name' => 'Butter Croissant Premium',
             'price' => 22000,
+            'cost_price' => 14000,
             'description' => 'Pastry mentega impor Prancis',
             'is_available' => '1',
         ]);
@@ -310,6 +314,7 @@ class CafeOrderingTest extends TestCase
             'category_id' => $category->id,
             'name' => 'Butter Croissant Premium Gold',
             'price' => 25000,
+            'cost_price' => 15000,
             'description' => 'Edisi spesial',
             'is_available' => '1',
             'image' => $newImage,
@@ -484,6 +489,7 @@ class CafeOrderingTest extends TestCase
             'category_id' => $category->id,
             'name' => 'Kopi Susu Gula Aren',
             'price' => 18000,
+            'cost_price' => 8000,
             'is_available' => true,
         ]);
 
@@ -503,9 +509,16 @@ class CafeOrderingTest extends TestCase
             'product_id' => $product->id,
             'quantity' => 1,
             'price' => 18000,
+            'cost_price' => 8000,
             'subtotal' => 18000,
             'notes' => 'less sugar',
         ]);
+
+        $indexResponse = $this->get(route('admin.orders.index', ['period' => 'today']));
+        $indexResponse->assertOk();
+        $indexResponse->assertSee('Total Keuntungan');
+        $indexResponse->assertSee('Rp 10.000');
+        $indexResponse->assertSee('Margin: 55.6%');
 
         $response = $this->get(route('admin.orders.export-pdf', ['period' => 'today']));
         $response->assertStatus(200);
@@ -586,6 +599,7 @@ class CafeOrderingTest extends TestCase
             'category_id' => $category->id,
             'name' => 'Pisang Bakar Keju',
             'price' => 12000,
+            'cost_price' => 7000,
             'daily_stock' => 15,
             'is_available' => '1',
         ]);

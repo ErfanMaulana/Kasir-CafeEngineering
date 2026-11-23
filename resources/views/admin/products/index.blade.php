@@ -89,6 +89,21 @@
                         </td>
                         <td class="px-4 py-4 font-black text-navy text-sm">
                             Rp {{ number_format($product->price, 0, ',', '.') }}
+                            @php
+                                $costPrice = (int) $product->cost_price;
+                                $profit = (int) $product->price - $costPrice;
+                                $marginPercent = (int) $product->price > 0
+                                    ? round(($profit / (int) $product->price) * 100, 1)
+                                    : 0;
+                            @endphp
+                            <div class="mt-1 text-[10px] font-semibold leading-4 text-slate-500">
+                                Modal: Rp {{ number_format($costPrice, 0, ',', '.') }}
+                                <span class="text-slate-300">•</span>
+                                <span class="{{ $profit > 0 ? 'text-emerald-600' : ($profit < 0 ? 'text-red-600' : 'text-slate-500') }}">
+                                    Untung: {{ $profit < 0 ? '-' : '' }}Rp {{ number_format(abs($profit), 0, ',', '.') }}
+                                    ({{ $profit < 0 ? '-' : '' }}{{ number_format(abs($marginPercent), 1, '.', '') }}%)
+                                </span>
+                            </div>
                         </td>
                         <td class="px-4 py-4">
                             <button type="button" class="availability-toggle flex items-center gap-2 cursor-pointer w-full sm:w-auto"
@@ -156,21 +171,32 @@
                            class="mt-1.5 w-full rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs font-medium focus:border-royal focus:bg-white focus:outline-none focus:ring-1 focus:ring-royal">
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                        <label class="block font-bold text-slate-700">Kategori <span class="text-vibrant">*</span></label>
-                        <select id="product-category" name="category_id" required
-                                class="mt-1.5 w-full rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs font-medium focus:border-royal focus:bg-white focus:outline-none focus:ring-1 focus:ring-royal">
-                            @foreach ($categories as $category)
-                                <option value="{{ $category->id }}">{{ $category->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+                <div>
+                    <label class="block font-bold text-slate-700">Kategori <span class="text-vibrant">*</span></label>
+                    <select id="product-category" name="category_id" required
+                            class="mt-1.5 w-full rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs font-medium focus:border-royal focus:bg-white focus:outline-none focus:ring-1 focus:ring-royal">
+                        @foreach ($categories as $category)
+                            <option value="{{ $category->id }}">{{ $category->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
 
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
-                        <label class="block font-bold text-slate-700">Harga (Rp) <span class="text-vibrant">*</span></label>
-                        <input id="product-price" name="price" type="number" min="0" step="500" required placeholder="Contoh: 15000"
+                        <label class="block font-bold text-slate-700">HPP / Modal (Rp) <span class="text-vibrant">*</span></label>
+                        <input id="product-cost-price" name="cost_price" type="number" min="0" step="1" required placeholder="Contoh: 8000"
                                class="mt-1.5 w-full rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs font-medium focus:border-royal focus:bg-white focus:outline-none focus:ring-1 focus:ring-royal">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700">Harga Jual (Rp) <span class="text-vibrant">*</span></label>
+                        <input id="product-price" name="price" type="number" min="0" step="1" required placeholder="Contoh: 15000"
+                               class="mt-1.5 w-full rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs font-medium focus:border-royal focus:bg-white focus:outline-none focus:ring-1 focus:ring-royal">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700">Keuntungan (Otomatis)</label>
+                        <div id="product-profit" class="mt-1.5 flex min-h-[42px] w-full items-center rounded-2xl border border-slate-200 bg-slate-50 px-3 text-xs text-slate-500">
+                            Rp 0 (0.0%)
+                        </div>
                     </div>
                 </div>
 
@@ -328,6 +354,35 @@ const previewBadge = document.getElementById('preview-badge');
 const btnCancelImage = document.getElementById('btn-cancel-image');
 const dropZone = document.getElementById('drop-zone');
 
+const costPriceInput = document.getElementById('product-cost-price');
+const sellingPriceInput = document.getElementById('product-price');
+const profitDisplay = document.getElementById('product-profit');
+
+const formatRupiah = (value) => new Intl.NumberFormat('id-ID', {
+    maximumFractionDigits: 0
+}).format(Math.abs(value));
+
+const updateProfitCalculator = () => {
+    const costPrice = Number(costPriceInput.value) || 0;
+    const sellingPrice = Number(sellingPriceInput.value) || 0;
+    const profit = sellingPrice - costPrice;
+    const marginPercent = sellingPrice > 0 ? ((profit / sellingPrice) * 100).toFixed(1) : '0.0';
+
+    profitDisplay.textContent = `${profit < 0 ? '-' : ''}Rp ${formatRupiah(profit)} (${profit < 0 ? '-' : ''}${Math.abs(Number(marginPercent)).toFixed(1)}%)`;
+    profitDisplay.classList.remove('text-emerald-600', 'text-red-600', 'text-slate-500', 'font-semibold');
+
+    if (profit > 0) {
+        profitDisplay.classList.add('text-emerald-600', 'font-semibold');
+    } else if (profit < 0) {
+        profitDisplay.classList.add('text-red-600', 'font-semibold');
+    } else {
+        profitDisplay.classList.add('text-slate-500');
+    }
+};
+
+costPriceInput.addEventListener('input', updateProfitCalculator);
+sellingPriceInput.addEventListener('input', updateProfitCalculator);
+
 let currentProductImageUrl = null;
 
 const resetImageUpload = () => {
@@ -423,6 +478,7 @@ document.querySelector('[data-open-modal]').addEventListener('click', () => {
     document.getElementById('product-ingredients').value = '';
     document.getElementById('product-daily-stock').value = '';
     form.action = "{{ route('admin.products.store') }}";
+    updateProfitCalculator();
     openModal();
 });
 
@@ -435,6 +491,7 @@ document.querySelectorAll('[data-open-edit]').forEach(btn => btn.addEventListene
     form.action = `{{ url('/admin/products') }}/${p.id}`;
     document.getElementById('product-name').value = p.name;
     document.getElementById('product-category').value = p.category_id;
+    document.getElementById('product-cost-price').value = (p.cost_price !== null && p.cost_price !== undefined) ? p.cost_price : 0;
     document.getElementById('product-price').value = Math.round(p.price);
     document.getElementById('product-daily-stock').value = (p.daily_stock !== null && p.daily_stock !== undefined) ? p.daily_stock : '';
     document.getElementById('product-description').value = p.description || '';
@@ -444,6 +501,7 @@ document.querySelectorAll('[data-open-edit]').forEach(btn => btn.addEventListene
     currentProductImageUrl = p.image_url || (p.image ? (p.image.startsWith('http') ? p.image : `{{ asset('storage') }}/${p.image}`) : null);
     fileInput.value = '';
     showExistingImage(currentProductImageUrl);
+    updateProfitCalculator();
 
     openModal();
 }));
